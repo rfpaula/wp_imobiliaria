@@ -1,0 +1,50 @@
+
+# BEGIN Redireciona Site Anterior
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteBase /
+
+RewriteRule    imoveis\.php$  "/"  [NC,L,R=301,env=longexpiry:1]
+RewriteRule    casas\.php$  "/casas-compra-e-venda"  [NC,L,R=301,env=longexpiry:1]
+RewriteRule    chacaras\.php$  "/chacaras-compra-e-venda"  [NC,L,R=301,env=longexpiry:1]
+RewriteRule    sitios\.php$  "/sitios-compra-e-venda"  [NC,L,R=301,env=longexpiry:1]
+RewriteRule    terrenos\.php$  "/terrenos-compra-e-venda"  [NC,L,R=301,env=longexpiry:1]
+RewriteRule    variados\.php$  "/aluguel"  [NC,L,R=301,env=longexpiry:1]
+RewriteRule    casas_conteudo\.php$  "/casas-compra-e-venda"  [NC,L,R=301,env=longexpiry:1]
+RewriteRule    chacaras_conteudo\.php$  "/chacaras-compra-e-venda"  [NC,L,R=301,env=longexpiry:1]
+RewriteRule    sitios_conteudo\.php$  "/sitios-compra-e-venda"  [NC,L,R=301,env=longexpiry:1]
+RewriteRule    terrenos-conteudo\.php$  "/terrenos-compra-e-venda"  [NC,L,R=301,env=longexpiry:1]
+RewriteRule    variados_conteudo\.php$  "/aluguel"  [NC,L,R=301,env=longexpiry:1]
+RewriteRule    index\.php$  "/"  [NC,L,R=302,env=longexpiry:1]
+RewriteRule    guararema\.php$  "/"  [NC,L,R=302,env=longexpiry:1]
+RewriteRule    anuncie\.php$  "/"  [NC,L,R=302,env=longexpiry:1]
+RewriteRule    contato\.php$  "/"  [NC,L,R=302,env=longexpiry:1]
+
+RewriteCond %{QUERY_STRING} ^imovel=([^&]+) [NC]
+RewriteRule imoveis/casa/main\.php(.*)  /?widget_id=4&sf_select_property_type=7&sf_select_listing=9  [NC,L,R]
+#RewriteRule imoveis/casa/main\.php(.*)  /?widget_id=4&sf_text_ref_id=%1&sf_select_property_type=7  [NC,L,R]
+
+RewriteCond %{QUERY_STRING} ^imovel=([^&]+) [NC]
+RewriteRule imoveis/chacara/main\.php(.*)  /?widget_id=4&sf_select_property_type=15&sf_select_listing=9  [NC,L,R]
+#RewriteRule imoveis/chacara/main\.php(.*)  /?widget_id=4&sf_text_ref_id=%1&sf_select_property_type=15  [NC,L,R]
+
+RewriteCond %{QUERY_STRING} ^imovel=([^&]+) [NC]
+RewriteRule imoveis/sitios/main\.php(.*)  /?widget_id=4&sf_select_property_type=16&sf_select_listing=9  [NC,L,R]
+#RewriteRule imoveis/sitios/main\.php(.*)  /?widget_id=4&sf_text_ref_id=%1&sf_select_property_type=16  [NC,L,R]
+
+RewriteCond %{QUERY_STRING} ^imovel=([^&]+) [NC]
+RewriteRule imoveis/terreno/main\.php(.*)  /?widget_id=4&sf_select_property_type=14&sf_select_listing=9  [NC,L,R]
+#RewriteRule imoveis/terreno/main\.php(.*)  /?widget_id=4&sf_text_ref_id=%1&sf_select_property_type=14  [NC,L,R]
+
+RewriteCond %{QUERY_STRING} ^imovel=([^&]+) [NC]
+RewriteRule imoveis/variados/main\.php(.*)  /?widget_id=4&sf_select_listing=10  [NC,L,R]
+#RewriteRule imoveis/variados/main\.php(.*)  /?widget_id=4&sf_text_ref_id=%1&sf_select_listing=10  [NC,L,R]
+
+Header always set Cache-Control "max-age=86400" env=longexpiry
+</IfModule>
+
+# END Redireciona Site Anterior
+
+
+
+
