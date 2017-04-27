@@ -168,7 +168,7 @@ class wpl_users_controller extends wpl_controller
 		$this->property_types = wpl_property_types::get_property_types();
 		$this->memberships = wpl_users::get_wpl_memberships();
 		$this->membership_types = wpl_users::get_membership_types();
-		
+		$this->users =wpl_users::get_wpl_users();
 		parent::render($this->tpl_path, 'edit');
 		exit;
 	}
@@ -179,13 +179,13 @@ class wpl_users_controller extends wpl_controller
 		{
 			if(!wpl_global::check_addon('crm'))
 			{
-				echo __('CRM addon must be installed for this!', 'wpl');
+				echo __('The CRM Add-on must be installed for this feature!', 'wpl');
 				return;	
 			}
 		}
         elseif(!wpl_global::check_addon('membership')) /** checking PRO addon **/
 		{
-			echo __('Membership addon must be installed for this!', 'wpl');
+			echo __('The Membership Add-on must be installed for this feature!', 'wpl');
 			return;
 		}
         
@@ -230,7 +230,7 @@ class wpl_users_controller extends wpl_controller
 			}
 			
 			if(in_array($field, $restricted_fields) or !in_array($field, $columns)) continue;
-				
+			
 			$query .= "`".$field."`='" .$value. "', ";
 		}
 
@@ -245,11 +245,25 @@ class wpl_users_controller extends wpl_controller
 		
 		/** update user **/
 		wpl_db::q($query);
+        
+        // Renew the user if period is set to unlimited
+        if(isset($inputs['maccess_period']) and $inputs['maccess_period'] == '-1' and wpl_global::check_addon('membership'))
+        {
+            _wpl_import('libraries.addon_membership');
+            
+            $membership = new wpl_addon_membership();
+            $membership->renew($id);
+        }
+        
 		return true;
 	}
 	
 	private function save($table_name, $table_column, $value, $item_id)
 	{
+		$field_type = wpl_global::get_db_field_type($table_name, $table_column);
+		if($field_type == 'datetime' or $field_type == 'date') $value = wpl_render::derender_date($value);
+        else $value = wpl_db::escape($value);
+		
 		$res = wpl_db::set($table_name, $item_id, $table_column, $value, 'id');
 		
 		$res = (int) $res;
@@ -365,7 +379,7 @@ class wpl_users_controller extends wpl_controller
 			
 			if(!in_array($extention, $ext_array))
 			{
-				$error = __('File extension should be jpg, png or gif.', 'wpl');
+				$error = __('File extension should be .jpg, .png or .gif.', 'wpl');
 			}
 
 			if($error == '')

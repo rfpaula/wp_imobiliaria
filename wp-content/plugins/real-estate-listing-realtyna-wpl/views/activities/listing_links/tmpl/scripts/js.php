@@ -41,6 +41,8 @@ function wpl_report_abuse_submit()
 	var request_str = 'wpl_format=c:functions:ajax&wpl_function=report_abuse_submit&'+wplj('#wpl_report_abuse_form').serialize();
 	var ajax = wpl_run_ajax_query('<?php echo wpl_global::get_wp_url(); ?>', request_str, false, 'JSON', 'GET');
 	
+    wplj(message_path).html('<img src="<?php echo wpl_global::get_wpl_asset_url('img/ajax-loader3.gif'); ?>" />');
+    
 	ajax.success(function(data)
 	{
         if(data.success) wpl_show_messages(data.message, message_path, 'wpl_green_msg');
@@ -68,7 +70,9 @@ function wpl_send_to_friend_submit()
     var message_path = '.wpl_show_message';
     var request_str = 'wpl_format=c:functions:ajax&wpl_function=send_to_friend_submit&'+wplj('#wpl_send_to_friend_form').serialize();
     var ajax = wpl_run_ajax_query('<?php echo wpl_global::get_wp_url(); ?>', request_str, false, 'JSON', 'GET');
-
+    
+    wplj(message_path).html('<img src="<?php echo wpl_global::get_wpl_asset_url('img/ajax-loader3.gif'); ?>" />');
+    
     ajax.success(function(data)
     {
         if(data.success) wpl_show_messages(data.message, message_path, 'wpl_green_msg');
@@ -96,7 +100,9 @@ function wpl_request_a_visit_submit()
     var message_path = '.wpl_show_message';
     var request_str = 'wpl_format=c:functions:ajax&wpl_function=request_a_visit_submit&'+wplj('#wpl_request_a_visit_form').serialize();
     var ajax = wpl_run_ajax_query('<?php echo wpl_global::get_wp_url(); ?>', request_str, false, 'JSON', 'GET');
-
+    
+	wplj(message_path).html('<img src="<?php echo wpl_global::get_wpl_asset_url('img/ajax-loader3.gif'); ?>" />');
+    
     ajax.success(function(data)
     {
         if(data.success) wpl_show_messages(data.message, message_path, 'wpl_green_msg');

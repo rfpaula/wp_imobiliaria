@@ -100,7 +100,7 @@ $this->_wpl_import($this->tpl_path.'.scripts.js');
                 $this->wpl_properties['current'] = $property;
                 ?>
 
-                <div id="plist_main_div_<?php echo $property['data']['id']; ?>" class="propery-wp">
+                <div id="plist_main_div_<?php echo $property['data']['id']; ?>" class="propery-wp <?php if(wpl_users::check_access('multi_agents') and wpl_global::check_addon('multi_agents') and in_array($property['data']['kind'], array(0,1))) echo "propery-wp-multi-agent" ?>">
                     <div class="checkbox-wp">
                         <input class="js-pcheckbox" type="checkbox" id="<?php echo $property['data']['id']; ?>" />    
                     </div>
@@ -114,7 +114,7 @@ $this->_wpl_import($this->tpl_path.'.scripts.js');
                         <div class="property-detailes">
                             
                             <?php if(isset($property['property_title']) and trim($property['property_title'])): ?>
-							<span class="detail p-title"><span class="value"><?php echo $property['property_title']; ?></span></span>
+							<a class="detail p-title" href="<?php echo wpl_property::get_property_link('', $property['data']['id'], $listing_target_page); ?>"><span class="value"><?php echo $property['property_title']; ?></span></a>
                             <?php endif; ?>
                             
 							<?php if(trim($details_string) != ''): ?>

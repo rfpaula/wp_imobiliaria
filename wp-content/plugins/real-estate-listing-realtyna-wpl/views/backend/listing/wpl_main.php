@@ -17,12 +17,16 @@ class wpl_listing_controller extends wpl_controller
         
         // Create Nonce
         $this->nonce = wpl_security::create_nonce('wpl_listing');
+
+		// Property wizard layout: Horizontal or Vertical
+		$layout = wpl_global::get_setting('wpl_property_wizard_layout');
+		$this->Layout = trim($layout) ? $layout : 'vertical';
         
         /** check access **/
 		if(!wpl_users::check_access('propertywizard'))
 		{
 			/** import message tpl **/
-			$this->message = __("You don't have access to this part!", 'wpl');
+			$this->message = __("You don't have access to this menu! Maybe your user is not added to WPL as an agent. You can contact to website admin for this.", 'wpl');
 			return parent::render($this->tpl_path, 'message');
 		}
 		
@@ -32,7 +36,7 @@ class wpl_listing_controller extends wpl_controller
         if($this->kind == 1 and !wpl_users::check_access('complex_addon'))
         {
             /** import message tpl **/
-			$this->message = __("You don't have access to complexes.", 'wpl');
+			$this->message = __("You don't have access to complexes/condos. You can request access from website admin.", 'wpl');
 			parent::render($this->tpl_path, 'message');
             
             return false;
@@ -57,7 +61,7 @@ class wpl_listing_controller extends wpl_controller
                 
                 if($membership->is_expired())
                 {
-                    $this->message = __("Your membership is expired so you cannot add new listings.", 'wpl');
+                    $this->message = __("Your membership expired. You cannot add new listings.", 'wpl');
                     return parent::render($this->tpl_path, 'message');
                 }
             }

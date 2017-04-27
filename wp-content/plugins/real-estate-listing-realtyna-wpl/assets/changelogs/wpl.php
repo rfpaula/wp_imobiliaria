@@ -4,6 +4,43 @@ defined('_WPLEXEC') or die('Restricted access');
 ?>
 <div>
 	<div class="wpl_rev_container">
+        <h4>WPL3.3.1 (<span class="wpl_log_date">02/27/2017</span></h4>
+        -- Fixed some minor issues.<br />
+        
+        <h4>WPL3.3.0 (<span class="wpl_log_date">01/30/2017</span> <span class="wpl_log_revision">revision 2938</span>)</h4>
+        -- <strong>[PRO]</strong> Added advanced property types and listing types sort options.<br />
+        -- <strong>[PRO]</strong> Added "Horizontal Layout" for "Add/Edit Listing" menu.<br />
+        -- <strong>[PRO]</strong> Added customizable energy tag levels to energy tag activity.<br />
+        -- <strong>[PRO]</strong> Added Price Rebate feature.<br />
+        -- <strong>[PRO]</strong> Added a new view switcher for property listings and profile/agent listings views.<br />
+        -- <strong>[PRO]</strong> Added a new option to disable/enable mouse-over effect of images on listing pages.<br />
+        -- <strong>[PRO]</strong> Improved unit switcher widget.<br />
+        -- <strong>[PRO]</strong> Improved WPL update notification system.<br />
+        -- Added "Category Manager" feature in WPL Flex menu in order to add new data categories or manage existing categories.<br />
+        -- Added zip-code option in "Similar Properties" feature of carousel widget.<br />
+        -- Added "Advanced Location Text Search" method into location options of search widget.<br />
+        -- Added new widget area at the bottom of property listing page.<br />
+        -- Added property type specific and listing type specific options for separator fields.<br />
+        -- Added "Media Confirm" feature for enabling confirm icon on media tabs of Add/Edit listing.<br />
+        -- Added an ability to import sample properties into the WPL.<br />
+        -- Added boolean field to supported field types in search widget.<br />
+        -- Added ability to place WPL main page as a child page under a parent page.<br />
+        -- Added "Field Specific" feature to "Add/Edit Listing" and "Search Widget".<br />
+        -- Added ability to filter listings on carousel widget by location.<br />
+        -- Added ability to automatically convert area values to Acre and Hectare if the value is high.<br />
+        -- Added an option to change multiple marker icon.<br />
+        -- Improved WPL I/O.<br />
+        -- Improved UI and UX on mobile devices.<br />
+        -- Improved SEO on WPL views.<br />
+        -- Fixed some issues of send to friend feature.<br />
+        -- Fixed converting none WPL images to place-holders issue in notification manager menu.<br />
+        -- Fixed some issues on WPL PDF Flyer.<br />
+        -- Fixed location text search issue on profile/agent listing page.<br />
+        -- Fixed an issue for saving date fields in user profile menu.<br />
+        -- Fixed some issue on datetime field type.<br />
+        -- Fixed some English errors.<br />
+        -- Fixed issue of printing \" or \' in the notification emails.
+        
         <h4>WPL3.2.0 (<span class="wpl_log_date">07/11/2016</span> <span class="wpl_log_revision">revision 2450</span>)</h4>
         -- <strong>[PRO]</strong> Added clone feature for listings.<br />
         -- <strong>[PRO]</strong> Some enhancements for currency switcher such as compatibility with search widget.<br />
@@ -43,7 +80,7 @@ defined('_WPLEXEC') or die('Restricted access');
         -- <strong>[PRO]</strong> Added pagination for WPL sitemap feature.<br />
         -- <strong>[PRO]</strong> Added sitemap integrity with "Yoast SEO" and "All in one SEO pack" plugins.<br />
         -- <strong>[PRO]</strong> Added print feature for WPL listings page.<br />
-        -- <strong>[PRO]</strong> Added location auto suggest text fields of locations in Add/Edit listing menu.<br />
+        -- <strong>[PRO]</strong> Added location auto suggest for text fields of locations in Add/Edit listing menu.<br />
         -- <strong>[PRO]</strong> Added compare feature for comparing favorited listings.<br />
         -- <strong>[PRO]</strong> Fixed WPML language switcher.<br />
         -- Added an option for specifying Google Maps zoom-level for Add/Edit listing page.<br />

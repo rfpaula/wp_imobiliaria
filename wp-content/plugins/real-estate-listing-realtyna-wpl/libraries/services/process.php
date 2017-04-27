@@ -42,7 +42,7 @@ class wpl_service_process
                     $model = new wpl_property();
 					$used = $model->get_properties_count(" AND `user_id`='$current_user_id' AND `$table_column`='1'");
 					
-					if($used >= $user_limit and $user_limit != '-1') self::response(array('success'=>'0', 'message'=>'', 'data'=>'', 'js'=>"wplj(form_element_id).prop('checked', false); wpl_alert(\"".__('Your membership limit reached. contact to administrator if you want to upgrade!', 'wpl')."\");"));
+					if($used >= $user_limit and $user_limit != '-1') self::response(array('success'=>'0', 'message'=>'', 'data'=>'', 'js'=>"wplj(form_element_id).prop('checked', false); wpl_alert(\"".__('You have reached your membership limit. Contact administrator to upgrade!', 'wpl')."\");"));
 				}
 			}
 		}

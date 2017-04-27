@@ -2,6 +2,8 @@
 /** no direct access **/
 defined('_WPLEXEC') or die('Restricted access');
 
+_wpl_import('libraries.notifications.notifications');
+
 /**
  * The authentication command
  * @author Chris <chris@realtyna.com>
@@ -57,16 +59,6 @@ class wpl_io_cmd_authentication extends wpl_io_cmd_base
         $user = base64_decode($this->params['user']);
         $pass = base64_decode($this->params['pass']);
 
-        if(wpl_users::check_user_login())
-        {
-            $this->built['authentication'] = array(
-                'type'=>'login',
-                'status'=>true,
-                'uid'=>wpl_users::get_cur_user_id()
-            );
-            return $this->built;
-        }
-
         $remember = (array_key_exists('remember', $this->params)) ? $this->params['remember'] : false;
         $login_data = array(
             'user_login'=>$user,
@@ -105,10 +97,12 @@ class wpl_io_cmd_authentication extends wpl_io_cmd_base
      */
     private function register()
     {
+        $name = base64_decode($this->params['fullname']);
         $pass = base64_decode($this->params['pass']);
         $email = base64_decode($this->params['user_email']);
 
         $user_data = array(
+            'display_name'=>$name,
             'user_login'=>$email,
             'user_email'=>$email,
             'user_pass'=>$pass,
@@ -142,39 +136,30 @@ class wpl_io_cmd_authentication extends wpl_io_cmd_base
     private function forget_password()
     {
         $user = base64_decode($this->params['user']);
-        $error_array = array();
-        $error_array['authentication'] = array(
-            'type'=>'forget_password',
-            'status'=>'false'
-        );
+        $error_array = array('authentication' => array('type' => 'forget_password', 'status'=> false ));
 
         $db = wpl_db::get_DBO();
-        $user_login = wpl_db::sanitize($user);
+        $user_login = trim(wpl_db::sanitize($user));
 
-        if(trim($user_login) == '')
+        if($user_login == '')
         {
             return $error_array;
         }
         elseif(strpos($user_login, '@'))
         {
             $user_data = wpl_users::get_user_by('email', $user_login);
-            if(trim($user_data) == '')
-            {
-                return $error_array;
-            }
         }
         else
         {
-            $login = trim($user_login);
-            $user_data = wpl_users::get_user_by('login', $login);
+            $user_data = wpl_users::get_user_by('login', $user_login);
         }
 
-        do_action('lostpassword_post');
         if(!$user_data) return $error_array;
 
         $user_login = $user_data->user_login;
         $user_email = $user_data->user_email;
 
+        do_action('lostpassword_post');
         do_action('retreive_password', $user_login);
         do_action('retrieve_password', $user_login);
 
@@ -191,36 +176,44 @@ class wpl_io_cmd_authentication extends wpl_io_cmd_base
 
         wpl_db::update('users', array('user_activation_key'=>$hashed), 'user_login', $user_login);
 
-        $message = __('Someone requested that the password be reset for the following account:', 'wpl')."\r\n";
-        $message .= network_home_url('/')."\r\n";
-        $message .= sprintf(__('Username: %s', 'wpl'), $user_login)."\r\n";
-        $message .= __('If this was a mistake, just ignore this email and nothing will happen.', 'wpl')."\r\n";
-        $message .= __('To reset your password, visit the following address:', 'wpl')."\r\n";
-        $message .= '<'.network_site_url("wp-login.php?action=rp&key=$key&login=".rawurlencode($user_login), 'login').">\r\n";
-
-        if(is_multisite())
+        $is_membership_url = wpl_settings::get('membership_user_action_urls');
+        if($is_membership_url)
         {
-            $blogname = $GLOBALS['current_site']->site_name;
+            $parameters = array('user_activation_key'=>$hashed, 'user_id'=>$user_data->ID);
+            wpl_events::trigger('user_reset_password_request', $parameters);    
         }
         else
         {
-            $blogname = wp_specialchars_decode(get_option('blogname'),ENT_QUOTES);
+            $message = __('We received a password be reset request for the following account:', 'wpl')."\r\n";
+            $message .= network_home_url('/')."\r\n";
+            $message .= sprintf(__('Username: %s', 'wpl'), $user_login)."\r\n";
+            $message .= __('If you did not request this change, please ignore this email.', 'wpl')."\r\n";
+            $message .= __('To reset your password, please follow the link below:', 'wpl')."\r\n";
+            $message .= network_site_url("wp-login.php?action=rp&key=$key&login=".rawurlencode($user_login), 'login')."\r\n";
+
+            if(is_multisite())
+            {
+                $blogname = $GLOBALS['current_site']->site_name;
+            }
+            else
+            {
+                $blogname = wp_specialchars_decode(get_option('blogname'),ENT_QUOTES);
+            }
+
+            $sender = wpl_notifications::get_sender();
+            $from = is_array($sender) ? $sender[1] : $sender;
+            $title = sprintf(__('[%s] Password Reset', 'wpl'), $blogname);
+            $title = apply_filters('retrieve_password_title', $title);
+            $message = apply_filters('retrieve_password_message', $message, $key);
+            $headers = "From: {$from}\nContent-Type: text/html; charset=UTF-8\n";
+
+            if(($message) && (!wp_mail($user_email, $title, $message, $headers)))
+            {
+                return $error_array;
+            } 
         }
 
-        $title = sprintf(__('[%s] Password Reset', 'wpl'), $blogname);
-        $title = apply_filters('retrieve_password_title', $title);
-        $message = apply_filters('retrieve_password_message', $message, $key);
-
-        if(($message) && (!wp_mail($user_email, $title, $message)))
-        {
-            return $error_array;
-        }
-
-        $this->built['authentication'] = array(
-            'type'=>'forget_password',
-            'status'=>'true'
-        );
-        
+        $this->built['authentication'] = array('type' => 'forget_password', 'status' => true);
         return $this->built;
     }
 
@@ -239,7 +232,7 @@ class wpl_io_cmd_authentication extends wpl_io_cmd_base
         {
             if($this->params['setting_type'] == 'register')
             {
-                if(isset($this->params['user_email']) == false || isset($this->params['name']) == false || isset($this->params['pass']) == false)
+                if(isset($this->params['user_email']) == false || isset($this->params['fullname']) == false || isset($this->params['pass']) == false)
                 {
                     return false;
                 }

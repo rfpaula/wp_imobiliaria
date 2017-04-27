@@ -2,6 +2,8 @@
 /** no direct access **/
 defined('_WPLEXEC') or die('Restricted access');
 
+_wpl_import('libraries.addon_save_searches');
+
 /**
  * get map command
  * @author Chris <chris@realtyna.com>
@@ -17,7 +19,8 @@ class wpl_io_cmd_get_map extends wpl_io_cmd_base
     private $built;
     private $polygon;
     private $start = 0;
-    private $limit = 10;
+    private $limit = 1000;
+    private $methods = array("get_bubbles", "get_properties", "get_favorites", "get_savedsearches");
 
     /**
      * This method is the main method of each commands
@@ -64,56 +67,27 @@ class wpl_io_cmd_get_map extends wpl_io_cmd_base
             }
         }
 
+        if($this->params['method'] == 'get_favorites')
+        {
+            $uid = $this->params['uid'];
+            $pids = implode(',', wpl_addon_pro::favorite_get_pids(false, $uid));
+
+            if(!$pids)
+            {
+                $this->built['properties']['count'] = 0;
+                return $this->built;
+            }
+
+            $this->where['sf_multiple_id'] = $pids;
+            $this->params['method'] = 'get_properties';
+        }
+
         if($this->params['method'] == 'get_properties')
         {
             $model = new wpl_property();
             $this->where['sf_select_confirmed'] = '1';
             $this->where['sf_select_finalized'] = '1';
             $this->where['sf_select_deleted'] = '0';
-
-            $zoom = (int) (isset($this->params['zoomlevel']) ? $this->params['zoomlevel'] : 8);
-            if(isset($this->params['limit']) == false)
-            {
-                switch($zoom)
-                {
-                    case 8:
-                        $this->limit = 50;
-                        break;
-                    case 9:
-                        $this->limit = 70;
-                        break;
-                    case 10:
-                        $this->limit = 90;
-                        break;
-                    case 11:
-                        $this->limit = 110;
-                        break;
-                    case 12:
-                        $this->limit = 130;
-                        break;
-                    case 13:
-                        $this->limit = 150;
-                        break;
-                    case 14:
-                        $this->limit = 170;
-                        break;
-                    case 15:
-                        $this->limit = 190;
-                        break;
-                    case 16:
-                        $this->limit = 220;
-                        break;
-                    case 17:
-                        $this->limit = 550;
-                        break;
-                    case 18:
-                        $this->limit = 600;
-                        break;
-                    case 19:
-                        $this->limit = 650;
-                        break;
-                }
-            }
 
             $model->start($this->start, $this->limit, $this->order_by, $this->order, $this->where);
             $model->select = 'id,sp_featured,sp_hot,sp_openhouse,sp_forclosure,field_313,field_308,bedrooms,bathrooms,living_area,price,kind,location_text,googlemap_lt,googlemap_ln,listing';
@@ -158,6 +132,27 @@ class wpl_io_cmd_get_map extends wpl_io_cmd_base
                 }
             }
         }
+        elseif($this->params['method'] == 'get_savedsearches')
+        {
+            $savedsearches = array();
+
+            if(wpl_global::check_addon('save_searches'))
+            {
+                $uid = $this->params['uid'];
+                $model = new wpl_addon_save_searches($uid);
+                $searches = $model->get(0, $uid);
+
+                
+                foreach ($searches as $id => $search)
+                {
+                    $savedsearches[$id] = json_decode($search['criteria'], true);
+                    $savedsearches[$id]['id'] = $search['id'];
+                    $savedsearches[$id]['searchname'] = $search['name'];
+                } 
+            }
+
+            $this->built['savedsearches'] = $savedsearches;
+        }
         else
         {
             $results = $this->get_bubbles();
@@ -191,11 +186,11 @@ class wpl_io_cmd_get_map extends wpl_io_cmd_base
      */
     public function validate()
     {
-        if(trim($this->params['method']) == '' || trim($this->params['method']) != 'get_properties' && trim($this->params['method']) != 'get_bubbles')
-        {
+        if(trim($this->params['method']) == '' || !in_array($this->params['method'], $this->methods))
             return false;
-        }
-        
+        elseif(($this->params['method'] == 'get_favorites' or $this->params['method'] == 'get_savedsearches') and !$this->params['uid'])
+            return false;
+
         return true;
     }
 
@@ -323,32 +318,29 @@ class wpl_io_cmd_get_map extends wpl_io_cmd_base
      */
     private function create_property_show_section($property)
     {
+        $area_unit = wpl_units::get_default_unit(2)['name'];
+        
         $tags = array();
         if(!empty($property['sp_featured']) && $property['sp_featured'] != 0)
         {
-            array_push($tags, "Featured");
+            array_push($tags, __("Featured", 'wpl'));
         }
         
         if(!empty($property['sp_hot']) && $property['sp_hot'] != 0)
         {
-            array_push($tags, "Hot");
+            array_push($tags, __("Hot", 'wpl'));
         }
         
         if(!empty($property['sp_openhouse']) && $property['sp_openhouse'] != 0)
         {
-            array_push($tags, "OpenHouse");
+            array_push($tags, __("OpenHouse", 'wpl'));
         }
         
         if(!empty($property['sp_forclosure']) && $property['sp_forclosure'] != 0)
         {
-            array_push($tags, "Forclosure");
+            array_push($tags, __("Forclosure", 'wpl'));
         }
         
-        if(empty($tags) || count($tags) == 0)
-        {
-            array_push($tags, "Featured");
-        }
-
         return array(
             array(
                 'section_type'=>'header',
@@ -381,14 +373,14 @@ class wpl_io_cmd_get_map extends wpl_io_cmd_base
                         'weight'=>1,
                         'orientation'=>'horizontal',
                         'icon'=>'ic_locator',
-                        'text'=>empty($property['location_text']) ? 'No Address' : $property['location_text'], //address address of property
-                        'description'=>'' // descryption of property
+                        'text'=>empty($property['location_text']) ? '-' : $property['location_text'], //address address of property
+                        'description'=>'' // description of property
                     ),
                 )
             ),
             array(
                 'section_type'=>'share_content',
-                'content'=>'Property title\nhttp://rpl8.realtyna.com/123456/',
+                'content'=>$result['field_313'].'\n'.wpl_property::get_property_link($result),
             ),
             array(
                 'section_type'=>'info_box',
@@ -397,29 +389,24 @@ class wpl_io_cmd_get_map extends wpl_io_cmd_base
                         'weight'=>1,
                         'orientation'=>'vertical',
                         'icon'=>'ic_bedroom_dark',
-                        // 'text'=>'1234 Address Here',
-                        'description'=>$this->get_field($property, $property['bedrooms'])    //number of bedroom
+                        'description'=>$this->get_field($property, $property['bedrooms'])
                     ),
                     array(
                         'weight'=>1,
                         'orientation'=>'vertical',
                         'icon'=>'ic_bathroom_2',
-                        // 'text'=>'1234 Address Here',
-                        'description'=>$this->get_field($property, $property['bathrooms']) // number of bathroom
+                        'description'=>$this->get_field($property, $property['bathrooms'])
                     ),
                     array(
                         'weight'=>2,
                         'orientation'=>'vertical',
                         'icon'=>'ic_built_up_area',
-                        // 'text'=>'1234 Address Here',
-                        'description'=>$this->get_field($property, $property['living_area']).' sqft' // sqft
+                        'description'=>$this->get_field($property, $property['living_area']).' '.$area_unit
                     ),
                     array(
                         'weight'=>2,
                         'orientation'=>'vertical',
-                        // 'icon'=>'http://benjamin.realtyna.co.uk/u/ic_image.png',
-                        // 'text'=>'1234 Address Here',
-                        'description'=>$this->get_field($property, $property['price'], true) //price
+                        'description'=>$this->get_field($property, $property['price'], true)
                     ),
                 )
             ),
@@ -529,7 +516,7 @@ class wpl_io_cmd_get_map extends wpl_io_cmd_base
                     array(
                         'item_type'=>'text',
                         'position'=>'left',
-                        'text'=>empty($location) ? 'No Address' : $location //address
+                        'text'=>empty($location) ? '-' : $location //address
                     ),
                     array(
                         'item_type'=>'image',
@@ -584,7 +571,7 @@ class wpl_io_cmd_get_map extends wpl_io_cmd_base
                         'id'=>'2',
                         'item_type'=>'text',
                         'position'=>'left',
-                        'text'=>empty($location) ? 'No Address' : $location // address
+                        'text'=>empty($location) ? '-' : $location // address
                     ),
                     array(
                         'id'=>'3',

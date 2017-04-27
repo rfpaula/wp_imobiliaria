@@ -1,13 +1,13 @@
 <script type="text/javascript">
-    var _wplSearchCallbacks<?php echo $widget_id; ?> = [];
+    var _wplSearchCallbacks<?php echo $this->widget_id; ?> = [];
 
     wplj(document).ready(function () {
         <?php if($this->more_options_type): ?>
-        wplj(document).on('click','.wpl_search_from_box #more_search_option<?php echo $widget_id; ?>', function ()
+        wplj(document).on('click','.wpl_search_from_box #more_search_option<?php echo $this->widget_id; ?>', function ()
         {
-            var widget_id = <?php echo $widget_id; ?>;
+            var widget_id = <?php echo $this->widget_id; ?>;
 
-            wplj._realtyna.lightbox.open({'href':'#wpl_advanced_search<?php echo $widget_id; ?>'},
+            wplj._realtyna.lightbox.open({'href':'#wpl_advanced_search<?php echo $this->widget_id; ?>'},
             {
                 clearContent:false,
                 title: "<?php echo __('Advance Search', 'wpl'); ?>",
@@ -15,11 +15,11 @@
                 callbacks: {
                     beforeOpen: function()
                     {
-                        var html_simple = wplj('#wpl_default_search_<?php echo $widget_id; ?>').html();
-                        wplj('#wpl_default_search_<?php echo $widget_id; ?> form').remove();
-                        wplj('#wpl_form_override_search<?php echo $widget_id; ?>').html(html_simple);
+                        var html_simple = wplj('#wpl_default_search_<?php echo $this->widget_id; ?>').html();
+                        wplj('#wpl_default_search_<?php echo $this->widget_id; ?> form').remove();
+                        wplj('#wpl_form_override_search<?php echo $this->widget_id; ?>').html(html_simple);
 
-                        wpl_render_checkbox_select_<?php echo $widget_id; ?>();
+                        wpl_render_checkbox_select_<?php echo $this->widget_id; ?>();
                     },
                     afterOpen: function()
                     {
@@ -27,19 +27,19 @@
                     },
                     afterClose: function()
                     {
-                        var html_adv = wplj('#wpl_form_override_search<?php echo $widget_id; ?>').html();
-                        wplj('#wpl_form_override_search<?php echo $widget_id; ?> form').remove();
-                        wplj('#wpl_default_search_<?php echo $widget_id; ?>').html(html_adv);
+                        var html_adv = wplj('#wpl_form_override_search<?php echo $this->widget_id; ?>').html();
+                        wplj('#wpl_form_override_search<?php echo $this->widget_id; ?> form').remove();
+                        wplj('#wpl_default_search_<?php echo $this->widget_id; ?>').html(html_adv);
 
                         wplj('.wpl_search_from_box #wpl_search_from_box_bot' + widget_id).hide();
 
-                        wpl_render_checkbox_select_<?php echo $widget_id; ?>();
+                        wpl_render_checkbox_select_<?php echo $this->widget_id; ?>();
                     }
                 }
             });
         });
         <?php else: ?>
-            wplj('.wpl_search_from_box #more_search_option<?php echo $widget_id; ?>').on('click', function () {
+            wplj('.wpl_search_from_box #more_search_option<?php echo $this->widget_id; ?>').on('click', function () {
                 var widget_id = wplj(this).attr('data-widget-id');
 
                 if (wplj(this).hasClass('active')) {
@@ -66,47 +66,47 @@
                 wplj(this).siblings(".wpl_search_field_container").slideToggle(400);
             })
 
-            <?php if($bott_div_open): ?>
-            wplj(".wpl_search_from_box #more_search_option<?php echo $widget_id; ?>").trigger('click');
+            <?php if(isset($bott_div_open) and $bott_div_open): ?>
+            wplj(".wpl_search_from_box #more_search_option<?php echo $this->widget_id; ?>").trigger('click');
             <?php endif; ?>
         <?php endif; ?>
 
         <?php if($this->ajax == 2): ?>
-        wplj("#wpl_search_form_<?php echo $widget_id; ?> input, #wpl_search_form_<?php echo $widget_id; ?> select, #wpl_search_form_<?php echo $widget_id; ?> textarea").on('change', function () {
-            setTimeout("wpl_do_search_<?php echo $widget_id; ?>()", 300);
+        wplj("#wpl_search_form_<?php echo $this->widget_id; ?> input, #wpl_search_form_<?php echo $this->widget_id; ?> select, #wpl_search_form_<?php echo $this->widget_id; ?> textarea").on('change', function () {
+            setTimeout("wpl_do_search_<?php echo $this->widget_id; ?>()", 300);
         });
         <?php endif; ?>
     });
 
     /** main search function **/
-    function wpl_do_search_<?php echo $widget_id; ?>() {
+    function wpl_do_search_<?php echo $this->widget_id; ?>() {
         
         var ajax = <?php echo (trim($this->ajax) ? '1' : '0'); ?>;
         
         request_str = '';
-        wplj("#wpl_searchwidget_<?php echo $widget_id; ?> input:checkbox").each(function (index, element) {
+        wplj("#wpl_searchwidget_<?php echo $this->widget_id; ?> input:checkbox").each(function (index, element) {
             id = element.id;
             name = element.name;
             if (name.substring(0, 2) == 'sf') {
-                if (wplj("#wpl_searchwidget_<?php echo $widget_id; ?> #" + id).closest('li').css('display') != 'none') {
+                if (wplj("#wpl_searchwidget_<?php echo $this->widget_id; ?> #" + id).closest('li').css('display') != 'none') {
                     if (element.checked) value = element.value; else value = "-1";
-                    if (ajax || (!ajax && value != '' && value != '-1')) request_str += "&" + element.name.replace('sf<?php echo $widget_id; ?>_', 'sf_') + "=" + value;
+                    if (ajax || (!ajax && value != '' && value != '-1')) request_str += "&" + element.name.replace('sf<?php echo $this->widget_id; ?>_', 'sf_') + "=" + value;
                 }
             }
         });
 
-        wplj("#wpl_searchwidget_<?php echo $widget_id; ?> input:text").each(function (index, element) {
+        wplj("#wpl_searchwidget_<?php echo $this->widget_id; ?> input:text").each(function (index, element) {
             id = element.id;
             name = element.name;
             if (name.substring(0, 2) == 'sf') {
-                if (wplj("#wpl_searchwidget_<?php echo $widget_id; ?> #" + id).closest('li').css('display') != 'none') {
+                if (wplj("#wpl_searchwidget_<?php echo $this->widget_id; ?> #" + id).closest('li').css('display') != 'none') {
                     value = element.value;
-                    if (ajax || (!ajax && value != '' && value != '-1')) request_str += "&" + element.name.replace('sf<?php echo $widget_id; ?>_', 'sf_') + "=" + value;
+                    if (ajax || (!ajax && value != '' && value != '-1')) request_str += "&" + element.name.replace('sf<?php echo $this->widget_id; ?>_', 'sf_') + "=" + encodeURIComponent(value);
                 }
             }
         });
 
-        wplj("#wpl_searchwidget_<?php echo $widget_id; ?> input[type=hidden]").each(function (index, element) {
+        wplj("#wpl_searchwidget_<?php echo $this->widget_id; ?> input[type=hidden]").each(function (index, element) {
             
             // field excluded
             if(wplj(element).hasClass('wpl-exclude-search-widget')) return;
@@ -114,14 +114,14 @@
             id = element.id;
             name = element.name;
             if (name.substring(0, 2) == 'sf') {
-                if (wplj("#wpl_searchwidget_<?php echo $widget_id; ?> #" + id).closest('li').css('display') != 'none') {
+                if (wplj("#wpl_searchwidget_<?php echo $this->widget_id; ?> #" + id).closest('li').css('display') != 'none') {
                     value = element.value;
-                    if (ajax || (!ajax && value != '' && value != '-1')) request_str += "&" + element.name.replace('sf<?php echo $widget_id; ?>_', 'sf_') + "=" + value;
+                    if (ajax || (!ajax && value != '' && value != '-1')) request_str += "&" + element.name.replace('sf<?php echo $this->widget_id; ?>_', 'sf_') + "=" + encodeURIComponent(value);
                 }
             }
         });
 
-        wplj("#wpl_searchwidget_<?php echo $widget_id; ?> select, #wpl_searchwidget_<?php echo $widget_id; ?> textarea").each(function (index, element) {
+        wplj("#wpl_searchwidget_<?php echo $this->widget_id; ?> select, #wpl_searchwidget_<?php echo $this->widget_id; ?> textarea").each(function (index, element) {
         
             // field excluded
             if(wplj(element).hasClass('wpl-exclude-search-widget')) return;
@@ -135,40 +135,41 @@
                     var multiple = wplj(element).attr('multiple');
                     if(typeof multiple != 'undefined' && value == null) value = '';
 
-                    if (ajax || (!ajax && value != '' && value != '-1')) request_str += "&" + element.name.replace('sf<?php echo $widget_id; ?>_', 'sf_') + "=" + value;
+                    if (ajax || (!ajax && value != '' && value != '-1')) request_str += "&" + element.name.replace('sf<?php echo $this->widget_id; ?>_', 'sf_') + "=" + encodeURIComponent(value);
                 }
             }
         });
 
-        /** Adding widget id **/
-        request_str = 'widget_id=<?php echo $widget_id; ?>' + request_str;
+        /** Adding widget id and kind **/
+        request_str = 'widget_id=<?php echo $this->widget_id; ?>&kind=<?php echo $this->kind; ?>' + request_str;
 
         /** Create full url of search **/
-        search_page = '<?php echo $this->get_target_page($target_id); ?>';
+        search_page = '<?php echo $this->get_target_page((!empty($this->target_id) ? $this->target_id : NULL)); ?>';
 
-        if (search_page.indexOf('?') >= 0) search_str = search_page + '&' + request_str
-        else search_str = search_page + '?' + request_str
+        if (search_page.indexOf('?') >= 0) search_str = search_page + '&' + request_str;
+        else search_str = search_page + '?' + request_str;
 
         <?php if(!$this->ajax): ?>
-        wpl_do_search_no_ajax<?php echo $widget_id; ?>(search_str);
+        wpl_do_search_no_ajax<?php echo $this->widget_id; ?>(search_str);
         <?php elseif($this->ajax): ?>
-        if (!wplj('#wpl_property_listing_container').length) wpl_do_search_no_ajax<?php echo $widget_id; ?>(search_str);
-        else wpl_do_search_ajax<?php echo $widget_id; ?>(request_str, search_str);
+        if (!wplj('#wpl_property_listing_container').length) wpl_do_search_no_ajax<?php echo $this->widget_id; ?>(search_str);
+        else wpl_do_search_ajax<?php echo $this->widget_id; ?>(request_str, search_str);
         <?php endif; ?>
 
         return false;
     }
 
-    function wpl_do_search_no_ajax<?php echo $widget_id; ?>(search_str) {
+    function wpl_do_search_no_ajax<?php echo $this->widget_id; ?>(search_str) {
+        
         window.location = search_str;
     }
 
-    function wpl_add_callback_search<?php echo $widget_id; ?>(func){
+    function wpl_add_callback_search<?php echo $this->widget_id; ?>(func){
 
         if(typeof func != 'undefined'){
 
             if(wplj.isFunction(func)){
-                _wplSearchCallbacks<?php echo $widget_id; ?>.push(func);
+                _wplSearchCallbacks<?php echo $this->widget_id; ?>.push(func);
                 return true;
             }
 
@@ -177,16 +178,16 @@
         return false;
     }
 
-    function wpl_get_callback_search<?php echo $widget_id; ?>(){
-        return _wplSearchCallbacks<?php echo $widget_id; ?>;
+    function wpl_get_callback_search<?php echo $this->widget_id; ?>(){
+        return _wplSearchCallbacks<?php echo $this->widget_id; ?>;
     }
 
-    function wpl_clear_callback_search<?php echo $widget_id; ?>(){
-        _wplSearchCallbacks<?php echo $widget_id; ?> = [];
+    function wpl_clear_callback_search<?php echo $this->widget_id; ?>(){
+        _wplSearchCallbacks<?php echo $this->widget_id; ?> = [];
         return true;
     }
 
-    function wpl_do_search_ajax<?php echo $widget_id; ?>(request_str, search_str) {
+    function wpl_do_search_ajax<?php echo $this->widget_id; ?>(request_str, search_str) {
         /** Move to First Page **/
         request_str = wpl_update_qs('wplpage', '1', request_str);
 
@@ -206,7 +207,7 @@
         <?php endif; ?>
 
         wplj(".wpl_property_listing_list_view_container").fadeTo(300, 0.5);
-
+        
         try {
             history.pushState({search: 'WPL'}, "<?php echo addslashes(__('Search Results', 'wpl')); ?>", search_str);
         }
@@ -226,7 +227,9 @@
                 wpl_listing_total_pages = data.total_pages;
                 wpl_listing_current_page = data.current_page;
 
-                wplj(".wpl_property_listing_list_view_container").html(data.html);
+				wplj.when( wplj(".wpl_property_listing_list_view_container").html(data.html) ).then(function() {
+					wplj(".wpl-sort-options-selectbox .wpl_plist_sort").chosen({ width: 'initial' });
+				});
                 wplj(".wpl_property_listing_list_view_container").fadeTo(300, 1);
 
                 if(typeof wpl_fix_no_image_size == 'function') setTimeout(function(){wpl_fix_no_image_size();}, 50);
@@ -250,7 +253,7 @@
 
                 wpl_listing_last_search_time = new Date().getTime();
 
-                var callbacks = wpl_get_callback_search<?php echo $widget_id; ?>();
+                var callbacks = wpl_get_callback_search<?php echo $this->widget_id; ?>();
                 for (var func in callbacks) {
                     if (wplj.isFunction(callbacks[func])) {
                         callbacks[func].call();
@@ -260,7 +263,7 @@
         });
     }
 
-    function wpl_sef_request<?php echo $widget_id; ?>(request_str) {
+    function wpl_sef_request<?php echo $this->widget_id; ?>(request_str) {
         request_str = request_str.slice(1);
         splited = request_str.split("&");
         sef_str = '';
@@ -279,8 +282,8 @@
 
                 /** for setting text instead of value **/
                 if (value != -1 && value != '' && (table_field == 'listing' || table_field == 'property_type')) {
-                    field_type = wplj("#sf<?php echo $widget_id; ?>_select_" + table_field).prop('tagName');
-                    if (field_type.toLowerCase() == 'select') value = wplj("#sf<?php echo $widget_id; ?>_select_" + table_field + " option:selected").text();
+                    field_type = wplj("#sf<?php echo $this->widget_id; ?>_select_" + table_field).prop('tagName');
+                    if (field_type.toLowerCase() == 'select') value = wplj("#sf<?php echo $this->widget_id; ?>_select_" + table_field + " option:selected").text();
                 }
 
                 /** set to the SEF url **/
@@ -301,27 +304,27 @@
         return final_str.slice(1);
     }
 
-    function wpl_add_to_multiple<?php echo $widget_id; ?>(value, checked, table_column) {
-        setTimeout("wpl_add_to_multiple<?php echo $widget_id; ?>_do('" + value + "', " + checked + ", '" + table_column + "');", 30);
+    function wpl_add_to_multiple<?php echo $this->widget_id; ?>(value, checked, table_column) {
+        setTimeout("wpl_add_to_multiple<?php echo $this->widget_id; ?>_do('" + value + "', " + checked + ", '" + table_column + "');", 30);
     }
 
-    function wpl_add_to_multiple<?php echo $widget_id; ?>_do(value, checked, table_column) {
-        var values = wplj('#sf<?php echo $widget_id; ?>_multiple_' + table_column).val();
+    function wpl_add_to_multiple<?php echo $this->widget_id; ?>_do(value, checked, table_column) {
+        var values = wplj('#sf<?php echo $this->widget_id; ?>_multiple_' + table_column).val();
         values = values.replace(value + ',', '');
 
         if (checked) values += value + ',';
-        wplj('#sf<?php echo $widget_id; ?>_multiple_' + table_column).val(values);
+        wplj('#sf<?php echo $this->widget_id; ?>_multiple_' + table_column).val(values);
     }
 
-    function wpl_select_radio<?php echo $widget_id; ?>(value, checked, table_column) {
-        if (checked) wplj('#sf<?php echo $widget_id;?>_select_' + table_column).val(value);
+    function wpl_select_radio<?php echo $this->widget_id; ?>(value, checked, table_column) {
+        if (checked) wplj('#sf<?php echo $this->widget_id;?>_select_' + table_column).val(value);
     }
 
-    function wpl_do_reset<?php echo $widget_id; ?>(exclude, do_search) {
+    function wpl_do_reset<?php echo $this->widget_id; ?>(exclude, do_search) {
         if (!exclude) exclude = new Array();
         if (!do_search) do_search = false;
 
-        wplj("#wpl_searchwidget_<?php echo $widget_id; ?>").find(':input').each(function () {
+        wplj("#wpl_searchwidget_<?php echo $this->widget_id; ?>").find(':input').each(function () {
             if (exclude.indexOf(this.id) != -1) return;
 
             switch (this.type) {
@@ -406,17 +409,17 @@
                         wplj("#slider" + widget_id + "_range_" + table_column).slider("values", 0, min_slider_value);
                         wplj("#slider" + widget_id + "_range_" + table_column).slider("values", 1, max_slider_value);
 
-                        wplj("#slider" + widget_id + "_showvalue_" + table_column).html(wpl_th_sep<?php echo $widget_id; ?>(min_slider_value) + " - " + wpl_th_sep<?php echo $widget_id; ?>(max_slider_value));
+                        wplj("#slider" + widget_id + "_showvalue_" + table_column).html(wpl_th_sep<?php echo $this->widget_id; ?>(min_slider_value) + " - " + wpl_th_sep<?php echo $this->widget_id; ?>(max_slider_value));
                     }
                     catch (err) {
                     }
             }
         });
 
-        if (do_search) wpl_do_search_<?php echo $widget_id; ?>();
+        if (do_search) wpl_do_search_<?php echo $this->widget_id; ?>();
     }
 
-    function wpl_th_sep<?php echo $widget_id; ?>(num) {
+    function wpl_th_sep<?php echo $this->widget_id; ?>(num) {
         sep = ",";
         num = num.toString();
         x = num;
@@ -442,6 +445,7 @@
     <?php
         $this->create_listing_specific_js();
         $this->create_property_type_specific_js();
+        $this->create_field_specific_js();
     ?>
 
     (function($){
@@ -450,20 +454,22 @@
 
             try{
 
-                if(typeof $.fn.chosen != 'undefined') $("#wpl_search_form_<?php echo $widget_id; ?> select").chosen({ width: 'initial' });
+                if(typeof $.fn.chosen != 'undefined') $("#wpl_search_form_<?php echo $this->widget_id; ?> select").chosen().each(function(){
+					$(this).next(".chosen-container").width("+=" + $(this).next(".chosen-container").find("div:has(b)").width());
+				});
                 else
                     throw 'WPL::Dependency Missing->Chosen library is not available.';
 
-                $('#wpl_searchwidget_<?php echo $widget_id; ?> input.yesno[type="checkbox"]').checkbox({
+                $('#wpl_searchwidget_<?php echo $this->widget_id; ?> input.yesno[type="checkbox"]').checkbox({
                     cls: 'jquery-safari-checkbox',
                     empty: '<?php echo wpl_global::get_wpl_asset_url('img/empty.png'); ?>'
                 });
 
-                $('#wpl_searchwidget_<?php echo $widget_id; ?> input[type="checkbox"]:not(.yesno)').checkbox({empty: '<?php echo wpl_global::get_wpl_asset_url('img/empty.png'); ?>'});
+                $('#wpl_searchwidget_<?php echo $this->widget_id; ?> input[type="checkbox"]:not(.yesno)').checkbox({empty: '<?php echo wpl_global::get_wpl_asset_url('img/empty.png'); ?>'});
 
                 /** make the form empty if searched by listing id **/
-                $("#sf<?php echo $widget_id; ?>_select_mls_id").on("change", function () {
-                    wpl_do_reset<?php echo $widget_id; ?>(new Array("sf<?php echo $widget_id; ?>_select_mls_id"), false);
+                $("#sf<?php echo $this->widget_id; ?>_select_mls_id").on("change", function () {
+                    wpl_do_reset<?php echo $this->widget_id; ?>(new Array("sf<?php echo $this->widget_id; ?>_select_mls_id"), false);
                 });
 
             }catch(e){
@@ -471,20 +477,20 @@
             }
 
             <?php if(wpl_global::check_addon('aps')): ?>
-            $(document).on('submit','#wpl_form_override_search<?php echo $widget_id; ?> form', function()
+            $(document).on('submit','#wpl_form_override_search<?php echo $this->widget_id; ?> form', function()
             {
                 wplj._realtyna.lightbox.close();
             });
 
             // set the selected value in respective tags
-            $(document).on('blur','#wpl_searchwidget_<?php echo $widget_id; ?> input[type="text"]', function(event)
+            $(document).on('blur','#wpl_searchwidget_<?php echo $this->widget_id; ?> input[type="text"]', function(event)
             {
                 element_id = event.target.id;
                 value = $('#'+element_id).val();
                 $('#'+element_id).attr('value', value);
             });
 
-            $(document).on('change','#wpl_searchwidget_<?php echo $widget_id; ?> select:not([multiple])', function(event)
+            $(document).on('change','#wpl_searchwidget_<?php echo $this->widget_id; ?> select:not([multiple])', function(event)
             {
                 element_id = event.target.id;
                 select_box_id = $('#'+element_id).val();
@@ -492,14 +498,14 @@
                 $('#'+element_id+' option[value="'+select_box_id+'"]').attr('selected', 'selected');
             });
 
-            $(document).on('change','#wpl_searchwidget_<?php echo $widget_id; ?> input[type="checkbox"]', function(event)
+            $(document).on('change','#wpl_searchwidget_<?php echo $this->widget_id; ?> input[type="checkbox"]', function(event)
             {
                 element_id = event.target.id;
                 if($('#'+element_id).is(':checked')) $('#'+element_id).attr('checked', 'checked');
                 else $('#'+element_id).removeAttr('checked');
             });
 
-            $(document).on('change','#wpl_searchwidget_<?php echo $widget_id; ?> input[type="radio"]', function(event)
+            $(document).on('change','#wpl_searchwidget_<?php echo $this->widget_id; ?> input[type="radio"]', function(event)
             {
                 element_id = event.target.id;
                 name = event.target.name;
@@ -512,20 +518,20 @@
 
     })(jQuery);
 
-function wpl_render_checkbox_select_<?php echo $widget_id; ?>()
+function wpl_render_checkbox_select_<?php echo $this->widget_id; ?>()
 {
-    wplj('#wpl_searchwidget_<?php echo $widget_id; ?> .jquery-checkbox,#wpl_searchwidget_<?php echo $widget_id; ?> .jquery-safari-checkbox, #wpl_searchwidget_<?php echo $widget_id; ?> .chosen-container').each(function(ind,element){
+    wplj('#wpl_searchwidget_<?php echo $this->widget_id; ?> .jquery-checkbox,#wpl_searchwidget_<?php echo $this->widget_id; ?> .jquery-safari-checkbox, #wpl_searchwidget_<?php echo $this->widget_id; ?> .chosen-container').each(function(ind,element){
         wplj(this).remove();
     });
-    wplj('#wpl_searchwidget_<?php echo $widget_id; ?> input.yesno[type="checkbox"]').checkbox({
+    wplj('#wpl_searchwidget_<?php echo $this->widget_id; ?> input.yesno[type="checkbox"]').checkbox({
         cls: 'jquery-safari-checkbox',
         empty: '<?php echo wpl_global::get_wpl_asset_url('img/empty.png'); ?>'
     });
 
-    wplj('#wpl_searchwidget_<?php echo $widget_id; ?> input[type="checkbox"]:not(.yesno)').checkbox({empty: '<?php echo wpl_global::get_wpl_asset_url('img/empty.png'); ?>'});
+    wplj('#wpl_searchwidget_<?php echo $this->widget_id; ?> input[type="checkbox"]:not(.yesno)').checkbox({empty: '<?php echo wpl_global::get_wpl_asset_url('img/empty.png'); ?>'});
 
     if(typeof wplj.fn.chosen != 'undefined') {
-        wplj("#wpl_search_form_<?php echo $widget_id; ?> select").each(function(){
+        wplj("#wpl_search_form_<?php echo $this->widget_id; ?> select").each(function(){
             wplj(this).show(function () {
                 wplj(this).chosen();
             })

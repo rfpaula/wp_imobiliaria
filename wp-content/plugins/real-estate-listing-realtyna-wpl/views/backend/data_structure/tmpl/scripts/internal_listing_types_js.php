@@ -234,6 +234,28 @@ function wpl_gicon_delete(icon, confirmed, index)
 	});
 }
 
+function wpl_set_multiple_icon(icon, index)
+{
+	var request_str = 'wpl_format=b:data_structure:ajax_listing_types&wpl_function=set_multiple_icon&icon=' + encodeURIComponent(icon) + '&_wpnonce=<?php echo $this->nonce; ?>';
+
+	/** run ajax query **/
+	wplj.ajax(
+	{
+		type: "POST",
+		url: '<?php echo wpl_global::get_full_url(); ?>',
+		data: request_str,
+		success: function(data)
+		{
+			wplj("#wpl_multiple_gicon_listing .gmarker-icon").removeClass('selected');
+			wplj("#multiple_gicon" + index).addClass('selected');
+		},
+		error: function(jqXHR, textStatus, errorThrown)
+		{
+			wpl_show_messages('<?php echo addslashes(__('Error Occured.', 'wpl')); ?>', '.wpl_data_structure_list_gicon .wpl_show_message', 'wpl_red_msg');
+		}
+	});
+}
+
 function wpl_ajax_insert_listing_type(id)
 {
 	if(id != '10000') return;

@@ -8,7 +8,7 @@ defined('_WPLEXEC') or die('Restricted access');
         
         <div class="panel-body">
             <?php if(!wpl_global::check_addon('pro')): ?>
-            <p class="pro-message"><?php echo __('You cannot install any add-on on WPL basic! You should upgrade to WPL PRO first.', 'wpl'); ?></p>
+            <p class="pro-message"><?php echo __('You cannot install any add-ons on WPL basic! Please upgrade to WPL PRO.', 'wpl'); ?></p>
             <?php else: ?>
             <div class="wpl-addons-install-wp wpl_install_addons_container">
                 <div class="wpl_realtyna_credentials_container">
@@ -17,7 +17,7 @@ defined('_WPLEXEC') or die('Restricted access');
                     <input class="wpl-button button-1" type="button" onclick="save_realtyna_credentials();" value="<?php echo __('Save', 'wpl'); ?>" />
                     &nbsp;<span id="wpl_realtyna_credentials_check"><span class="action-btn <?php echo ((isset($this->settings['realtyna_verified']) and $this->settings['realtyna_verified']) ? 'icon-enabled' : 'icon-disabled'); ?>"></span></span>
                     <br />
-                    <span class="wpl_realtyna_credentials_tip"><?php echo __('Mandatory Realtyna Billing Credentials are necessary for Premium Support and Add On Updates!', 'wpl'); ?></span>
+                    <span class="wpl_realtyna_credentials_tip"><?php echo __('Billing information is necessary for Premium Support and Add-on updates!', 'wpl'); ?></span>
                 </div>
                 <label for="wpl_addon_file"><?php echo __('Install Add On', 'wpl'); ?> : </label>
                 <?php

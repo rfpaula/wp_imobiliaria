@@ -41,7 +41,7 @@ class wpl_io_cmd_get_keywords extends wpl_io_cmd_base
     {
         if(wpl_global::check_addon('mobile_application') == false)
         {
-            $this->error = "Addon mobile application is not installed";
+            $this->error = "Add-on mobile application is not installed";
             return false;
         }
         

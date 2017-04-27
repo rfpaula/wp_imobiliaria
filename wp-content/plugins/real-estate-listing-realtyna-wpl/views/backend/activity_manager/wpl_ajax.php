@@ -73,8 +73,8 @@ class wpl_activity_manager_controller extends wpl_controller
 		$this->activity_layouts = wpl_activity::get_activity_layout($this->activity_raw_name[0]);
 		if(!isset($this->activity_raw_name[1])) $this->activity_raw_name[1] = '';
 		
+        $this->memberships = wpl_users::get_wpl_memberships();
         $this->options = isset($this->activity_data->params) ? json_decode($this->activity_data->params) : new stdClass;
-        
         parent::render($this->tpl_path, 'internal_modify');
         exit;
     }
@@ -92,11 +92,19 @@ class wpl_activity_manager_controller extends wpl_controller
         /** validation for association type **/
         if(!isset($information['association_type']) or (isset($information['association_type']) and is_null($information['association_type']))) $information['association_type'] = 1;
         
+        $accesses = wpl_request::getVar('accesses', '') ? wpl_request::getVar('accesses', '') : array();
+        $accesses_str = '';
+        foreach($accesses as $membership_id=>$value) if($value) $accesses_str .= ','.$membership_id;
+        $information['accesses'] = ','.trim($accesses_str, ', ').',';
+        
+        /** validation for access type **/
+        if(!isset($information['access_type']) or (isset($information['access_type']) and is_null($information['access_type']))) $information['access_type'] = 2;
+        
         if(is_null($options)) $information['params'] = '';
         else $information['params'] = json_encode($options);
         
         if(trim($information['layout']) != '') $information['activity'] = $information['activity'] . ':' . $information['layout'];
-
+        
         if(!isset($information['activity_id'])) wpl_activity::add_activity($information);
         else wpl_activity::update_activity($information);
 		

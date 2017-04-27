@@ -40,10 +40,10 @@ $this->_wpl_import($this->tpl_path . '.scripts.css');
             </ul>
         </div>
         <div class="side-12 side-content-wp">
-            <div class="wpl_slide_container wpl_slide_container_room_types" id="wpl_slide_container_id_room_types"><?php $this->generate_room_types(); ?></div>	
+            <div class="wpl_slide_container wpl_slide_container_room_types" id="wpl_slide_container_id_room_types"><?php $this->generate_room_types(); ?></div>
             <div class="wpl_slide_container wpl_slide_container_sort_options" id="wpl_slide_container_id_sort_options"><?php $this->generate_sort_options(); ?></div>
             <div class="wpl_slide_container wpl_slide_container_property_types" id="wpl_slide_container_id_property_types"><?php $this->generate_property_types(); ?></div>
-            <div class="wpl_slide_container wpl_slide_container_listing_types" id="wpl_slide_container_id_listing_types"><?php $this->generate_listing_types(); ?></div>							
+            <div class="wpl_slide_container wpl_slide_container_listing_types" id="wpl_slide_container_id_listing_types"><?php $this->generate_listing_types(); ?></div>
             <div class="wpl_slide_container wpl_slide_container_unit_manager" id="wpl_slide_container_id_unit_manager"><?php $this->generate_unit_manager(); ?></div>
         </div>
     </div>

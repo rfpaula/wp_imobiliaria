@@ -80,7 +80,7 @@ $this->_wpl_import($this->tpl_path . '.scripts.modify_js');
                 </div>
                 <div class="fanc-row">
                     <?php if(!wpl_global::check_addon('pro')): ?>
-                    <p><?php echo __('PRO addon must be installed for this.', 'wpl'); ?></p>
+                    <p><?php echo __('The PRO Add-on must be installed for this feature.', 'wpl'); ?></p>
                     <?php else: ?>
                     <label for="wpl_page_association<?php echo $this->activity_id; ?>"><?php echo __('Association', 'wpl'); ?></label>
                     <select class="select_box" id="wpl_page_association<?php echo $this->activity_id; ?>" name="info[association_type]" onchange="wpl_page_association_selected('<?php echo $this->activity_id; ?>');">
@@ -112,7 +112,37 @@ $this->_wpl_import($this->tpl_path . '.scripts.modify_js');
                 </div>
             </div>
         </div>
-        
+        <div class="col-wp">
+            <div class="col-fanc-bottom wpl-fanc-full-row">
+                <div class="fanc-row fanc-inline-title">
+                    <?php echo __('Accesses', 'wpl'); ?>
+                </div>
+                <div class="fanc-row">
+                    <?php if(!wpl_global::check_addon('membership')): ?>
+                    <p><?php echo __('Membership Add-on must be installed for this!', 'wpl'); ?></p>
+                    <?php else: ?>
+                    <label for="accesses<?php echo $this->activity_id; ?>"><?php echo __('Viewable by', 'wpl'); ?></label>
+                    <select id="accesses<?php echo $this->activity_id; ?>" name="info[access_type]" onchange="wpl_activity_change_accesses(this.value, <?php echo $this->activity_id; ?>);">
+                        <option value="2"><?php echo __('All Users', 'wpl'); ?></option>
+                        <option value="1" <?php if(isset($this->activity_data->access_type) and trim($this->activity_data->access_type) == 1) echo 'selected="selected"'; ?>><?php echo __('Selected Users', 'wpl'); ?></option>
+                    </select>
+                    <?php endif; ?>
+                    <div class="wpl_flex_accesses_cnt" id="accesses_cnt<?php echo $this->activity_id; ?>" style="<?php if(!isset($this->activity_data->accesses) or (isset($this->activity_data->accesses) and trim($this->activity_data->accesses) == '')) echo 'display: none;'; ?>">
+                        <ul id="accesses_ul<?php echo $this->activity_id; ?>" class="wpl_accesses_ul">
+                            <?php
+                            $accesses = (isset($this->activity_data->accesses) and trim($this->activity_data->accesses)) ? explode(',', $this->activity_data->accesses) : array();
+                            foreach($this->memberships as $membership)
+                            {
+                                ?>
+                                <li><input name="accesses[<?php echo $membership->id; ?>]" id="wpl_activity_membership_checkbox<?php echo $membership->id; ?>" type="checkbox" value="1" <?php if(!isset($this->activity_data->accesses) or (isset($this->activity_data->accesses) and trim($this->activity_data->accesses) == '') or in_array($membership->id, $accesses)) echo 'checked="checked"'; ?> /><label class="wpl_specific_label" for="wpl_activity_membership_checkbox<?php echo $membership->id; ?>">&nbsp;<?php echo __($membership->membership_name, 'wpl'); ?></label></li>
+                                <?php
+                            }
+                            ?>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
         <input type="hidden" name="info[activity]" value="<?php echo $this->activity_raw_name[0]; ?>" />
         <?php if($this->activity_id): ?>
         <input type="hidden" name="info[activity_id]" value="<?php echo $this->activity_id; ?>" />

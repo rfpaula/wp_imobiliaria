@@ -101,9 +101,9 @@ class wpl_logs
 	public static function autolog($params = array())
 	{
         $log = wpl_global::get_setting('log', 1);
-
+        
         if(!$log) return false;
-
+        
         $dynamic_params = $params[0];
         $static_params = $params[1];
         

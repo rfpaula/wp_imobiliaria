@@ -81,3 +81,10 @@ $categories = wpl_items::get_item_categories('gallery');
     <label for="wpl_o_thumbnail_numbers"><?php echo __('Thumbnail numbers', 'wpl'); ?></label>
     <input class="text_box" name="option[thumbnail_numbers]" type="text" id="wpl_o_thumbnail_numbers" value="<?php echo isset($this->options->thumbnail_numbers) ? $this->options->thumbnail_numbers : '20'; ?>" />
 </div>
+<div class="fanc-row">
+    <label><?php echo __('Show Tags', 'wpl'); ?></label>
+    <select class="text_box" name="option[show_tags]" type="text" id="wpl_o_show_tags">
+        <option value="0" <?php if(isset($this->options->show_tags) and $this->options->show_tags == '0') echo 'selected="selected"'; ?>><?php echo __('No', 'wpl'); ?></option>
+        <option value="1" <?php if(isset($this->options->show_tags) and $this->options->show_tags == '1') echo 'selected="selected"'; ?>><?php echo __('Yes', 'wpl'); ?></option>
+    </select>
+</div>

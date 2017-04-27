@@ -11,6 +11,7 @@ if((isset($values->specificable) and $values->specificable) or !$dbst_id)
         <option value="0"><?php echo __('No', 'wpl'); ?></option>
         <option value="1" <?php if(isset($values->listing_specific) and trim($values->listing_specific) != '') echo 'selected="selected"'; ?>><?php echo __('Listing specific', 'wpl'); ?></option>
         <option value="2" <?php if(isset($values->property_type_specific) and trim($values->property_type_specific) != '') echo 'selected="selected"'; ?>><?php echo __('Property type specific', 'wpl'); ?></option>
+        <option value="4" <?php if(isset($values->field_specific) and trim($values->field_specific) != '') echo 'selected="selected"'; ?>><?php echo __('Field specific', 'wpl'); ?></option>
     </select>
     <div class="wpl_flex_specificable_cnt" id="<?php echo $__prefix; ?>specificable1" style="<?php if(!isset($values->listing_specific) or (isset($values->listing_specific) and trim($values->listing_specific) == '')) echo 'display: none;'; ?>">
         <?php if(!$dbst_id or (isset($values->specificable) and ($values->specificable == 1 or $values->specificable == 2))): ?>
@@ -42,6 +43,38 @@ if((isset($values->specificable) and $values->specificable) or !$dbst_id)
             }
             ?>
         </ul>
+        <?php endif; ?>
+    </div>
+
+    <div class="wpl_flex_specificable_cnt" id="<?php echo $__prefix; ?>specificable4" style="<?php if(!isset($values->field_specific) or (isset($values->field_specific) and trim($values->field_specific) == '')) echo 'display: none;'; ?>">
+        <?php if(!$dbst_id or (isset($values->specificable) and ($values->specificable == 1 or $values->specificable == 4))): ?>
+        
+        <?php 
+        $field_name = '';
+        $field_value = '';
+        $fields = wpl_flex::get_fields('', 0, 0, '', '', "AND `type` IN ('feature','neighborhood','boolean','checkbox','') AND `kind` = '$kind' AND `enabled` > 0");
+        
+        if(isset($values->field_specific) and trim($values->field_specific) != '')
+        {
+            $value = explode(':', $values->field_specific);
+            $field_name = $value[0];
+            $field_value = $value[1];
+        }
+        ?>
+
+        <label for="<?php echo $__prefix; ?>field_specific_name"><?php echo __('Field', 'wpl'); ?></label>
+        <select id="<?php echo $__prefix; ?>field_specific_name" name="<?php echo $__prefix; ?>field_specific_name" onchange="wpl_flex_change_field_specific_fields(this.value, '<?php echo $__prefix; ?>');">
+            <?php foreach ($fields as $field): ?>
+                <option value="<?php echo $field->id; ?>" <?php if($field_name == $field->id) echo 'selected="selected"'; ?>><?php echo __($field->name, 'wpl'); ?></option>
+            <?php endforeach; ?>            
+        </select>
+
+        <label for="<?php echo $__prefix; ?>field_specific_value"><?php echo __('Value', 'wpl'); ?></label>
+        <select id="<?php echo $__prefix; ?>field_specific_value" name="<?php echo $__prefix; ?>field_specific_value">
+            <option value="0" <?php if($field_value == 0) echo 'selected="selected"'; ?>><?php echo __('No', 'wpl'); ?></option>
+            <option value="1" <?php if($field_value == 1) echo 'selected="selected"'; ?>><?php echo __('Yes', 'wpl'); ?></option>
+        </select>
+
         <?php endif; ?>
     </div>
 </div>

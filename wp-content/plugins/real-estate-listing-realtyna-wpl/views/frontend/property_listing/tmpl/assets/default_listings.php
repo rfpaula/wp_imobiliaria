@@ -5,6 +5,9 @@ defined('_WPLEXEC') or die('Restricted access');
 $description_column = 'field_308';
 if(wpl_global::check_multilingual_status() and wpl_addon_pro::get_multiligual_status_by_column($description_column, $this->kind)) $description_column = wpl_addon_pro::get_column_lang_name($description_column, wpl_global::get_current_language(), false);
 
+// Membership ID of current user
+$current_user_membership_id = wpl_users::get_user_membership();
+
 foreach($this->wpl_properties as $key=>$property)
 {
     if($key == 'current') continue;
@@ -15,14 +18,20 @@ foreach($this->wpl_properties as $key=>$property)
     /** set current property **/
     $this->wpl_properties['current'] = $property;
 
-    $room    = isset($property['materials']['bedrooms']) ? '<div class="bedroom">'.$property['materials']['bedrooms']['value'].'<span>'. __("Bedroom", "wpl").'</span></div>' : '';
-    if((!isset($property['materials']['bedrooms']) or (isset($property['materials']['bedrooms']) and $property['materials']['bedrooms']['value'] == 0)) and (isset($property['materials']['rooms']) and $property['materials']['rooms']['value'] != 0)) $room = '<div class="room">'.$property['materials']['rooms']['value'].'<span>'. __("Room", "wpl").'</span></div>';
-    
-    $bathroom   = isset($property['materials']['bathrooms']) ? '<div class="bathroom">'.$property['materials']['bathrooms']['value'].'<span>'. __("Bathroom", "wpl").'</span></div>' : '';
-    
-    $parking_number = (isset($property['materials']['f_150']) and isset($property['materials']['f_150']['values'])) ? $property['materials']['f_150']['values'][0] : NULL;
-    $parking    = (isset($property['raw']['f_150']) and trim($property['raw']['f_150_options'])) ? '<div class="parking">'.$parking_number.'<span>'. __("Parking", "wpl").'</span></div>' : '';
-    $pic_count  = '<div class="pic_count">'.$property['raw']['pic_numb'].'<span>'. __("Picture", "wpl").'</span></div>';
+    if(isset($property['materials']['bedrooms']['value']) and ($_bedrooms = intval($property['materials']['bedrooms']['value']))) $room = sprintf('<div class="bedroom">%d<span>%s</span></div>', $_bedrooms, __(wpl_global::pluralize($_bedrooms, "Bedroom"), "wpl"));
+    elseif(isset($property['materials']['rooms']['value']) and ($_rooms = intval($property['materials']['rooms']['value']))) $room = sprintf('<div class="room">%d<span>%s</span></div>', $_rooms, __(wpl_global::pluralize($_rooms, "Room"), "wpl"));
+    else $room = '';
+
+    $bathroom = (isset($property['materials']['bathrooms']['value']) and ($_bathrooms = floatval($property['materials']['bathrooms']['value']))) ? sprintf('<div class="bathroom">%s<span>%s</span></div>', $_bathrooms, __(wpl_global::pluralize($_bathrooms, "Bathroom"), "wpl")) : '';
+
+    $parking = (isset($property['materials']['f_150']['values'][0]) and ($_parkings = intval($property['materials']['f_150']['values'][0]))) ? sprintf('<div class="parking">%d<span>%s</span></div>', $_parkings, __(wpl_global::pluralize($_parkings, "Parking"), "wpl")) : '';
+
+    $pic_count = (isset($property['raw']['pic_numb']) and ($_pic_count = intval($property['raw']['pic_numb']))) ? sprintf('<div class="pic_count">%d<span>%s</span></div>', $_pic_count, __(wpl_global::pluralize($_pic_count, "Picture"), "wpl")) : '';
+	
+	$living_area = isset($property['materials']['living_area']['value']) ? explode(' ', $property['materials']['living_area']['value']) : (isset($property['materials']['lot_area']['value']) ? explode(' ', $property['materials']['lot_area']['value']): '' );
+	$build_up_area = '<div class="built_up_area">'.$living_area[0].'<span>'.$living_area[1].'</span></div>';
+	
+	$property_price = (isset($property['materials']['price']['value']) and intval(preg_replace("/[^0-9]/", "", $property['materials']['price']['value']))) ? $property['materials']['price']['value'] : '&nbsp;';
     
     $description = stripslashes(strip_tags($property['raw'][$description_column]));
     $cut_position = strrpos(substr($description, 0, 400), '.', -1);
@@ -42,12 +51,16 @@ foreach($this->wpl_properties as $key=>$property)
 				<?php
 				echo '<a id="prp_link_id_'.$property['data']['id'].'_view_detail" href="'.$property['property_link'].'" class="view_detail" title="'.$property['property_title'].'">
 				  <h3 class="wpl_prp_title" itemprop="name">'.$property['property_title'].'</h3></a>';
-				echo '<h4 class="wpl_prp_listing_location" itemprop="location" itemscope itemtype="http://schema.org/Place"><span itemprop="address" itemscope itemtype="http://schema.org/PostalAddress"><span itemprop="addressLocality">'.$property['location_text'].'</span></span></h4>';
+                
+                $location_visibility = wpl_property::location_visibility($property['data']['id'], $property['data']['kind'], $current_user_membership_id);
+				echo '<h4 class="wpl_prp_listing_location" itemprop="location" itemscope itemtype="http://schema.org/Place"><span itemprop="address" itemscope itemtype="http://schema.org/PostalAddress"><span itemprop="addressLocality">'.($location_visibility === true ? $property['location_text'] : $location_visibility).'</span></span></h4>';
 				?>
-				<div class="wpl_prp_listing_icon_box"><?php echo $room . $bathroom . $parking . $pic_count; ?></div>
+				<div class="wpl_prp_listing_icon_box"><?php echo $room . $bathroom . $parking . $pic_count . $build_up_area; ?></div>
 				<div class="wpl_prp_desc" itemprop="description"><?php echo substr($description, 0, $cut_position + 1); ?></div>
 			</div>
-			<?php if(isset($property['materials']['price'])): ?><div class="price_box"><span itemprop="price" content="<?php echo $property['materials']['price']['value']; ?>"><?php echo $property['materials']['price']['value']; ?></span></div><?php endif; ?>
+			<div class="price_box">
+				<span itemprop="price" content="<?php echo $property_price; ?>"><?php echo $property_price; ?></span>
+			</div>
 		</div>
 	</div>
     <?php

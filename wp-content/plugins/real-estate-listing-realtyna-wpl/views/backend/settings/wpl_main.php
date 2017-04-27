@@ -12,6 +12,10 @@ class wpl_settings_controller extends wpl_controller
 	{
 		/** check permission **/
 		wpl_global::min_access('administrator');
+
+		/** colorpicker **/
+		wp_enqueue_style('wp-color-picker');
+		wp_enqueue_script('wp-color-picker');
 		
         // Create Nonce
         $this->nonce = wpl_security::create_nonce('wpl_settings');
@@ -20,6 +24,7 @@ class wpl_settings_controller extends wpl_controller
 		
 		/** import tpl **/
 		parent::render($this->tpl_path, $this->tpl);
+
 	}
 	
 	protected function generate_slide($category)

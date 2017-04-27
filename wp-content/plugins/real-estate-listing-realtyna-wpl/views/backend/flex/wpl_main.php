@@ -31,6 +31,7 @@ class wpl_flex_controller extends wpl_controller
 		$this->kind_label = wpl_flex::get_kind_label($this->kind);
 		$this->dbst_types = wpl_flex::get_dbst_types(1, $this->kind);
 		$this->new_dbst_id = wpl_flex::get_new_dbst_id();
+		$this->dbcat_manager_kinds = array(0, 1, 4);
 		
 		/** import tpl **/
 		parent::render($this->tpl_path, $this->tpl);

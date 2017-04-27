@@ -76,11 +76,36 @@ $this->_wpl_import($this->tpl_path.'.scripts.internal_listing_types_js');
         </tr>
         <tr>
             <td class="gmarker-icon-wp" id="wpl_gicon_listing">
-                <?php foreach($this->listing_gicons as $index=> $listing_gicon): ?>
+                <?php foreach($this->listing_gicons as $index=>$listing_gicon): ?>
                     <div class="gmarker-icon" id="gicon<?php echo $index ?>">
                         <img src="<?php echo wpl_global::get_wpl_asset_url('img/listing_types/gicon/'.$listing_gicon); ?>" alt="" />
-                        <?php if(wpl_users::is_super_admin()): ?><span class="action-btn icon-recycle-3" onclick="wpl_gicon_delete('<?php echo $listing_gicon; ?>', 0, '<?php echo $index; ?>')"></span><?php endif; ?>
+                        <?php if(wpl_users::is_super_admin()): ?><span class="action-btn icon-recycle-3" onclick="wpl_gicon_delete('<?php echo $listing_gicon; ?>', 0, '<?php echo $index; ?>');"></span><?php endif; ?>
                         <span class="ajax-inline-save" id="wpl_gicon_ajax_loader_<?php echo __($index, 'wpl'); ?>"></span>
+                    </div>
+                <?php endforeach; ?>
+            </td>
+        </tr>
+    </tbody>
+</table>
+<table class="widefat page widefat-margint10" cellspacing="0" width="100%">
+    <thead>
+        <tr>
+            <th>
+                <?php echo __('Multiple Marker Icon', 'wpl'); ?>
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+                <p><?php echo __('It will show when there are multiple listings at the same geo position.', 'wpl'); ?></p>
+            </td>
+        </tr>
+        <tr>
+            <td class="gmarker-icon-wp" id="wpl_multiple_gicon_listing">
+                <?php $multiple_marker_icon = wpl_global::get_setting('multiple_marker_icon'); foreach($this->listing_gicons as $index=>$listing_gicon): if(strpos($listing_gicon, 'multiple') === false) continue; ?>
+                    <div class="gmarker-icon <?php echo ($multiple_marker_icon == $listing_gicon ? 'selected' : ''); ?>" id="multiple_gicon<?php echo $index ?>" onclick="wpl_set_multiple_icon('<?php echo $listing_gicon; ?>', <?php echo $index; ?>);">
+                        <img src="<?php echo wpl_global::get_wpl_asset_url('img/listing_types/gicon/'.$listing_gicon); ?>" alt="" />
                     </div>
                 <?php endforeach; ?>
             </td>

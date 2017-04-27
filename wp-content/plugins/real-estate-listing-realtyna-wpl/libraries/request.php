@@ -244,6 +244,21 @@ class wpl_session
         if($key) return (isset($_SESSION[$key]) ? $_SESSION[$key] : NULL);
         return $_SESSION;
     }
+    
+    /**
+     * Remove a session variable
+     * @author Howard <howard@realtyna.com>
+     * @static
+     * @param string $key
+     * @return boolean
+     */
+    public static function remove($key = NULL)
+    {
+        if(!isset($_SESSION[$key])) return false;
+        
+        unset($_SESSION[$key]);
+        return true;
+    }
 }
 
 /**
@@ -400,9 +415,14 @@ class wpl_flash
      * @param string $message
      * @param string $HTML_class
      */
-    public static function set($message, $HTML_class)
+    public static function set($message, $HTML_class, $client = '0')
     {
-        wpl_session::set('wpl_flash', array($message, $HTML_class), true);
+        $wpl_flash = wpl_session::get('wpl_flash');
+        if(!$wpl_flash or !is_array($wpl_flash)) $wpl_flash = array();
+        
+        array_push($wpl_flash, array($message, $HTML_class, $client));
+        
+        wpl_session::set('wpl_flash', $wpl_flash, true);
     }
     
     /**
@@ -416,12 +436,21 @@ class wpl_flash
         $wpl_flash = wpl_session::get('wpl_flash');
         if(!$wpl_flash or (is_string($wpl_flash) and trim($wpl_flash) == '')) return '';
         
-        wpl_session::set('wpl_flash', '');
+        wpl_session::remove('wpl_flash');
         
-        $message = $wpl_flash[0];
-        $HTML_class = $wpl_flash[1];
+        $flashes = '';
+        foreach($wpl_flash as $flash)
+        {
+            $message = $flash[0];
+            $HTML_class = $flash[1];
+            $client = $flash[2];
+            
+            if(!in_array($client, array(2, wpl_global::get_client()))) continue;
+            
+            $flashes .= '<div class="'.$HTML_class.'">'.$message.'</div>';
+        }
         
-        return '<div class="'.$HTML_class.'">'.$message.'</div>';
+        return $flashes;
     }
 }
 

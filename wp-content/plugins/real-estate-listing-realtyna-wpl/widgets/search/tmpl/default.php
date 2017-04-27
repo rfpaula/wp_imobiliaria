@@ -65,5 +65,6 @@ defined('_WPLEXEC') or die('Restricted access');
         <div id="wpl_form_override_search<?php echo $widget_id; ?>" class="wpl-advanced-search-popup"></div>
     </div>
 </div>
-<?php endif; ?>
-<?php include _wpl_import('widgets.search.scripts.js', true, true); ?>
+<?php endif;
+/** import js codes **/
+$this->_wpl_import('widgets.search.scripts.js', true, true);

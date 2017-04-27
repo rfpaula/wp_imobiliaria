@@ -22,7 +22,7 @@ $video_height = isset($params['video_height']) ? $params['video_height'] : 270;
 
 if(!count($videos) or !is_array($videos)) return;
 ?>
-<div class="wpl_videos_container" id="wpl_videos_container<?php echo $property_id; ?>">
+<div itemprop="video" itemscope itemtype="http://schema.org/VideoObject" class="wpl_videos_container" id="wpl_videos_container<?php echo $property_id; ?>">
 	<ul class="wpl_videos_list_container">
 		<?php foreach($videos as $video): ?>
         <li class="wpl_videos_video wpl_video_type<?php echo (isset($video['item_cat']) ? $video['item_cat'] : ''); ?>" id="wpl_videos_video<?php echo (isset($video['id']) ? $video['id'] : ''); ?>">
@@ -34,6 +34,8 @@ if(!count($videos) or !is_array($videos)) return;
             <?php elseif($video['category'] == 'video_embed'): ?>
             <?php echo $video['url']; ?>
             <?php endif; ?>
+            <?php if (isset($video['title'])) echo '<h3 class="wpl-util-hidden" itemprop="name">'.$video['title'].'</h3>'; ?>
+            <?php if (isset($video['description'])) echo '<p class="wpl-util-hidden" itemprop="description">'.$video['description'].'</p>'; ?>
 		</li>
         <?php endforeach; ?>
     </ul>

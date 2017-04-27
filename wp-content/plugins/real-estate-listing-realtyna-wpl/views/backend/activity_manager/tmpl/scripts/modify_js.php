@@ -40,4 +40,10 @@ function wpl_page_association_selected(activity_id)
     if(association == '1' || association == '0') wplj(".wpl_activity_pages_container").hide();
     else wplj(".wpl_activity_pages_container").show();
 }
+
+function wpl_activity_change_accesses(value, activity_id)
+{
+    if(value == '1') wplj("#accesses_cnt"+activity_id).slideDown();
+    else wplj("#accesses_cnt"+activity_id).slideUp();
+}
 </script>

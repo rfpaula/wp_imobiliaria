@@ -12,6 +12,7 @@ wpl_extensions::import_javascript($js);
         <button class="wpl-button button-1" onclick="insert_shortcode();"><?php echo __('Insert', 'wpl'); ?></button>
     </h2>
     <div class="short-code-body">
+        
         <div class="plugin-row wpl_select_view">
             <label for="view_selectbox"><?php echo __('View', 'wpl'); ?></label>
             <select id="view_selectbox" onchange="wpl_view_selected(this.value);">
@@ -28,7 +29,7 @@ wpl_extensions::import_javascript($js);
         <div class="plugin-row wpl_shortcode_parameter wpl_hidden_element pr_property_listing">
             <?php $kinds = wpl_flex::get_kinds('wpl_properties'); ?>
             <label for="pr_kind_selectbox"><?php echo __('Kind', 'wpl'); ?></label>
-            <select id="pr_kind_selectbox" name="kind">
+            <select id="pr_kind_selectbox" <?php if(wpl_global::check_addon('PRO')): ?>onchange="wpl_kind_selected(this.value);"<?php endif; ?> name="kind">
                 <?php foreach($kinds as $kind): ?>
 				<option value="<?php echo $kind['id']; ?>"><?php echo __($kind['name'], 'wpl'); ?></option>
                 <?php endforeach; ?>
@@ -200,8 +201,9 @@ wpl_extensions::import_javascript($js);
             </select>
         </div>
         <?php endif; ?>
+        
         <div class="plugin-row wpl_shortcode_parameter wpl_hidden_element pr_property_listing">
-            <?php $sort_options = wpl_sort_options::get_sort_options(0, 1);/** getting enaled sort options **/ ?>
+            <?php $sort_options = wpl_sort_options::render(wpl_sort_options::get_sort_options(0, 1));/** getting enaled sort options **/ ?>
             <label for="pr_orderby_selectbox"><?php echo __('Order by', 'wpl'); ?></label>
             <select id="pr_orderby_selectbox" name="wplorderby">
                 <?php foreach($sort_options as $value_array): ?>
@@ -211,7 +213,7 @@ wpl_extensions::import_javascript($js);
         </div>
 
         <div class="plugin-row wpl_shortcode_parameter wpl_hidden_element pr_profile_listing">
-            <?php $sort_options = wpl_sort_options::get_sort_options(2, 1); /** getting enaled sort options **/ ?>
+            <?php $sort_options = wpl_sort_options::render(wpl_sort_options::get_sort_options(2, 1)); /** getting enaled sort options **/ ?>
             <label for="pr_orderby_user_selectbox"><?php echo __('Order by', 'wpl'); ?></label>
             <select id="pr_orderby_user_selectbox" name="wplorderby">
                 <?php foreach($sort_options as $value_array): ?>
@@ -243,6 +245,17 @@ wpl_extensions::import_javascript($js);
 					<option value="<?php echo $widget['id']; ?>"><?php echo ucwords(str_replace('_', ' ', $widget['id'])); ?></option>
                     <?php endforeach;?>
                 <?php endforeach; ?>
+            </select>
+        </div>
+		
+		<div class="plugin-row wpl_shortcode_parameter wpl_hidden_element pr_property_listing pr_profile_listing">
+            <label for="pr_columns_count_selectbox"><?php echo __('Columns Count', 'wpl'); ?></label>
+            <select id="pr_columns_count_selectbox" name="wplcolumns">
+                <option value="1">1 <?php echo __('Column', 'wpl'); ?></option>
+                <option value="2">2 <?php echo __('Columns', 'wpl'); ?></option>
+                <option value="3" selected="selected">3 <?php echo __('Columns', 'wpl'); ?></option>
+                <option value="4">4 <?php echo __('Columns', 'wpl'); ?></option>
+                <option value="6">6 <?php echo __('Columns', 'wpl'); ?></option>
             </select>
         </div>
 
@@ -290,5 +303,31 @@ function wpl_view_selected(view)
 
 	wplj(".wpl_shortcode_wizard_container .wpl_shortcode_parameter").hide();
 	wplj(".wpl_shortcode_wizard_container .pr_" + view).show();
+	
+	<?php if(wpl_global::check_addon('PRO')): ?>
+	//change columns count default value
+	var listing_columns = <?php echo isset($this->settings['wpl_ui_customizer_property_listing_columns']) ? $this->settings['wpl_ui_customizer_property_listing_columns'] : 3; ?>;
+	var profile_columns = <?php echo isset($this->settings['wpl_ui_customizer_profile_listing_columns']) ? $this->settings['wpl_ui_customizer_profile_listing_columns'] : 3; ?>;
+	
+	if (view === 'property_listing') wpl_columns_count_default(listing_columns);
+    else if (view === 'profile_listing') wpl_columns_count_default(profile_columns);
+	<?php endif; ?>
 }
+<?php if(wpl_global::check_addon('PRO')): ?>
+function wpl_kind_selected(kind)
+{
+	//change columns count default value
+	var listing_columns = <?php echo isset($this->settings['wpl_ui_customizer_property_listing_columns']) ? $this->settings['wpl_ui_customizer_property_listing_columns'] : 3; ?>;
+	var neighborhood_columns = <?php echo isset($this->settings['wpl_ui_customizer_neighborhood_columns']) ? $this->settings['wpl_ui_customizer_neighborhood_columns'] : 3; ?>;
+	
+	if (kind === '4') wpl_columns_count_default(neighborhood_columns);
+    else wpl_columns_count_default(listing_columns);
+}
+
+function wpl_columns_count_default(count)
+{
+	wplj("#pr_columns_count_selectbox option").removeAttr("selected");
+	wplj("#pr_columns_count_selectbox option[value=" + count + "]").attr("selected","selected");
+}
+<?php endif; ?>
 </script>

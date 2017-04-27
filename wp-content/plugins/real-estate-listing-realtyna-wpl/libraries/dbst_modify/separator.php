@@ -22,6 +22,13 @@ if($type == 'separator' and !$done_this)
 		</div>
 		<div class="col-fanc-right" id="wpl_flex_specific_options">
             <div class="fanc-row fanc-inline-title">
+				<?php echo __('Specific Options', 'wpl'); ?>
+			</div>
+			<?php
+				/** include specific file **/
+				include _wpl_import('libraries.dbst_modify.main.'.($kind == 2 ? 'user' : '').'specific', true, true);
+			?>
+            <div class="fanc-row fanc-inline-title">
                 <span>
                     <?php echo __('Params', 'wpl'); ?>
                 </span>

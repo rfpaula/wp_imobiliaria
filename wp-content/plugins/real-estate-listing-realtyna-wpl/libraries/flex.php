@@ -57,7 +57,7 @@ class wpl_flex
 		$query = "SELECT * FROM `#__wpl_dbst` WHERE `id`='$field_id'";
 		return wpl_db::select($query, 'loadObject');
 	}
-    
+
     /**
      * Get DB structure id based on kind and table column
      * @author Howard R <howard@realtyna.com>
@@ -163,13 +163,25 @@ class wpl_flex
      * Returns Kind Table
      * @author Howard R <howard@realtyna.com>
      * @static
+     * @param int $dbcat
      * @param int $kind
      * @return string
      */
-	public static function get_kind_table($kind = 0)
+	public static function get_kind_table($kind = 0, $dbcat = 0)
 	{
-        $query = "SELECT `table` FROM `#__wpl_kinds` WHERE `id`='$kind'";
-        return wpl_db::select($query, 'loadResult');
+        $query = "SELECT `table`, `params` FROM `#__wpl_kinds` WHERE `id`='$kind'";
+        $result = wpl_db::select($query, 'loadObject');
+        
+        if($dbcat and $result->params)
+        {
+            $params = json_decode($result->params, true);
+            if(isset($params['dbcat_tables']) and isset($params['dbcat_tables'][$dbcat]))
+            {
+                return $params['dbcat_tables'][$dbcat];
+            }
+        } 
+
+        return $result->table;
 	}
 	
     /**
@@ -338,13 +350,23 @@ class wpl_flex
      * @param string $dbst_type
      * @param int $dbst_id
      * @param int $kind
+     * @param int $cat_id
      * @return void
      */
-	public static function generate_modify_form($dbst_type = 'text', $dbst_id = 0, $kind = 0)
+	public static function generate_modify_form($dbst_type = 'text', $dbst_id = 0, $kind = 0, $cat_id = 0)
 	{
 		/** first validation **/
 		if(!$dbst_type) return;
-		$dbst_data = $dbst_id != 0 ? self::get_field($dbst_id) : new stdClass();
+		
+        if($dbst_id != 0)
+        {
+            $dbst_data = self::get_field($dbst_id);
+        }
+        else
+        {
+            $dbst_data = new stdClass();
+            $dbst_data->category = $cat_id;
+        }
 
         if(wpl_global::check_addon('pro'))
         {
@@ -397,7 +419,8 @@ class wpl_flex
 	public static function run_dbst_type_queries($dbst_id, $dbst_type, $dbst_kind, $query_type = 'add')
 	{
 		$dbst_type_data = self::get_dbst_type(0, $dbst_kind, $dbst_type);
-		$kind_table = self::get_kind_table($dbst_kind);
+        $dbst = self::get_field($dbst_id);
+		$kind_table = self::get_kind_table($dbst_kind, $dbst->category);
 		if($query_type == 'add') $options = self::get_field_options($dbst_id);
         
         /** Configure dbst columns if add mode **/
@@ -496,6 +519,9 @@ class wpl_flex
 		
         $wpllangs = wpl_global::check_multilingual_status() ? wpl_addon_pro::get_wpl_languages() : array();
         $has_more_details = false;
+
+        /** store hidden fields used for field-specific */
+        $hidden_fields = array();
         
 		foreach($fields as $key=>$field)
 		{
@@ -508,27 +534,50 @@ class wpl_flex
 			$options = json_decode($field->options, true);
             $value = isset($values[$field->table_column]) ? stripslashes($values[$field->table_column]) : NULL;
             $kind = isset($values['kind']) ? $values['kind'] : NULL;
+            $specified_children = self::get_field_specific_children($field->id);
 			$display = '';
-			
+
             /** Specific **/
 			if(trim($field->listing_specific) != '')
 			{
 				$specified_listings = explode(',', trim($field->listing_specific, ', '));
 				self::$category_listing_specific_array[$field->id] = $specified_listings;
-				if(!in_array($values['listing'], $specified_listings)) $display = 'display: none;';
+				if(!in_array($values['listing'], $specified_listings))
+                {
+                    $display = 'display: none;';
+                    $hidden_fields[] = $field->id;  
+                }
 			}
 			elseif(trim($field->property_type_specific) != '')
 			{
 				$specified_property_types = explode(',', trim($field->property_type_specific, ', '));
 				self::$category_property_type_specific_array[$field->id] = $specified_property_types;
-				if(!in_array($values['property_type'], $specified_property_types)) $display = 'display: none;';
+				if(!in_array($values['property_type'], $specified_property_types))
+                {
+                    $display = 'display: none;';
+                    $hidden_fields[] = $field->id;  
+                }
 			}
             elseif(trim($field->user_specific) != '')
 			{
 				$specified_user_types = explode(',', trim($field->user_specific, ', '));
 				self::$category_user_specific_array[$field->id] = $specified_user_types;
-				if(!in_array($values['membership_type'], $specified_user_types)) $display = 'display: none;';
+				if(!in_array($values['membership_type'], $specified_user_types))
+                {
+                    $display = 'display: none;';
+                    $hidden_fields[] = $field->id;  
+                }
 			}
+            elseif(trim($field->field_specific) != '')
+            {
+                $specified_field = explode(':', trim($field->field_specific));
+                $parent_field = self::get_field($specified_field[0]);
+                if(isset($parent_field) and (in_array($parent_field->id, $hidden_fields) or $values[$parent_field->table_column] != $specified_field[1]))
+                {
+                    $display = 'display: none;';
+                    $hidden_fields[] = $field->id;
+                } 
+            }
 			elseif(isset($options['access']))
 			{
 				foreach($options['access'] as $access)
@@ -536,6 +585,7 @@ class wpl_flex
 					if(!wpl_global::check_access($access))
 					{
 						$display = 'display: none;';
+                        $hidden_fields[] = $field->id;  
 						break;
 					}
 				}
@@ -657,21 +707,41 @@ class wpl_flex
 	{
 		$query = "SELECT DISTINCT `category`  FROM `#__wpl_dbst` WHERE `id` IN ($sort_ids) ORDER BY `index` ASC";
 		$flex_category = wpl_db::select($query, 'loadAssoc');
-		
-		$conter = 0;
+
+		$counter = 0;
 		$ex_sort_ids = explode(',', $sort_ids);
 		
 		foreach($ex_sort_ids as $ex_sort_id)
 		{
-			if($conter < 10) $index = $flex_category["category"].'.00'.$conter;
-            elseif($conter < 100) $index = $flex_category["category"].'.0'.$conter;
-			else $index = $flex_category["category"].'.'.$conter;
-			
+			if($counter < 10) $index = $flex_category["category"].'.00'.$counter;
+            elseif($counter < 100) $index = $flex_category["category"].'.0'.$counter;
+			else $index = $flex_category["category"].'.'.$counter;
 			self::update('wpl_dbst', $ex_sort_id, 'index', $index);
-			$conter++;
+			$counter++;
 		}
 	}
-	
+	/**
+	 * Sorts flex categories
+	 * @author Alfred M <Alfred@realtyna.com>
+	 * @static
+	 * @param string $sort_ids
+	 */
+	public static function sort_flex_categories($sort_ids=null)
+	{
+		$query = "SELECT DISTINCT `index` FROM `#__wpl_dbcat` WHERE `id` IN ($sort_ids) ORDER BY `index` ASC";
+		$flex_category = wpl_db::select($query, 'loadAssoc');
+		$counter = 0;
+		$ex_sort_ids = explode(',', $sort_ids);
+
+		foreach($ex_sort_ids as $ex_sort_id)
+		{
+			if ($counter < 10) $index = $flex_category["index"] . '.00' . $counter;
+			elseif ($counter < 100) $index = $flex_category["index"] . '.0' . $counter;
+			else $index = $flex_category["index"] . '.' . $counter;
+			self::update('wpl_dbcat', $ex_sort_id, 'index', $index);
+			$counter++;
+		}
+	}
 	/**
 	 * Generate search fields based on DBST fields
 	 * @author Steve A. <steve@realtyna.com>
@@ -696,7 +766,8 @@ class wpl_flex
 			$field_id = $field['id'];
 			$field_data = $field;
 			$options = json_decode($field['options'], true);
-			
+			$specified_children = self::get_field_specific_children($field_id);
+
 			$done_this = false;
 			$html = '';
 			
@@ -841,5 +912,56 @@ class wpl_flex
     public static function get_comparable_row_types()
     {
         return array('area', 'number', 'price', 'rooms', 'text');
+    }
+
+    /**
+     * Get list of fields that are dependent to selected field
+     * @author Steve A. <steve@realtyna.com>
+     * @static
+     * @param  string $id Field ID
+     * @return string     List of fields
+     */
+    public static function get_field_specific_children($id)
+    {
+        $result = array();
+        $fields = wpl_db::select("SELECT `id`, `field_specific` FROM `#__wpl_dbst` WHERE `field_specific` LIKE '{$id}:%'");
+
+        foreach ($fields as $field) 
+        {
+            $value = explode(':', $field->field_specific);
+            $result[] = $field->id.':'.$value[1];
+        }
+
+        return implode(',', $result);
+    }
+    
+    public static function get_field_values($dbst_id)
+    {
+        $field = wpl_flex::get_field($dbst_id);
+        $options = json_decode($field->options, true);
+        
+        $values = array();
+        if($field->type == 'select')
+        {
+            $params = isset($options['params']) ? $options['params'] : array();
+            foreach($params as $param) $values[$param['key']] = array('value'=>$param['key'], 'label'=>$param['value']);
+        }
+        elseif($field->type == 'feature')
+        {
+            $params = isset($options['values']) ? $options['values'] : array();
+            foreach($params as $param) $values[$param['key']] = array('value'=>$param['key'], 'label'=>$param['value']);
+        }
+        elseif($field->type == 'listings')
+        {
+            $listings = wpl_global::get_listings();
+            foreach($listings as $listing) $values[$listing['id']] = array('value'=>$listing['id'], 'label'=>$listing['name']);
+        }
+        elseif($field->type == 'property_types')
+        {
+            $property_types = wpl_global::get_property_types();
+            foreach($property_types as $property_type) $values[$property_type['id']] = array('value'=>$property_type['id'], 'label'=>$property_type['name']);
+        }
+        
+        return $values;
     }
 }

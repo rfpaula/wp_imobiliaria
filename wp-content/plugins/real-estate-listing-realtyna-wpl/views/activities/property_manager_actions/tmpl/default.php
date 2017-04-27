@@ -45,7 +45,7 @@ $wpl_users = isset($params['wpl_users']) ? $params['wpl_users'] : wpl_users::get
         <span><?php echo __('Edit', 'wpl'); ?></span>
         <i class="icon-edit"></i>
     </a>
-    <?php if(wpl_users::check_access('multi_agents') and wpl_global::check_addon('multi_agents')): ?>
+    <?php if(wpl_users::check_access('multi_agents') and wpl_global::check_addon('multi_agents') and in_array($property_data['kind'], array(0,1))): ?>
     <?php
         _wpl_import('libraries.addon_multi_agents');
         

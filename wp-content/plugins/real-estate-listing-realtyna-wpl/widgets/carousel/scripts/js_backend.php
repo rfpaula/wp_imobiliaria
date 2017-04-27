@@ -58,6 +58,35 @@ defined('_WPLEXEC') or die('Restricted access');
             _showCarouselCorrectOptions(wplj('.wpl-carousel-widget-' + wplj(this).attr('data-wpl-carousel-id')));
         });
         //endregion
+		
+		/** check Only String for tags **/
+		
+		//check existing setting
+		if (wplj('#<?php echo $this->get_field_id('tag_group_join_type_or'); ?>').is(':checked')) {
+			
+			wplj('.<?php echo $this->get_field_id('data_tags_label'); ?>').each(function(){
+				var str = wplj(this).text().split('Only');
+				wplj(this).text(str.join(''));
+			});
+			
+		}
+		
+		wplj('[id*="-tag_group_join_type_or"]').click(function(){
+			var carousel_widget_id = wplj(this).attr('id').split('-')[2];
+			wplj('.widget-wpl_carousel_widget-' + carousel_widget_id + '-data_tags_label').each(function(){
+					var str = wplj(this).text().split('Only');
+					wplj(this).text(str.join(''));
+				});
+		});
+		
+		wplj('[id*="-tag_group_join_type_and"]').click(function(){
+			var carousel_widget_id = wplj(this).attr('id').split('-')[2];
+			wplj('.widget-wpl_carousel_widget-' + carousel_widget_id + '-data_tags_label').each(function(){
+				if(wplj(this).text().split(' ')[0] != 'Only') {
+					wplj(this).text('Only' + wplj(this).text());
+				}
+			});
+		});
 
     });
 

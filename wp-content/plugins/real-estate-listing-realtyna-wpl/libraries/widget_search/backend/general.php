@@ -21,7 +21,7 @@ if($type == 'gallery' and !$done_this)
 <?php
     $done_this = true;
 }
-elseif($type == 'date' and !$done_this)
+elseif(in_array($type, array('date', 'datetime')) and !$done_this)
 {
 ?>
 <div class="search-field-wp search-field-date <?php echo (isset($value['enable']) ? $value['enable'] : ''); ?>" data-field-id="<?php echo $field->id; ?>" data-status="<?php echo (isset($value['enable']) ? $value['enable'] : ''); ?>" data-field-name="<?php echo __($field->name, 'wpl'); ?>">
@@ -72,7 +72,7 @@ elseif($type == 'feature' and !$done_this)
 <?php
     $done_this = true;
 }
-elseif(($type == 'checkbox' or $type == 'tag') and !$done_this)
+elseif(in_array($type, array('checkbox', 'tag', 'boolean')) and !$done_this)
 {
 ?>
 <div class="search-field-wp search-field-checkbox <?php echo (isset($value['enable']) ? $value['enable'] : ''); ?>" data-field-id="<?php echo $field->id; ?>" data-status="<?php echo (isset($value['enable']) ? $value['enable'] : ''); ?>" data-field-name="<?php echo __($field->name, 'wpl'); ?>">
@@ -146,6 +146,7 @@ elseif($type == 'locations' and !$done_this)
 			<select name="<?php echo $this->get_field_name('data'); ?>[<?php echo $field->id; ?>][type]" onchange="selectChange(this, 'locations');">
 				<option value="simple" <?php if (isset($value['type']) and $value['type'] == 'simple') echo 'selected="selected"' ?>><?php echo __('simple', 'wpl'); ?></option>
                 <option value="locationtextsearch" <?php if (isset($value['type']) and $value['type'] == 'locationtextsearch') echo 'selected="selected"' ?>><?php echo __('Location textsearch', 'wpl'); ?></option>
+                <option value="advanced_locationtextsearch" <?php if (isset($value['type']) and $value['type'] == 'advanced_locationtextsearch') echo 'selected="selected"' ?>><?php echo __('Advanced Location textsearch', 'wpl'); ?></option>
                 <?php if(wpl_global::check_addon('pro')): ?>
 				<option value="radiussearch" <?php if (isset($value['type']) and $value['type'] == 'radiussearch') echo 'selected="selected"' ?>><?php echo __('Radius Search', 'wpl'); ?></option>
                 <option value="googleautosuggest" <?php if (isset($value['type']) and $value['type'] == 'googleautosuggest') echo 'selected="selected"' ?>><?php echo __('Google Auto Suggest', 'wpl'); ?></option>
@@ -266,6 +267,8 @@ elseif($type == 'text' and !$done_this)
 			<select name="<?php echo $this->get_field_name('data'); ?>[<?php echo $field->id; ?>][type]">
 				<option value="text" <?php if(isset($value['type']) and $value['type'] == 'text') echo 'selected="selected"'; ?> ><?php echo __('Text', 'wpl'); ?></option>
 				<option value="exacttext" <?php if(isset($value['type']) and $value['type'] == 'exacttext') echo 'selected="selected"'; ?> ><?php echo __('Exact text', 'wpl'); ?></option>
+                <option value="checkbox" <?php if (isset($value['type']) and $value['type'] == "checkbox") echo 'selected="selected"'; ?>><?php echo __('Check box', 'wpl'); ?></option>
+                <option value="yesno" <?php if (isset($value['type']) and $value['type'] == "yesno") echo 'selected="selected"'; ?>><?php echo __('Any/Yes', 'wpl'); ?></option>
 			</select>
 		</div>
 	</div>

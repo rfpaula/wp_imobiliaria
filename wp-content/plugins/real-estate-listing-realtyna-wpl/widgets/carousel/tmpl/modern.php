@@ -2,7 +2,8 @@
 /** no direct access **/
 defined('_WPLEXEC') or die('Restricted access');
 
-include _wpl_import('widgets.carousel.scripts.js', true, true);
+/** import js codes **/
+$this->_wpl_import('widgets.carousel.scripts.js', true, true);
 
 $image_width = isset($this->instance['data']['image_width']) ? $this->instance['data']['image_width'] : 1920;
 $image_height = isset($this->instance['data']['image_height']) ? $this->instance['data']['image_height'] : 558;
@@ -14,50 +15,70 @@ $thumbnail_height = isset($this->instance['data']['thumbnail_height']) ? $this->
 $auto_play = isset($this->instance['data']['auto_play']) ? $this->instance['data']['auto_play'] : true;
 $smart_resize = isset($this->instance['data']['smart_resize']) ? $this->instance['data']['smart_resize'] : false;
 $slide_interval = isset($this->instance['data']['slide_interval']) ? $this->instance['data']['slide_interval'] : 3000;
+$show_nav = isset($this->instance['data']['show_nav']) ? $this->instance['data']['show_nav'] : false;
+$hide_pagination = isset($this->instance['data']['hide_pagination']) ? $this->instance['data']['hide_pagination'] : false;
+$hide_caption = isset($this->instance['data']['hide_caption']) ? $this->instance['data']['hide_caption'] : false;
+$show_tags = isset($this->instance['data']['show_tags']) ? $this->instance['data']['show_tags'] : false;
 
 /** add Layout js **/
 $js[] = (object) array('param1'=>'modern.slider', 'param2'=>'js/libraries/wpl.modern.slider.min.js');
 foreach($js as $javascript) wpl_extensions::import_javascript($javascript);
 
 $large_images = $thumbnail = NULL;
+$tags = wpl_flex::get_tag_fields((isset($this->instance['data']['kind']) ? $this->instance['data']['kind'] : 0));
+
 foreach($wpl_properties as $key=>$gallery)
 {
-    if(isset($gallery["items"]["gallery"][0]))
+    if(!isset($gallery['items']['gallery'][0])) continue;
+    
+    $params = array();
+    $params['image_name'] 		= $gallery['items']['gallery'][0]->item_name;
+    $params['image_parentid'] 	= $gallery['items']['gallery'][0]->parent_id;
+    $params['image_parentkind'] = $gallery['items']['gallery'][0]->parent_kind;
+    $params['image_source'] 	= wpl_global::get_upload_base_path(wpl_property::get_blog_id($params['image_parentid'])).$params['image_parentid'].DS.$params['image_name'];
+
+    $image_title = wpl_property::update_property_title($gallery['raw']);
+
+    if(isset($gallery['items']['gallery'][0]->item_extra2) and trim($gallery['items']['gallery'][0]->item_extra2) != '') $image_alt = $gallery['items']['gallery'][0]->item_extra2;
+    else $image_alt = $gallery['raw']['meta_keywords'];
+
+    if($gallery["items"]["gallery"][0]->item_cat != 'external')
     {
-        $params = array();
-        $params['image_name'] 		= $gallery["items"]["gallery"][0]->item_name;
-        $params['image_parentid'] 	= $gallery["items"]["gallery"][0]->parent_id;
-        $params['image_parentkind'] = $gallery["items"]["gallery"][0]->parent_kind;
-        $params['image_source'] 	= wpl_global::get_upload_base_path().$params['image_parentid'].DS.$params['image_name'];
-
-        $image_title = wpl_property::update_property_title($gallery['raw']);
-        
-        if(isset($gallery['items']['gallery'][0]->item_extra2) and trim($gallery['items']['gallery'][0]->item_extra2) != '') $image_alt = $gallery['items']['gallery'][0]->item_extra2;
-        else $image_alt = $gallery['raw']['meta_keywords'];
-
-        if($gallery["items"]["gallery"][0]->item_cat != 'external')
-        {
-            $image_url 			= wpl_images::create_gallery_image($image_width, $image_height, $params, 1);
-            $thumbnail_url 		= wpl_images::create_gallery_image($thumbnail_width, $thumbnail_height, $params);
-        }
-        else
-        {
-            $image_url 			= $gallery["items"]["gallery"][0]->item_extra3;
-            $thumbnail_url 		= $gallery["items"]["gallery"][0]->item_extra3;
-        }
-
-        $large_images .= '
-		<li>
-            <img itemprop="image" src="'.$image_url.'" alt="'.$image_alt.'" style="width: '.$image_width.'px; height: '.$image_height.'px;" />
-            <div class="ei-title">
-                <h2>'.$image_title.'</h2>
-                <h3>'.(trim($gallery["rendered"][10]["value"]) != '' ? $gallery["rendered"][10]["value"].' - ' : '').$gallery["location_text"].'</h3>
-                <a itemprop="url" class="more_info" href="'.$gallery["property_link"].'">'. __('More info', 'wpl').'</a>
-            </div>
-        </li>';
-
-        $thumbnail	.='<li><a href="#">'.$image_title.'</a><img src="'.$thumbnail_url.'" alt="'.$image_alt.'" width="'.$thumbnail_width.'" height="'.$thumbnail_height.'" style="width: '.$thumbnail_width.'px; height: '.$thumbnail_height.'px;" /></li>';
+        $image_url 			= wpl_images::create_gallery_image($image_width, $image_height, $params, 1);
+        $thumbnail_url 		= wpl_images::create_gallery_image($thumbnail_width, $thumbnail_height, $params);
     }
+    else
+    {
+        $image_url 			= $gallery["items"]["gallery"][0]->item_extra3;
+        $thumbnail_url 		= $gallery["items"]["gallery"][0]->item_extra3;
+    }
+
+    // Location visibility
+    $location_visibility = wpl_property::location_visibility($gallery['items']['gallery'][0]->parent_id, $gallery['items']['gallery'][0]->parent_kind, wpl_users::get_user_membership());
+	
+    $large_images .= '<li><img itemprop="image" src="'.$image_url.'" alt="'.$image_alt.'" style="width: '.$image_width.'px; height: '.$image_height.'px;" />';
+	
+    if($show_tags)
+    {
+		$large_images .= '<div class="wpl-listing-tags-wp">
+							<div class="wpl-listing-tags-cnt">
+								'.$this->tags($tags, $gallery['raw']).'
+							</div>
+						</div>';
+	}
+    
+    if(!$hide_caption)
+    {
+        $large_images .= '
+        <div class="ei-title">
+            <h2>' . $image_title . '</h2>
+            <h3>' . (trim($gallery['materials']['living_area']['value']) != '' ? $gallery['materials']['living_area']['value'] . ' - ' : '') . ($location_visibility === true ? $gallery['location_text'] : $location_visibility) . '</h3>
+            <a itemprop="url" class="more_info" href="' . $gallery["property_link"] . '">' . __('More info', 'wpl') . '</a>
+        </div>';
+    }
+    
+    $large_images .= '</li>';
+    $thumbnail .= '<li><a href="#">'.$image_title.'</a><img src="'.$thumbnail_url.'" alt="'.$image_alt.'" width="'.$thumbnail_width.'" height="'.$thumbnail_height.'" style="width: '.$thumbnail_width.'px; height: '.$thumbnail_height.'px;" /></li>';
 }
 ?>
 <div class="wpl_carousel_container <?php echo $this->css_class; ?>">
@@ -65,7 +86,11 @@ foreach($wpl_properties as $key=>$gallery)
         <ul class="ei-slider-large">
             <?php echo $large_images; ?>
         </ul>
-        <ul class="ei-slider-thumbs">
+        <div class="ei-slider-navigation">
+            <div class="ei-slider-next"></div>
+            <div class="ei-slider-prev"></div>
+        </div>
+        <ul class="ei-slider-thumbs <?php if($hide_pagination) echo 'wpl-util-hidden';?>">
             <li class="ei-slider-element"><?php echo __('Current', 'wpl'); ?></li>
             <?php echo $thumbnail; ?>
         </ul>
@@ -84,6 +109,7 @@ wplj(function()
         thumbMaxWidth: <?php echo $thumbnail_width; ?>,
         smartResize: <?php echo $smart_resize ? 'true' : 'false'; ?>
     });
+
 });
 </script>
 <style type="text/css">

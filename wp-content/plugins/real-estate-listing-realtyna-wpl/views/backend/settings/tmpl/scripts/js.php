@@ -3,8 +3,8 @@
 defined('_WPLEXEC') or die('Restricted access');
 ?>
 <script type="text/javascript">
-wplj(document).ready(function(){
-    
+wplj(document).ready(function()
+{
     wplj('#wpl_clear_cache_form').on('submit', function(e)
     {
         e.preventDefault();
@@ -117,5 +117,74 @@ function wpl_export_settings()
 {
 	var format = wplj('#wpl_export_format').val();
 	document.location = '<?php echo wpl_global::get_full_url(); ?>&wpl_format=b:settings:ajax&wpl_function=export_settings&wpl_export_format='+format+'&_wpnonce=<?php echo $this->nonce; ?>';
+}
+
+function wpl_add_sample_properties()
+{
+    wplj("#wpl_add_sample_properties_btn").prop('disabled', true);
+    wpl_remove_message(".wpl-sample-properties .wpl_show_message");
+	
+    var wpl_ajax_loader = Realtyna.ajaxLoader.show('#wpl_add_sample_properties_ajax_loader', 'tiny', 'rightOut');
+	var request_str = 'wpl_format=b:settings:ajax&wpl_function=add_sample_properties&_wpnonce=<?php echo $this->nonce; ?>';
+	var ajax = wpl_run_ajax_query('<?php echo wpl_global::get_full_url(); ?>', request_str);
+	
+	ajax.success(function(data)
+	{
+        Realtyna.ajaxLoader.hide(wpl_ajax_loader);
+    	wplj("#wpl_add_sample_properties_btn").prop('disabled', false);
+    	wpl_show_messages(data.message, '.wpl-sample-properties .wpl_show_message', 'wpl_green_msg');
+	});
+}
+
+var wpl_rank_update_ajax_loader;
+function wpl_addon_rank_update_ranks_do()
+{
+    wplj("#wpl_addon_rank_update_ranks_btn").prop('disabled', true);
+    wplj("#wpl_updated_ranks_cnt").removeClass('wpl-util-hidden');
+    
+    wpl_remove_message("#wpl_addon_rank_update_property_ranks .wpl_show_message");
+	wpl_rank_update_ajax_loader = Realtyna.ajaxLoader.show('#wpl_addon_rank_update_ranks_ajax_loader', 'tiny', 'rightOut');
+    
+    wpl_addon_rank_update_ranks(0, 100);
+}
+
+function wpl_addon_rank_update_ranks(offset, limit)
+{
+	var request_str = 'wpl_format=b:settings:ajax&wpl_function=update_ranks&_wpnonce=<?php echo $this->nonce; ?>&offset='+offset+'&limit='+limit;
+	
+	wplj.ajax(
+	{
+		type: "POST",
+		url: '<?php echo wpl_global::get_full_url(); ?>',
+		data: request_str,
+		dataType: 'JSON',
+		success: function(data)
+		{
+			if(data.success)
+			{
+                wplj("#wpl_updated_ranks").html(data.offset);
+                
+                // Continue to update
+                if(data.remained) wpl_addon_rank_update_ranks(data.offset, limit);
+                else
+                {
+                    wplj("#wpl_addon_rank_update_ranks_btn").prop('disabled', false);
+                    wpl_show_messages("<?php echo __("All listings' ranks updated.", 'wpl'); ?>", '#wpl_addon_rank_update_property_ranks .wpl_show_message', 'wpl_green_msg');
+                }
+			}
+			else
+			{
+				Realtyna.ajaxLoader.hide(wpl_rank_update_ajax_loader);
+                wplj("#wpl_addon_rank_update_ranks_btn").prop('disabled', false);
+                wpl_show_messages("<?php echo __('Error Occured.', 'wpl'); ?>", '#wpl_addon_rank_update_property_ranks .wpl_show_message', 'wpl_red_msg');
+			}
+		},
+		error: function(jqXHR, textStatus, errorThrown)
+		{
+            Realtyna.ajaxLoader.hide(wpl_rank_update_ajax_loader);
+            wplj("#wpl_addon_rank_update_ranks_btn").prop('disabled', false);
+            wpl_show_messages("<?php echo __('Error Occured.', 'wpl'); ?>", '#wpl_addon_rank_update_property_ranks .wpl_show_message', 'wpl_red_msg');
+		}
+	});
 }
 </script>

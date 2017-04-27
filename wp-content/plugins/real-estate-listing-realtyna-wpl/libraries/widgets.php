@@ -161,4 +161,36 @@ class wpl_widget extends WP_Widget
 		global $wp_registered_widgets;
         return $wp_registered_widgets;
 	}
+	
+	/**
+     * for importing internal files in object mode
+     * @author Howard <howard@realtyna.com>
+     * @param string $include
+     * @param boolean $override
+     * @param boolean $set_footer
+     * @param boolean $once
+     * @return void
+     */
+    protected function _wpl_import($include, $override = true, $set_footer = false, $once = false)
+    {
+        $path = _wpl_import($include, $override, true);
+
+        /** check exists **/
+        if(!wpl_file::exists($path)) return;
+        
+        if(!$set_footer)
+        {
+            if(!$once) include $path;
+            else include_once $path;
+        }
+        else
+        {
+            ob_start();
+            
+            if(!$once) include $path;
+            else include_once $path;
+            
+            wpl_html::set_footer(ob_get_clean());
+        }
+    }
 }

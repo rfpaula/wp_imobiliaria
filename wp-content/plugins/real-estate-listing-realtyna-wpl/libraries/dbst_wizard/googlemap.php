@@ -143,7 +143,7 @@ function wpl_code_address(address)
 		}
         else
 		{
-            wpl_show_messages("<?php echo addslashes(__('Geocode was not successful for the following reason', 'wpl')); ?> : " + status, '.wpl_pwizard_googlemap_message .wpl_show_message', 'wpl_gold_msg');
+            wpl_show_messages("<?php echo addslashes(__('Geocode was not successful for the following reason:', 'wpl')); ?> : " + status, '.wpl_pwizard_googlemap_message .wpl_show_message', 'wpl_gold_msg');
             setTimeout(function(){wpl_remove_message('.wpl_pwizard_googlemap_message .wpl_show_message')}, 3000);
 		}
 	});
@@ -264,6 +264,9 @@ function init_dmgfc()
 		map: pw_map
 	});
     
+    wplj('#wpl_map_canvas<?php echo $field->id; ?>').addClass('wpl-dmgfc-addon');
+    wplj('.wpl-map-add-ons').prepend('<div class="wpl_dmgfc_container"></div>');
+    
     google.maps.event.addListener(drawingManager, 'overlaycomplete', function(event)
 	{
         drawingManager.setOptions({drawingMode: null});
@@ -271,7 +274,7 @@ function init_dmgfc()
         var overlay = event.overlay;
         wpl_dmgfc_set_boundaries(overlay, event.type);
         
-        if(event.type == google.maps.drawing.OverlayType.POLYGON)
+        if(event.type === google.maps.drawing.OverlayType.POLYGON)
         {
             /** delete overlays **/
             for(var i = 0; i < polygonsArray.length; i++) polygonsArray[i].setMap(null);
@@ -280,7 +283,7 @@ function init_dmgfc()
             /** push to array **/
             polygonsArray.push(overlay);
         }
-        else if(event.type == google.maps.drawing.OverlayType.POLYLINE)
+        else if(event.type === google.maps.drawing.OverlayType.POLYLINE)
         {
             /** delete overlays **/
             for(var i = 0; i < polylinesArray.length; i++) polylinesArray[i].setMap(null);
@@ -291,7 +294,7 @@ function init_dmgfc()
         }
         
         /** POLYGON **/
-        if(event.type == google.maps.drawing.OverlayType.POLYGON)
+        if(event.type === google.maps.drawing.OverlayType.POLYGON)
         {
             overlay.getPaths().forEach(function(path, index)
             {
@@ -311,7 +314,7 @@ function init_dmgfc()
                 });
             });
         }
-        else if(event.type == google.maps.drawing.OverlayType.POLYLINE)
+        else if(event.type === google.maps.drawing.OverlayType.POLYLINE)
         {
             google.maps.event.addListener(overlay.getPath(), 'insert_at', function()
             {
@@ -328,6 +331,8 @@ function init_dmgfc()
                 wpl_dmgfc_set_boundaries(overlay, google.maps.drawing.OverlayType.POLYLINE);
             });
         }
+        
+        wpl_dmgfc_toggle_remove_shapes_button('show');
 	});
     
     <?php
@@ -413,6 +418,8 @@ function init_dmgfc()
         <?php
         }
     }
+    
+    if(count($demographic_objects)) echo 'wpl_dmgfc_toggle_remove_shapes_button("show");';
     ?>
 }
 
@@ -441,6 +448,48 @@ function wpl_dmgfc_set_boundaries(overlay, type)
     
     item_save('', <?php echo $item_id; ?>, 0, 'demographic', type, encodeURIComponent(paths.toString()));
 }
+
+function wpl_dmgfc_toggle_remove_shapes_button(method)
+{
+    if(typeof method == 'undefined') method = 'hide';
+    
+    if(method == 'hide')
+    {
+        wplj("#wpl_dmgfc_remove_shapes_button").remove();
+    }
+    else if(method == 'show')
+    {
+        if(!wplj('.wpl_dmgfc_container #wpl_dmgfc_remove_shapes_button').length) wplj('.wpl_dmgfc_container').append('<div id="wpl_dmgfc_remove_shapes_button" class="wpl-dmgfc-remove-shapes-btn"><button type="button" class="btn btn-primary" onclick="wpl_dmgfc_remove_shapes();"><?php echo addslashes(__('Remove Shapes!', 'wpl')); ?></button></div>');
+    }
+}
+
+function wpl_dmgfc_remove_shapes()
+{
+    /** Remove Polygons **/
+    for(var i = 0; i < polygonsArray.length; i++) polygonsArray[i].setMap(null);
+    polygonsArray = new Array();
+    
+    /** Remove Polylines **/
+    for(var i = 0; i < polylinesArray.length; i++) polylinesArray[i].setMap(null);
+    polylinesArray = new Array();
+    
+    wpl_dmgfc_toggle_remove_shapes_button('hide');
+    
+    var request_str = 'wpl_format=b:listing:ajax&wpl_function=remove_items&item_id=<?php echo $item_id; ?>&item_type=demographic&kind=<?php echo $this->kind; ?>&_wpnonce=<?php echo $nonce; ?>';
+	
+	/** run ajax query **/
+	var ajax = wpl_run_ajax_query('<?php echo wpl_global::get_full_url(); ?>', request_str);
+	ajax.success(function(data)
+	{
+		if(data.success == 1)
+		{
+		}
+		else if(data.success != 1)
+		{
+			try{eval(data.js)} catch(err){}
+		}
+	});
+}
 </script>
 <div class="google-map-wp">
     <div class="wpl_pwizard_googlemap_message"><div class="wpl_show_message"></div></div>
@@ -449,6 +498,7 @@ function wpl_dmgfc_set_boundaries(overlay, type)
 		<input class="text-address" id="wpl_map_address<?php echo $field->id; ?>" type="text" name="address" value="" />
 		<button class="wpl-button button-1" onclick="wpl_code_address(wplj('#wpl_map_address<?php echo $field->id; ?>').val());"><?php echo addslashes(__('Go', 'wpl')); ?></button>
 	</div>
+    <div class="wpl-map-add-ons"></div>
 	<div class="map-canvas-wp">
         <div id="wpl_map_canvas<?php echo $field->id; ?>"></div>
 	</div>

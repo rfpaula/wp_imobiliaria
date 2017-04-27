@@ -18,6 +18,7 @@ $this->default_zoom = isset($params['default_zoom']) ? $params['default_zoom'] :
 $this->infowindow_event = isset($params['infowindow_event']) ? $params['infowindow_event'] : 'click';
 $this->overviewmap = isset($params['overviewmap']) ? $params['overviewmap'] : 0;
 $this->get_direction = isset($params['get_direction']) ? $params['get_direction'] : 0;
+$this->scroll_wheel = isset($params['scroll_wheel']) ? $params['scroll_wheel'] : 'false';
 
 /** Preview Property feature **/
 $this->map_property_preview = isset($params['map_property_preview']) ? $params['map_property_preview'] : 0;

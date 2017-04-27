@@ -32,11 +32,10 @@ defined('_WPLEXEC') or die('Restricted access');
         </div>
         <?php if($this->listing_type_id === 10000){ ?>
         <div class="fanc-row">
-         <label></label><input type="button" class="wpl-button button-1" onclick="wpl_ajax_insert_listing_type(<?php echo $this->listing_type_id; ?>);" value="<?php echo __('Save', 'wpl'); ?>"/>
+            <label></label><input type="button" class="wpl-button button-1" onclick="wpl_ajax_insert_listing_type(<?php echo $this->listing_type_id; ?>);" value="<?php echo __('Save', 'wpl'); ?>"/>
         </div>
         <?php } ?>
         <div class="fanc-row">
-
         </div>
         <div class="wpl_show_message<?php echo $this->listing_type_id; ?>" style="margin: 0 10px;"></div>
     </div>

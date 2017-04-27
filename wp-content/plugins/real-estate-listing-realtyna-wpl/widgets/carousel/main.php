@@ -64,6 +64,10 @@ class wpl_carousel_widget extends wpl_widget
 		}
 		
 		echo $args['before_widget'];
+        
+        /** apply filters (This filter must place after all proccess) **/
+		_wpl_import('libraries.filters');
+		@extract(wpl_filters::apply('property_listing_after_render', array('wpl_properties'=>$wpl_properties)));
 
 		$title = apply_filters('widget_title', $instance['title']);
 		if(trim($title) != '') echo $args['before_title'] .$title. $args['after_title'];
@@ -139,12 +143,25 @@ class wpl_carousel_widget extends wpl_widget
 		if(trim($data['property_type']) and $data['property_type'] != '-1') $where['sf_select_property_type'] = $data['property_type'];
 		if(isset($data['listing_ids']) and trim($data['listing_ids'])) $where['sf_multiple_mls_id'] = trim($data['listing_ids'], ', ');
         
+        /** Location **/
+        for ($i = 2; $i < 8; $i++)
+        {
+        	if(isset($data["location{$i}_name"]) and trim($data["location{$i}_name"])) $where["sf_select_location{$i}_name"] = $data["location{$i}_name"];
+        }
+
         /** Tags **/
         $tags = wpl_flex::get_fields(NULL, NULL, NULL, NULL, NULL, "AND `type`='tag' AND `enabled`>='1' GROUP BY `table_column`");
+        $tag_type = (!isset($data['tag_group_join_type']) OR empty($data['tag_group_join_type'])) ? 'and' : $data['tag_group_join_type'];
+
         foreach($tags as $tag)
         {
             $tagkey = 'only_'.ltrim($tag->table_column, 'sp_');
-            if(isset($data[$tagkey]) and trim($data[$tagkey])) $where['sf_select_'.$tag->table_column] = 1;
+
+            if(isset($data[$tagkey]) and trim($data[$tagkey]))
+            {
+                if($tag_type == 'and') $where['sf_select_'.$tag->table_column] = 1;
+                else $where['sf_groupor_'.$tag->table_column] = 1;
+            }
         }
         
         /** Parent **/
@@ -214,6 +231,22 @@ class wpl_carousel_widget extends wpl_widget
                         $sml_where['sf_radiussearchradius'] = $radius;
                     }
                 }
+                
+                if(isset($data['data_sml_zip_code']) and $data['data_sml_zip_code'])
+                {
+                    if(!empty($property_data['zip_name']) and $property_data['zip_name'] != 0)
+                    {
+                        $zip_code = $property_data['zip_name'];
+                        $zip_code_field_type = 'zip_name';
+                    }
+                    else
+                    {
+                        $zip_code = $property_data['post_code'];
+                        $zip_code_field_type = 'post_code';
+                    }
+                    
+                    $sml_where['sf_select_'.$zip_code_field_type] = $zip_code;
+                }
             }
             
             /** overwrite $where if similar where is correct **/
@@ -222,8 +255,57 @@ class wpl_carousel_widget extends wpl_widget
         
 		/** Start Search **/
 		$model->start($this->start, $this->limit, $this->orderby, $this->order, $where);
-		
+
 		/** Return the search **/
 		return $model->query();
 	}
+    
+    public function tags($tags, $property_data = array())
+	{
+        $tags_str = '';
+        
+        foreach($tags as $tag)
+        {
+            if(!$property_data[$tag->table_column]) continue;
+            
+            $options = json_decode($tag->options, true);
+            if(!$options['ribbon']) continue;
+            
+            $tags_str .= '<div class="wpl-listing-tag '.$tag->table_column.'">'.__($tag->name, 'wpl').'</div>';
+        }
+        
+        /** Load Tag Styles **/
+        $this->tags_styles($tags);
+        
+        return $tags_str;
+	}
+    
+    public function tags_styles($tags = array())
+    {
+        // No tag!
+        if(!count($tags)) return;
+        
+        static $loaded = array();
+        
+        if(isset($loaded[$this->widget_id])) return;
+        if(!isset($loaded[$this->widget_id])) $loaded[$this->widget_id] = true;
+        
+        /** Initialize WPL color library **/
+        $color = new wpl_color();
+        
+        $styles_str = '';
+        foreach($tags as $tag)
+        {
+            $options = json_decode($tag->options, true);
+            if(!$options['ribbon']) continue;
+            
+            $darken = $color->convert(trim($options['color'], '# '), 130, true);
+            $styles_str .= '.wpl-listing-tag.'.$tag->table_column.'{background-color: #'.trim($options['color'], '# ').'; color: #'.trim($options['text_color'], '# ').'} .wpl-listing-tag.'.$tag->table_column.'::after{border-color: #'.$darken.' transparent transparent #'.$darken.';}';
+        }
+        
+        _wpl_import('libraries.html');
+        
+        $wplhtml = wpl_html::getInstance();
+        $wplhtml->set_footer('<style type="text/css">'.$styles_str.'</style>');
+    }
 }

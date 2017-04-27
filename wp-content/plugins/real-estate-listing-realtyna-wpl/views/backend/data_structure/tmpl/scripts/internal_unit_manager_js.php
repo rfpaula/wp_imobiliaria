@@ -166,14 +166,13 @@ function wpl_change_unit_name(element)
 	return wpl_modify_unit(id, 'name', value, wplj(element).nextAll('.wpl-loader'));
 }
 
-
 function wpl_change_unit_option(element)
 {
 	var id = parseInt(wplj(element).data('wpl-id'));
 	var value = wplj(element).val().trim();
 	var option = wplj(element).data('wpl-option').trim();
 
-	if(id <= 0 || value == '' || option == '') return false;
+	if(id <= 0 || option == '') return false;
 
 	return wpl_modify_unit(id, option, value, wplj(element).nextAll('.wpl-loader'));
 }

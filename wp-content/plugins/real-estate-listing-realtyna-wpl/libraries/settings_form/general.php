@@ -96,7 +96,7 @@ elseif($type == 'sort_option' and !$done_this)
 {
     $kind = trim($options['kind']) != '' ? $options['kind'] : 1;
     _wpl_import('libraries.sort_options');
-    $sort_options = wpl_sort_options::get_sort_options($options['kind'], 1); /** getting enaled sort options **/
+    $sort_options = wpl_sort_options::render(wpl_sort_options::get_sort_options($options['kind'], 1)); /** getting enaled sort options **/
 ?>
 <div class="prow wpl_setting_form_container wpl_st_type<?php echo $setting_record->type; ?> wpl_st_<?php echo $setting_record->setting_name; ?>" id="wpl_st_<?php echo $setting_record->id; ?>">
 	<div class="select-wp">
@@ -248,6 +248,63 @@ elseif($type == 'multiple' and !$done_this)
             placeholder="<?php echo  ((isset($params['placeholder']) and $params['placeholder']) ? __($params['placeholder'], 'wpl') : ''); ?>"
             onchange="wpl_setting_save('<?php echo $setting_record->id; ?>', '<?php echo $setting_record->setting_name; ?>', this.value, '<?php echo $setting_record->category; ?>');"
             autocomplete="off" value="<?php echo htmlentities($setting_record->setting_value); ?>" data-realtyna-tagging />
+
+        <?php if(isset($params['tooltip'])): ?>
+        <span class="wpl_setting_form_tooltip wpl_help" id="wpl_setting_form_tooltip_container<?php echo $setting_record->id; ?>">
+            <span class="wpl_help_description" style="display: none;"><?php echo __($params['tooltip'], 'wpl'); ?></span>
+        </span>
+        <?php endif; ?>
+
+        <span class="ajax-inline-save" id="wpl_ajax_loader_<?php echo $setting_record->id; ?>"></span>
+    </div>
+</div>
+<?php
+    $done_this = true;
+}
+elseif($type == 'colorpicker' and !$done_this)
+{
+?>
+<div class="prow wpl_setting_form_container wpl_st_type<?php echo $setting_record->type; ?> wpl_st_<?php echo $setting_record->setting_name; ?>" id="wpl_st_<?php echo $setting_record->id; ?>">
+    <div class="color-picker-wp">
+        <label for="wpl_st_form_element<?php echo $setting_record->id; ?>"><?php echo $setting_title; ?>&nbsp;<span class="wpl_st_citation">:</span></label>
+        <input class="wpl-color-picker-field <?php echo isset($params['html_class']) ? $params['html_class'] : ''; ?>" type="text"
+               data-default-color="<?php echo htmlentities($setting_record->setting_value, ENT_COMPAT, "UTF-8"); ?>"
+               name="wpl_st_form<?php echo $setting_record->id; ?>"
+               id="wpl_st_form_element<?php echo $setting_record->id; ?>"
+               value="<?php echo htmlentities($setting_record->setting_value, ENT_COMPAT, "UTF-8"); ?>"
+               autocomplete="off" <?php echo isset($params['readonly']) ? 'readonly="readonly"' : ''; ?>
+        />
+        <?php if(isset($params['tooltip'])): ?>
+            <span class="wpl_setting_form_tooltip wpl_help" id="wpl_setting_form_tooltip_container<?php echo $setting_record->id; ?>">
+                <span class="wpl_help_description" style="display: none;"><?php echo __($params['tooltip'], 'wpl'); ?></span>
+            </span>
+        <?php endif; ?>
+        <input class="wpl-button button-1 wpl-save-btn wpl-color-picker-save" type="button" onclick="wpl_color_picker_save<?php echo $setting_record->id; ?>();" value="<?php echo __('Save', 'wpl'); ?>" />
+    </div>
+</div>
+<script type="text/javascript">
+    wplj('document').ready(function(){
+        wplj('#wpl_st_form_element<?php echo $setting_record->id; ?>').wpColorPicker();
+    });
+    function wpl_color_picker_save<?php echo $setting_record->id; ?>(){
+        wpl_setting_save('<?php echo $setting_record->id; ?>', '<?php echo $setting_record->setting_name; ?>', wplj("#wpl_st_form_element<?php echo $setting_record->id; ?>").val(), '<?php echo $setting_record->category; ?>');
+    }
+</script>
+<?php
+    $done_this = true;
+}
+elseif($type == 'currency' and !$done_this)
+{
+    $values = wpl_units::get_units();
+?>
+<div class="prow wpl_setting_form_container wpl_st_type<?php echo $setting_record->type; ?> wpl_st_<?php echo $setting_record->setting_name; ?>" id="wpl_st_<?php echo $setting_record->id; ?>">
+    <div class="select-wp">
+        <label for="wpl_st_form_element<?php echo $setting_record->id; ?>"><?php echo $setting_title; ?>&nbsp;<span class="wpl_st_citation">:</span></label>
+        <select name="wpl_st_form<?php echo $setting_record->id; ?>" id="wpl_st_form_element<?php echo $setting_record->id; ?>" onchange="wpl_setting_save('<?php echo $setting_record->id; ?>', '<?php echo $setting_record->setting_name; ?>', this.value, '<?php echo $setting_record->category; ?>');" autocomplete="off">
+            <?php foreach($values as $value_array): ?>
+            <option value="<?php echo $value_array['extra']; ?>" <?php if($value_array['extra'] == $value) echo 'selected="selected"' ?>><?php echo $value_array['extra']; ?></option>
+            <?php endforeach; ?>
+        </select>
 
         <?php if(isset($params['tooltip'])): ?>
         <span class="wpl_setting_form_tooltip wpl_help" id="wpl_setting_form_tooltip_container<?php echo $setting_record->id; ?>">

@@ -59,6 +59,11 @@ class wpl_data_structure_controller extends wpl_controller
 			$icon = wpl_request::getVar('icon');
 			$this->gicon_delete($icon);
 		}
+        elseif($function == 'set_multiple_icon')
+		{
+			$icon = wpl_request::getVar('icon');
+			$this->set_multiple_icon($icon);
+		}
 		elseif($function == 'gicon_upload_file')
 		{
 			$this->gicon_upload_file();
@@ -96,7 +101,7 @@ class wpl_data_structure_controller extends wpl_controller
 		
 		if((!empty($file['error'])) or (empty($file['tmp_name']) or $file['tmp_name'] == 'none'))
 		{
-			$error = __("An error occurred uploading your file!", 'wpl');
+			$error = __("An error occurred while uploading your file!", 'wpl');
 		}
 		else
 		{
@@ -105,7 +110,7 @@ class wpl_data_structure_controller extends wpl_controller
 			
 			if(!in_array($extention, $ext_array))
 			{
-				$error = __("File extension should be jpg, png or gif", 'wpl');
+				$error = __("File extension should be .jpg, .png or .gif.", 'wpl');
 			}
 			
 			/** check the file size **/
@@ -147,6 +152,16 @@ class wpl_data_structure_controller extends wpl_controller
         
         /** trigger event **/
 		wpl_global::event_handler('gicon_removed', array('icon'=>$icon));
+		exit;
+	}
+    
+    private function set_multiple_icon($icon)
+	{
+        // Update the setting
+		wpl_settings::update_setting('multiple_marker_icon', $icon);
+        
+        /** trigger event **/
+		wpl_global::event_handler('multiple_marker_icon_changed', array('icon'=>$icon));
 		exit;
 	}
 	

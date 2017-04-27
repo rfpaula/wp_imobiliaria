@@ -48,8 +48,10 @@
                      onclick="ajax_gallery_image_delete('{{name}}', 'ajax_gallery{{index}}');">
                     <i class="action-btn icon-recycle"></i>
                 </div>
+                {{#if mediaConfirm}}
                 <div class="action-gal-btn" id="active_image_tag_{{index}}"
                      onclick="wpl_image_enabled('{{name}}', '{{index}}');"><i class="action-btn icon-enabled" title="{{enabled_title}}"></i></div>
+                {{/if}}
                 <input type="hidden" id="enabled_image_field_{{index}}" value="1"/>
             </div>
         </div>
@@ -87,9 +89,11 @@
                      onclick="ajax_video_delete('{{name}}', 'ajax_video{{vid_counter}}');">
                     <i class="action-btn icon-recycle"></i>
                 </div>
+                {{#if mediaConfirm}}
                 <div class="action-gal-btn" id="active_image_tag_{{vid_counter}}"
                      onclick="wpl_image_enabled('{{name}}', {{vid_counter}});"><i class="action-btn icon-enabled"></i>
                 </div>
+                {{/if}}
                 <input type="hidden" id="enabled_video_field_{{vid_counter}}" value=""/>
             </div>
         </div>
@@ -133,11 +137,13 @@
                      onclick="ajax_attachment_delete('{{fileName}}','ajax_attachment{{att_counter}}');">
                     <i class="action-btn icon-recycle"></i>
                 </div>
-
+                
+                {{#if mediaConfirm}}
                 <div class="action-gal-btn" id="active_attachment_tag_{{att_counter}}"
                      onclick="wpl_attachment_enabled('{{fileName}}','{{att_counter}}');">
                     <i class="action-btn icon-enabled" title="{{enabled_title}}"></i>
                 </div>
+                {{/if}}
 
                 <input type="hidden" id="enabled_attachment_field_{{att_counter}}" value="1"/>
             </div>

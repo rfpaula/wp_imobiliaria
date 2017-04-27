@@ -16,7 +16,7 @@ wplj(document).ready(function()
 		wplj(this).children('li').first().addClass('active');
 	})
 
-	wplj('.wpl_prp_show_tabs ul.tabs li a').off('click').on('click',function()
+	wplj('.wpl_prp_show_tabs ul.tabs li a').off('touchstart click').on('touchstart click',function()
 	{
 		wplj(this).parent('li').siblings().removeClass('active');
 		wplj(this).parent().addClass('active');
@@ -115,7 +115,7 @@ function wpl_dpr_popup()
         wplj._realtyna.lightbox.open("#wpl_dpr_lightbox",
         {
             reloadPage: false,
-			cssClasses: {wrap : 'wpl-frontend-lightbox-wp', overlay:'realtyna-lightbox-overlay realtyna-lightbox-overlay-drp'},
+			cssClasses: {wrap: 'wpl-frontend-lightbox-wp', overlay: 'realtyna-lightbox-overlay realtyna-lightbox-overlay-drp'},
 			closeOnOverlay: <?php echo (wpl_session::get('wpl_dpr_popup') == 1 ? 'true' : 'false'); ?>,
             callbacks:
             {

@@ -4,7 +4,7 @@ defined('_WPLEXEC') or die('Restricted access');
 
 // Load Google Maps API
 wpl_global::include_google_maps();
-    
+
 $map_activities = wpl_activity::get_activities('plisting_position1', 1);
 ?>
 <script type="text/javascript">
@@ -24,7 +24,7 @@ function wpl_initialize<?php echo $this->activity_id; ?>()
 	/** create empty LatLngBounds object **/
 	bounds<?php echo $this->activity_id; ?> = new google.maps.LatLngBounds();
 	var mapOptions = {
-		scrollwheel: false,
+		scrollwheel: <?php echo (isset($this->scroll_wheel) ? $this->scroll_wheel : 'false'); ?>,
 		mapTypeId: google.maps.MapTypeId.<?php echo (isset($this->googlemap_view) ? $this->googlemap_view : 'ROADMAP'); ?>,
         <?php if(isset($this->overviewmap) and $this->overviewmap): ?>
         overviewMapControl: true,

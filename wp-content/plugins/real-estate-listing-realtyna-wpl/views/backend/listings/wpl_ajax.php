@@ -157,7 +157,7 @@ class wpl_listings_controller extends wpl_controller
 		if(!wpl_global::check_addon('multi_agents'))
 		{
 			$res = 0;
-			$message = __("Multi agents addon is not installed.", 'wpl');
+			$message = __("Multi Agents Add-on is not installed.", 'wpl');
 		}
         elseif(wpl_users::check_access('multi_agents'))
 		{
@@ -188,7 +188,7 @@ class wpl_listings_controller extends wpl_controller
 		if(!wpl_global::check_addon('pro'))
 		{
 			$res = 0;
-			$message = __("PRO addon is not installed.", 'wpl');
+			$message = __("PRO Add-on is not installed.", 'wpl');
 		}
         elseif(wpl_users::check_access('clone'))
 		{

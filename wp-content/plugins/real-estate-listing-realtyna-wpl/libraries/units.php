@@ -16,7 +16,7 @@ class wpl_units
 	 * @var string
 	 * @static
 	 */
-	public static $base_currency = 'USD';
+	public static $base_currency = null;
 
     /**
      * Returns unit types [AREA,VALUME,....]
@@ -152,8 +152,39 @@ class wpl_units
 	{
 		/** first validation **/
 		if(trim($unit_id) == '' or trim($key) == '') return false;
-		return wpl_db::set('wpl_units', $unit_id, $key, $value);
+		$result = wpl_db::set('wpl_units', $unit_id, $key, $value);
+
+		/** Update Price SI if the key the 'tosi' and unit type is price */
+		if($key == 'tosi') 
+		{
+			$unit = self::get_unit($unit_id);
+			if($unit['type'] == 4) 
+			{
+				self::update_price_si($unit_id, $value);
+			}
+		}
+
+		return $result;
 	}	
+
+	/**
+	 * Get base currency
+	 * @author Edward <edward@realtyna.com>
+	 * @static
+	 * @return string
+	 */
+	protected static function get_base_currency()
+	{
+		if(!self::$base_currency)
+		{
+			$base_currency = wpl_settings::get('base_currency');
+			if(!$base_currency) $base_currency = 'USD';
+
+			self::$base_currency = $base_currency;
+		}
+
+	 	return self::$base_currency;
+	}
 	
     /**
      * This is a function for updating all currencies exchange rates from yahoo server
@@ -169,17 +200,17 @@ class wpl_units
 
 		foreach($units as $unit) $currencies[] = $unit['extra'];
 
-		$converted_raw = self::currency_converter($currencies, self::$base_currency);
+		$converted_raw = self::currency_converter($currencies, self::get_base_currency());
 		if(!is_array($converted_raw)) return;
 
 		$converted = array();
 		foreach($converted_raw as $pair => $rate)
 		{
-			$cur_from = preg_replace('/(.+)' . self::$base_currency . '$/', "$1", $pair);
+			$cur_from = preg_replace('/(.+)' . self::get_base_currency() . '$/', "$1", $pair);
 			$converted[$cur_from] = $rate;
 		}
 
-		foreach($units as $unit) 
+		foreach($units as $unit)
 		{
 			$currency_code = $unit['extra'];
 			if(!array_key_exists($currency_code, $converted)) continue;
@@ -203,7 +234,7 @@ class wpl_units
      */
 	public static function update_a_exchange_rate($unit_id, $currency_code)
 	{
-		$exchange_rate = self::currency_converter($currency_code, self::$base_currency);
+		$exchange_rate = self::currency_converter($currency_code, self::get_base_currency());
 
 		if($exchange_rate)
 		{
@@ -228,11 +259,23 @@ class wpl_units
 	public static function update_exchange_rate($unit_id, $value)
 	{
 		$results = self::update($unit_id, 'tosi', $value);
-        
-        wpl_db::q("UPDATE `#__wpl_properties` SET `price_si`=(`price`*$value) WHERE `price_unit`='$unit_id'");
-        if(wpl_db::columns('wpl_properties', 'price_max')) wpl_db::q("UPDATE `#__wpl_properties` SET `price_max_si`=(`price_max`*$value) WHERE `price_unit`='$unit_id'");
-        
+        self::update_price_si($unit_id, $value);
         return $results;
+	}
+
+	/**
+	 * Update Price SI for all properties based on their unit id
+	 * @author Steve A. <steve@realtyna.com>
+	 * @param  int 	 $unit_id
+     * @param  mixed $value
+	 * @return null
+	 */
+	public static function update_price_si($unit_id, $value)
+	{
+		if(!$unit_id or !$value) return;
+
+		wpl_db::q("UPDATE `#__wpl_properties` SET `price_si` = ROUND(`price` * $value) WHERE `price_unit` = '$unit_id'", 'update');
+		if($has_price_max) wpl_db::q("UPDATE `#__wpl_properties` SET `price_max_si` = ROUND(`price_max` * $value) WHERE `price_unit` = '$unit_id'", 'update');
 	}
 	
     /**
@@ -249,13 +292,13 @@ class wpl_units
 	{
 		if(!is_array($cur_from))
 		{
-			if(trim($cur_from) == '') $cur_from = self::$base_currency;
+			if(trim($cur_from) == '') $cur_from = self::get_base_currency();
 			$cur_from = array($cur_from);
 		}
 
 		if(!is_array($cur_to))
 		{
-			if(trim($cur_to) == '') $cur_to = self::$base_currency;
+			if(trim($cur_to) == '') $cur_to = self::get_base_currency();
 			$cur_to = array($cur_to);
 		}
 

@@ -203,14 +203,13 @@ elseif($format == 'textsearch' and !$done_this)
         /** If the field is multilingual or it is textsearch field **/
         if(wpl_global::check_multilingual_status() and (wpl_addon_pro::get_multiligual_status_by_column($table_column, wpl_request::getVar('kind', 0)) or $table_column == 'textsearch')) $table_column = wpl_addon_pro::get_column_lang_name($table_column, wpl_global::get_current_language(), false);
         
-        $value = stripslashes($value);
         $values_ex = explode(',', $value);
         $qq = array();
         
         foreach($values_ex as $value_ex)
         {
             if(trim($value_ex) == '') continue;
-            $qq[] = "`".$table_column."` LIKE '%".trim($value_ex, ', ')."%'";
+            $qq[] = "`".$table_column."` LIKE '%".wpl_db::escape(trim($value_ex, ', '))."%'";
         }
         
         $query .= " AND (".implode(' OR ', $qq).")";
@@ -234,5 +233,33 @@ elseif($format == 'unit' and !$done_this)
 		if($si_value_min != 0) $query .= " AND `".$table_column."_si` >= '".$si_value_min."'";
 	}
 	
+	$done_this = true;
+}
+elseif($format == 'textyesno' and !$done_this)
+{
+	if($value != '-1' and trim($value) != '')
+    {
+        if($value==1) $query .= " AND (`".$table_column."` IS NOT NULL AND `".$table_column."` !='')";
+	}
+
+	$done_this = true;
+}
+elseif($format == 'groupor' and !$done_this)
+{
+	if($value != '-1' and trim($value) != '')
+	{
+		$query_or_status = true;
+		if(!$query_or_values[$table_column]) $query_or_values[$table_column] = $value;
+	}
+
+	$done_this = true;
+}
+elseif($format == 'restrict' and !$done_this)
+{
+	if(trim($value) != '')
+	{
+		$query .= " AND (`".$table_column."` IN ('".$value."'))";
+	}
+
 	$done_this = true;
 }

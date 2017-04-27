@@ -7,6 +7,7 @@ wplj(document).ready(function()
 {
     wplj(".sortable").sortable(
     {
+
         handle: 'span.icon-move',
         cursor: "move" ,
         update : function(e, ui)
@@ -37,7 +38,154 @@ wplj(document).ready(function()
             })
         }
     });
+
+    wplj(".categories_sortable").sortable(
+    {
+        handle: 'span.icon-move',
+        cursor: "move" ,
+        update : function(e, ui)
+        {
+            var stringDiv = "";
+            wplj(this).children("tr").each(function(i)
+            {
+                var tr = wplj(this);
+                var tr_id = tr.attr("id").split("-");
+                if(i != 0) stringDiv += ",";
+                stringDiv += tr_id[2];
+            });
+
+            request_str = 'wpl_format=b:flex:ajax&wpl_function=sort_categories&sort_ids='+stringDiv+'&_wpnonce=<?php echo $this->nonce; ?>';
+
+            wplj.ajax(
+                {
+                    type: "POST",
+                    url: '<?php echo wpl_global::get_full_url(); ?>',
+                    data: request_str,
+                    success: function(data)
+                    {window.location='<?php echo wpl_global::get_full_url(); ?>'},
+                    error: function(jqXHR, textStatus, errorThrown)
+                    {
+                        wpl_show_messages('<?php echo addslashes(__('Error Occured.', 'wpl')); ?>', '.wpl_flex_list .wpl_show_message', 'wpl_red_msg');
+                    }
+                })
+        }
+    });
 });
+
+function wpl_category_form(cat_id)
+{
+	request_str = 'wpl_format=b:flex:ajax&wpl_function=category_form&_wpnonce=<?php echo $this->nonce; ?>&cat_id='+cat_id;
+
+	wplj.ajax(
+		{
+			type: "POST",
+			url: '<?php echo wpl_global::get_full_url(); ?>',
+			data: request_str,
+			success: function(data)
+			{
+				wplj("#wpl_flex_category").append(data);
+			},
+			error: function(jqXHR, textStatus, errorThrown)
+			{
+				wpl_show_messages('<?php echo addslashes(__('Error Occured.', 'wpl')); ?>', '.wpl_flex_list .wpl_show_message', 'wpl_red_msg');
+			}
+		});
+}
+
+function wpl_save_category(cat_id)
+{
+	var name = wplj('#category_name').val();
+	var kind = wplj('#category_kind').val();
+	request_str = 'wpl_format=b:flex:ajax&wpl_function=update_category&_wpnonce=<?php echo $this->nonce; ?>&cat_id='+cat_id+'&category_name='+name+'&category_kind='+kind;
+	
+	var message_path = '#wpl_category_form_message';
+	var ajax_loader_element = "#wpl_category_form_loader";
+	wplj(ajax_loader_element).html('<img src="<?php echo wpl_global::get_wpl_asset_url('img/ajax-loader3.gif'); ?>" />');
+
+	/** run ajax query **/
+	ajax = wpl_run_ajax_query('<?php echo wpl_global::get_full_url(); ?>', request_str, ajax_loader_element);
+
+	ajax.success(function(data)
+	{
+		if(data.success == 1)
+		{
+			wplj._realtyna.lightbox.close();
+		}
+		else if(data.success == 0)
+		{
+			wplj(ajax_loader_element).html('');
+			wpl_show_messages(data.message, message_path, 'wpl_red_msg');
+			wplj(message_path).delay(3000).fadeOut(200);
+		}
+	});
+}
+
+function wpl_remove_category(cat_id,confirmed)
+{
+	var message_path = '.wpl_flex_list .wpl_show_message';
+
+	if(!cat_id)
+	{
+		alert('cat');
+		wpl_show_messages("<?php echo addslashes(__('Invalid field', 'wpl')); ?>", message_path);
+		return false;
+	}
+
+	if(!confirmed)
+	{
+		var message = "<?php echo addslashes(__('Are you sure you want to remove this item?', 'wpl')); ?>&nbsp;(<?php echo addslashes(__('ID', 'wpl')); ?>:"+cat_id+")&nbsp;<?php echo addslashes(__('All related items will be removed.', 'wpl')); ?>";
+		message += '<span class="wpl_actions" onclick="wpl_remove_category(\''+cat_id+'\', 1);"><?php echo addslashes(__('Yes', 'wpl')); ?></span>&nbsp;<span class="wpl_actions" onclick="wpl_remove_message(\''+message_path+'\');"><?php echo addslashes(__('No', 'wpl')); ?></span>';
+
+		wpl_show_messages(message, message_path);
+		return false;
+	}
+	else if(confirmed) wpl_remove_message(message_path);
+
+	ajax_loader_element = "#category_remove_loader"+cat_id;
+	wplj(ajax_loader_element).html('<img src="<?php echo wpl_global::get_wpl_asset_url('img/ajax-loader3.gif'); ?>" />');
+
+	request_str = 'wpl_format=b:flex:ajax&wpl_function=remove_category&cat_id='+cat_id+'&_wpnonce=<?php echo $this->nonce; ?>';
+
+	/** run ajax query **/
+	ajax = wpl_run_ajax_query('<?php echo wpl_global::get_full_url(); ?>', request_str, ajax_loader_element);
+
+	ajax.success(function(data)
+	{
+		if(data.success == 1)
+		{
+			wplj(ajax_loader_element).html('');
+			wpl_show_messages(data.message, message_path, 'wpl_green_msg');
+			wplj(message_path).delay(3000).fadeOut(200);
+			wplj(".cat_"+cat_id).hide(200);
+			wplj("#wpl_slide_label_id"+cat_id).hide(200);
+		}
+		else if(data.success == 0)
+		{
+			wpl_show_messages(data.message, message_path, 'wpl_red_msg');
+			wplj(message_path).delay(3000).fadeOut(200);
+			wplj(ajax_loader_element).html('');
+		}
+	});
+}
+
+function wpl_toggle_category_status(cat_id)
+{
+    request_str = 'wpl_format=b:flex:ajax&wpl_function=toggle_category_status&cat_id='+cat_id+'&_wpnonce=<?php echo $this->nonce; ?>';
+    wplj.ajax(
+    {
+        type: "POST",
+        url: '<?php echo wpl_global::get_full_url(); ?>',
+        data: request_str,
+        success: function(data)
+        {
+            window.location='<?php echo wpl_global::get_full_url(); ?>';
+        },
+        error: function(jqXHR, textStatus, errorThrown)
+        {
+            wpl_show_messages('<?php echo addslashes(__('Error Occured.', 'wpl')); ?>', '.wpl_flex_list .wpl_show_message', 'wpl_red_msg');
+        }
+    });
+}
 
 function wpl_dbst_mandatory(dbst_id, mandatory_status)
 {
@@ -125,9 +273,10 @@ function generate_modify_page(field_id, field_type)
 {
 	if(!field_id) field_id = 0;
 	if(field_id == 0) field_type = wplj("#wpl_dbst_types_select").val();
-	
+	cat_id = wplj(".wpl-side-2 .active").data("id");
+
 	ajax_loader_element = '';
-	request_str = 'wpl_format=b:flex:modify&wpl_function=generate_modify_page&field_type='+field_type+'&field_id='+field_id+'&kind=<?php echo $this->kind; ?>&_wpnonce=<?php echo $this->nonce; ?>';
+	request_str = 'wpl_format=b:flex:modify&wpl_function=generate_modify_page&field_type='+field_type+'&field_id='+field_id+'&cat_id='+cat_id+'&kind=<?php echo $this->kind; ?>&_wpnonce=<?php echo $this->nonce; ?>';
 	
 	/** run ajax query **/
 	ajax = wpl_run_ajax_query('<?php echo wpl_global::get_full_url(); ?>', request_str, ajax_loader_element, "HTML");
@@ -183,7 +332,7 @@ function save_dbst(prefix, dbst_id)
 			});
 		}
 		
-		request_str += "&fld_listing_specific="+listing_specific+"&fld_property_type_specific=&fld_user_specific=";
+		request_str += "&fld_listing_specific="+listing_specific+"&fld_property_type_specific=&fld_user_specific=&fld_field_specific=";
 	}
 	else if(specificable == 2) /** property type specific **/
 	{
@@ -197,7 +346,7 @@ function save_dbst(prefix, dbst_id)
 			});
 		}
 		
-		request_str += "&fld_property_type_specific="+property_type_specific+"&fld_listing_specific=&fld_user_specific=";
+		request_str += "&fld_property_type_specific="+property_type_specific+"&fld_listing_specific=&fld_user_specific=&fld_field_specific=";
 	}
     else if(specificable == 3) /** user type specific **/
 	{
@@ -211,11 +360,17 @@ function save_dbst(prefix, dbst_id)
 			});
 		}
 		
-		request_str += "&fld_user_specific="+user_specific+"&fld_listing_specific=&fld_property_type_specific=";
+		request_str += "&fld_user_specific="+user_specific+"&fld_listing_specific=&fld_property_type_specific=&fld_field_specific=";
+	}
+	else if(specificable == 4) /** field specific **/
+	{
+		field_specific = wplj("#"+prefix+"field_specific_name").val() + ':' + wplj("#"+prefix+"field_specific_value").val();
+
+		request_str += "&fld_field_specific="+field_specific+"&fld_listing_specific=&fld_property_type_specific=&fld_user_specific=";
 	}
 	else if(specificable == 0) /** No specific **/
 	{
-		request_str += "&fld_property_type_specific=&fld_listing_specific=&fld_user_specific=";
+		request_str += "&fld_property_type_specific=&fld_listing_specific=&fld_user_specific=&fld_field_specific=";
 	}
     
     /** Data Accesses **/

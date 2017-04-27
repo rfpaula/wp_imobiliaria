@@ -76,7 +76,7 @@ if($type == 'tag' and !$done_this)
             <?php endif; ?>
             <?php else: ?>
             <div class="fanc-row">
-                <span><?php echo __('Tags addon must be installed for this!', 'wpl'); ?></span>
+                <span><?php echo __('The Tags Add-on must be installed for this feature!', 'wpl'); ?></span>
 			</div>
             <?php endif; ?>
 		</div>

@@ -348,4 +348,13 @@ function wpl_membership_toggle(selector)
 {
     wplj(selector).toggle();
 }
+
+function wpl_toggle_direct_contact_users()
+{
+	var notification_status = wplj('#maccess_direct_contact').val();
+	if(notification_status == 0)
+		wplj('#maccess_direct_contact_users').show();
+	else
+		wplj('#maccess_direct_contact_users').hide();
+}
 </script>

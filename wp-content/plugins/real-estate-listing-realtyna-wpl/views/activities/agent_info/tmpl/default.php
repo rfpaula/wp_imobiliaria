@@ -24,7 +24,7 @@ if(wpl_global::check_addon('multi_agents'))
     $additional_agents = $multi->get_agents();
 
     foreach($additional_agents as $additional_agent) $user_ids[] = $additional_agent;
-    
+
     $user_ids = array_unique($user_ids);
 }
 
@@ -53,12 +53,24 @@ foreach($user_ids as $user_id)
     $agent_l_name             = isset($wpl_user['materials']['last_name']['value']) ? $wpl_user['materials']['last_name']['value'] : '';
     $company_name             = isset($wpl_user['materials']['company_name']['value']) ? $wpl_user['materials']['company_name']['value'] : '';
     $profile_url              = wpl_users::get_profile_link($user_id);
-    
+
+	/** Preparing website URL **/
+	$website = '';
+	if(isset($wpl_user['materials']['website']['value']))
+	{
+		$website = $wpl_user['materials']['website']['value'];
+		if(stripos($website, 'http://') === false and stripos($website, 'https://') === false)
+		{
+			$website = 'http://'.$website;
+		}
+		$wpl_user['materials']['website']['value'] = $website;
+	}
+
     $users_data[] = array('wpl_user'=>$wpl_user, 'profile_image'=>$profile_image, 'logo_image'=>$logo_image, 'agent_name'=>$agent_name, 'agent_l_name'=>$agent_l_name, 'company_name'=>$company_name, 'profile_url'=>$profile_url);
 }
 $is_multi_agent = (count($users_data) > 1 ? true : false);
 ?>
-<div class="wpl_agent_info" id="wpl_agent_info<?php echo $main_user_id; ?>" itemscope>
+<div itemscope itemtype="http://schema.org/RealEstateAgent" class="wpl_agent_info" id="wpl_agent_info<?php echo $main_user_id; ?>">
 	<?php foreach($users_data as $user_data): ?>
 	<?php if($is_multi_agent) echo '<div class="wpl_multi_agent_info clearfix">'; ?>
 		<div class="wpl_agent_info_l">
@@ -67,19 +79,19 @@ $is_multi_agent = (count($users_data) > 1 ? true : false);
 					<?php if($user_data['profile_image']): ?>
 						<img itemprop="image" src="<?php echo $user_data['profile_image']; ?>" class="profile_image" alt="<?php echo $user_data['agent_name']. ' '.$user_data['agent_l_name']; ?>" />
 					<?php else: ?>
-						<div class="no_image" style="width:<?php $picture_width; ?>px;height:<?php $picture_height; ?>px;"></div>
+						<div class="no_image" style="width:<?php echo $picture_width; ?>px;height:<?php echo $picture_height; ?>px;"></div>
 					<?php endif; ?>
 				</div>
 				<?php if($user_data['logo_image']): ?>
 				<div class="back">
-					<img itemprop="image" src="<?php echo $user_data['logo_image']; ?>" class="logo" alt="<?php echo $user_data['company_name']; ?>" />
+					<img itemprop="logo" itemprop="image" src="<?php echo $user_data['logo_image']; ?>" class="logo" alt="<?php echo $user_data['company_name']; ?>" />
 				</div>
 				<?php endif; ?>
 			</div>
 			<div class="company_details">
 				<div itemprop="name" class="company_name"><?php echo $user_data['company_name']; ?></div>
 				<?php if(isset($user_data['wpl_user']['materials']['company_address'])): ?>
-				<div itemprop="address" class="company_address"><?php echo $user_data['wpl_user']['materials']['company_address']['value']; ?></div>
+				<div itemprop="address" itemscope itemtype="http://schema.org/PostalAddress"  class="company_address"><?php echo $user_data['wpl_user']['materials']['company_address']['value']; ?></div>
 				<?php endif; ?>
 			</div>
 		</div>
@@ -92,11 +104,11 @@ $is_multi_agent = (count($users_data) > 1 ? true : false);
 				<?php endif; ?>
 
 				<?php if(isset($user_data['wpl_user']['materials']['tel']['value'])): ?>
-				<li itemprop="telephone" class="tel"><?php echo $user_data['wpl_user']['materials']['tel']['value']; ?></li>
+				<li itemprop="telephone" class="tel"><?php echo $user_data['wpl_user']['materials']['tel']['value']; ?><a href="tel:<?php echo $user_data['wpl_user']['materials']['tel']['value']; ?>"><?php echo $user_data['wpl_user']['materials']['tel']['value']; ?></a></li>
 				<?php endif; ?>
 
 				<?php if(isset($user_data['wpl_user']['materials']['mobile']['value'])): ?>
-				<li itemprop="telephone" class="mobile"><?php echo $user_data['wpl_user']['materials']['mobile']['value']; ?></li>
+				<li itemprop="telephone" class="mobile"><?php echo $user_data['wpl_user']['materials']['mobile']['value']; ?><a href="tel:<?php echo $user_data['wpl_user']['materials']['mobile']['value']; ?>"><?php echo $user_data['wpl_user']['materials']['mobile']['value']; ?></a></li>
 				<?php endif; ?>
 
 				<?php if(isset($user_data['wpl_user']['materials']['fax']['value'])): ?>

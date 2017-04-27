@@ -11,7 +11,7 @@ $bathroom           = isset($this->wpl_properties['current']['materials']['bathr
 $listing_id         = isset($this->wpl_properties['current']['materials']['mls_id']['value']) ? $this->wpl_properties['current']['materials']['mls_id']['value'] : '';
 $price              = isset($this->wpl_properties['current']['materials']['price']['value']) ? $this->wpl_properties['current']['materials']['price']['value'] : '';
 $price_type         = isset($this->wpl_properties['current']['materials']['price_period']['value']) ? $this->wpl_properties['current']['materials']['price_period']['value'] : '';
-$location_string 	= isset($this->wpl_properties['current']['location_text']) ? $this->wpl_properties['current']['location_text'] : '';
+$location_string 	= (isset($this->wpl_properties['current']['location_text']) and $this->location_visibility === true) ? $this->wpl_properties['current']['location_text'] : $this->location_visibility;
 $prp_title          = isset($this->wpl_properties['current']['property_title']) ? $this->wpl_properties['current']['property_title'] : '';
 
 $pshow_gallery_activities = wpl_activity::get_activities('pshow_gallery', 1);
@@ -30,7 +30,7 @@ if(!isset($this->wpl_properties['current']['items']['video']) or (isset($this->w
 $this->_wpl_import($this->tpl_path.'.scripts.js', true, true);
 ?>
 <div class="wpl_prp_show_container" id="wpl_prp_show_container">
-    <div class="wpl_prp_container" id="wpl_prp_container<?php echo $this->pid; ?>" itemscope itemtype="https://schema.org/TradeAction">
+    <div  itemscope itemtype="https://schema.org/TradeAction" class="wpl_prp_container" id="wpl_prp_container<?php echo $this->pid; ?>">
         <div class="wpl_prp_show_tabs">
             <div class="tabs_container">
             	<?php if($pshow_gallery_activities): ?>
@@ -38,7 +38,7 @@ $this->_wpl_import($this->tpl_path.'.scripts.js', true, true);
                     <?php /** load position gallery **/ wpl_activity::load_position('pshow_gallery', array('wpl_properties'=>$this->wpl_properties)); ?>
                 </div>
                 <?php endif; ?>
-                <?php if($pshow_googlemap_activities and $this->wpl_properties['current']['raw']['show_address']): ?>
+                <?php if($pshow_googlemap_activities and $this->location_visibility === true): ?>
                 <div id="tabs-2" class="tabs_contents">
                     <?php /** load position googlemap **/ wpl_activity::load_position('pshow_googlemap', array('wpl_properties'=>$this->wpl_properties)); ?>
                 </div>
@@ -48,7 +48,7 @@ $this->_wpl_import($this->tpl_path.'.scripts.js', true, true);
                     <?php /** load position video **/ wpl_activity::load_position('pshow_video', array('wpl_properties'=>$this->wpl_properties)); ?>
                 </div>
                 <?php endif; ?>
-                <?php if($pshow_bingmap_activities and $this->wpl_properties['current']['raw']['show_address']): ?>
+                <?php if($pshow_bingmap_activities and $this->location_visibility === true): ?>
                 <div id="tabs-4" class="tabs_contents">
                     <?php /** load position bingmap **/ wpl_activity::load_position('pshow_bingmap', array('wpl_properties'=>$this->wpl_properties)); ?>
                 </div>
@@ -59,13 +59,13 @@ $this->_wpl_import($this->tpl_path.'.scripts.js', true, true);
                 	<?php if($pshow_gallery_activities): ?>
                     <li><a href="#tabs-1"><?php echo __('Pictures', 'wpl') ?></a></li>
                     <?php endif; ?>
-                    <?php if($pshow_googlemap_activities and $this->wpl_properties['current']['raw']['show_address']): ?>
+                    <?php if($pshow_googlemap_activities and $this->location_visibility === true): ?>
                     <li><a href="#tabs-2" data-init-googlemap="1"><?php echo __('Google Map', 'wpl') ?></a></li>
                     <?php endif; ?>
                     <?php if($pshow_video_activities): ?>
                     <li><a href="#tabs-3"><?php echo __('Video', 'wpl') ?></a></li>
                     <?php endif; ?>
-                    <?php if($pshow_bingmap_activities and $this->wpl_properties['current']['raw']['show_address']): ?>
+                    <?php if($pshow_bingmap_activities and $this->location_visibility === true): ?>
                     <li><a href="#tabs-4" data-init-bingmap="1"><?php echo __("Bird's eye", 'wpl') ?></a></li>
                     <?php endif; ?>
                 </ul>
@@ -111,11 +111,11 @@ $this->_wpl_import($this->tpl_path.'.scripts.js', true, true);
 					if(!count($values['data'])) continue;
                     
                     /** skip location if property address is hiden **/
-					if($values['self']['prefix'] == 'ad' and !$this->wpl_properties['current']['raw']['show_address']) continue;
+					if($values['self']['prefix'] == 'ad' and $this->location_visibility !== true) continue;
                     
                     echo '<div class="wpl_prp_show_detail_boxes">
-                            <div class="wpl_prp_show_detail_boxes_title">'.__($values['self']['name'], 'wpl').'</div>
-                            <div class="wpl-small-up-1 wpl-medium-up-1 wpl-large-up-3 wpl_prp_show_detail_boxes_cont">';
+                            <div class="wpl_prp_show_detail_boxes_title"><span>'.__($values['self']['name'], 'wpl').'</span></div>
+                            <div class="wpl-small-up-1 wpl-medium-up-1 wpl-large-up-'.$this->fields_columns.' wpl_prp_show_detail_boxes_cont">';
 
                     foreach($values['data'] as $key => $value)
 					{
@@ -148,7 +148,7 @@ $this->_wpl_import($this->tpl_path.'.scripts.js', true, true);
                         {
                             foreach($value['locations'] as $ii=>$lvalue)
                             {
-                                echo '<div id="wpl-dbst-show'.$value['field_id'].'" class="wpl-column rows location" itemprop="address">'.__($value['keywords'][$ii], 'wpl').' : ';
+                                echo '<div id="wpl-dbst-show'.$value['field_id'].'" class="wpl-column rows location '.$value['keywords'][$ii].'" itemprop="address">'.__($value['keywords'][$ii], 'wpl').' : ';
                                 echo '<span>'.$lvalue.'</span>';
                                 echo '</div>';
                             }
@@ -204,21 +204,21 @@ $this->_wpl_import($this->tpl_path.'.scripts.js', true, true);
                     ?>
                 </div>
             </div>
-				<div class="wpl-large-4 wpl-medium-5 wpl-small-12 wpl_prp_container_content_right wpl-column">
+			<div class="wpl-large-4 wpl-medium-5 wpl-small-12 wpl_prp_container_content_right wpl-column">
 			
                 <div class="wpl_prp_right_boxes details" itemscope>
-                    <div class="wpl_prp_right_boxes_title">
+                    <div class="wpl_prp_right_boxes_title" itemprop="name">
                         <?php echo '<span>'.$prp_type .'</span> '.$prp_listings; ?>
                     </div>
                     <div class="wpl_prp_right_boxes_content">
                         <div class="wpl_prp_right_boxe_details_top clearfix">
                             <div class="wpl_prp_right_boxe_details_left">
                                 <ul>
-                                    <?php if(trim($listing_id) != ''): ?><li><?php echo __($this->wpl_properties['current']['materials']['mls_id']['name'], 'wpl').' : <span itemprop="productID">'.$listing_id.'</span>'; ?></li><?php endif; ?>
-                                    <?php if(trim($bedroom) != ''): ?><li><?php echo __($this->wpl_properties['current']['materials']['bedrooms']['name'], 'wpl').' : <span>'.$bedroom.'</span>'; ?></li><?php endif; ?>
-                                    <?php if(trim($bathroom) != ''): ?><li><?php echo __($this->wpl_properties['current']['materials']['bathrooms']['name'], 'wpl').' : <span>'.$bathroom.'</span>'; ?></li><?php endif; ?>
-                                    <?php if(trim($build_up_area) != ''): ?><li><?php echo __($build_up_area_name, 'wpl').' : <span>'.$build_up_area.'</span>'; ?></li><?php endif; ?>
-                                    <?php if($price_type): ?><li><?php echo __($this->wpl_properties['current']['materials']['price_period']['name'], 'wpl').' : <span>'.$price_type.'</span>'; ?></li><?php endif; ?>
+                                    <?php if(trim($listing_id) != ''): ?><li><?php echo __($this->wpl_properties['current']['materials']['mls_id']['name'], 'wpl').' : <span itemprop="productID" class="value">'.$listing_id.'</span>'; ?></li><?php endif; ?>
+                                    <?php if(trim($bedroom) != ''): ?><li itemprop="numberOfRooms" itemscope itemtype="http://schema.org/QuantitativeValue"><span itemprop="unitText"><?php echo __($this->wpl_properties['current']['materials']['bedrooms']['name'], 'wpl').' : </span> <span itemprop="value" class="value">'.$bedroom.'</span>'; ?></li><?php endif; ?>
+                                    <?php if(trim($bathroom) != ''): ?><li itemprop="numberOfRooms" itemscope itemtype="http://schema.org/QuantitativeValue"><span itemprop="unitText"><?php echo __($this->wpl_properties['current']['materials']['bathrooms']['name'], 'wpl').' : </span> <span itemprop="value" class="value">'.$bathroom.'</span>'; ?></li><?php endif; ?>
+                                    <?php if(trim($build_up_area) != ''): ?><li><?php echo __($build_up_area_name, 'wpl').' : <span class="value">'.$build_up_area.'</span>'; ?></li><?php endif; ?>
+                                    <?php if($price_type): ?><li><?php echo __($this->wpl_properties['current']['materials']['price_period']['name'], 'wpl').' : <span class="value">'.$price_type.'</span>'; ?></li><?php endif; ?>
                                 </ul>
                             </div>
                             <div class="wpl_prp_right_boxe_details_right">

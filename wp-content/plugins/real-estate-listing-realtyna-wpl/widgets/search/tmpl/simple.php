@@ -17,4 +17,6 @@ defined('_WPLEXEC') or die('Restricted access');
 	    </div>
 	</div>
 </form>
-<?php include _wpl_import('widgets.search.scripts.js', true, true); ?>
+<?php
+/** import js codes **/
+$this->_wpl_import('widgets.search.scripts.js', true, true);

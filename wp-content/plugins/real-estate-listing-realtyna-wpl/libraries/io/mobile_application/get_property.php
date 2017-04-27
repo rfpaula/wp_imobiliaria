@@ -36,14 +36,16 @@ class wpl_io_cmd_get_property extends wpl_io_cmd_base
         $result = $model->search();
         $result = wpl_property::get_property_raw_data($result[key($result)]->id);
         $user = wpl_users::get_user($result['user_id']);
+        $price_unit = wpl_units::get_default_unit(4)['name'];
+        $area_unit = wpl_units::get_default_unit(2)['name'];
 
         $image = $this->get_profile_image($result['user_id']);
         $this->built = array('property_show_sections'=>array(
 
             array(
                 'section_type'=>'long_text',
-                'title'=>'Description',
-                'content'=>strip_tags(stripslashes($result['description'])),
+                'title'=>'DESCRIPTION',
+                'content'=>strip_tags(stripslashes($result['field_308'])),
                 'read_more_is_enabled'=>true,
                 'number_of_shown_characters'=>500
             ),
@@ -53,110 +55,63 @@ class wpl_io_cmd_get_property extends wpl_io_cmd_base
             ),
             array(
                 'section_type'=>'string_list',
-                'title'=>'Facts',
+                'title'=>'FACTS',
                 'content'=>array(
-                    'Lot Size: '.$result['lot_area'].' Sqft',
-                    //'Heating: Central',
-                    //'Cooling: ' . $result['f_134'] != "" ?  $result['f_134'] : "-" ,
-                    'Price/sqft: $'.$result['price'],
-                    'Listing ID: '.$result['id'],
+                    __('Lot Area', 'wpl').': '.$result['lot_area'].' '.$area_unit,
+                    __('Price', 'wpl').': '.$price_unit.$result['price'],
+                    __('Listing ID', 'wpl').': '.$result['id'],
                 )
             ),
-            /*array(
-                'section_type'=>'string_list',
-                'title'=>'Furniture & Appliances',
-                'content'=>array(
-                    'Stove',
-                    'Washing Machine',
-                    'Satelite',
-                    'Telephone',
-                    'Internet',
-                )
-            ),
-            array(
-                'section_type'=>'string_list',
-                'title'=>'Features',
-                'content'=>array(
-                    'Swimming Pool',
-                    'Garden',
-                )
-            ),
-			*/
             array(
                 'section_type'=>'map_view',
                 'content'=>array(
                     'lat'=>$result['googlemap_lt'],
                     'lng'=>$result['googlemap_ln'],
-                    'zoom'=>15,
-                    'overly_items'=>array(
-                        array(
-                            'type'=>'amenties',
-                            'icon'=>'ic_maplocator',
-                            'title'=>'Amenities',
-                            'description'=>'Amenities not added',
-                            'full_description'=>'Nearby Banks : Lorem ipsum dolor sit amet, consectetur adipisicing elit. Vero, cupiditate.\n\nRestaurants : Lorem ipsum dolor sit amet, consectetur adipisicing elit. Laudantium, minima.\n\nOther Places : Lorem ipsum dolor sit amet, consectetur adipisicing elit. Officia, aut nam ipsam porro sit voluptatem!'
-                        ),
-                        array(
-                            'type'=>'neighborhood',
-                            'icon'=>'ic_maplocator',
-                            'title'=>'Neighborhood',
-                            'description'=>'Neighborhood not added'
-                        ),
-                    )
+                    'zoom'=>15
                 )
             ),
             array(
                 'section_type'=>'agent',
-                'title'=>'Get More Information',
+                'title'=>'GET_MORE_INFO',
                 'content'=>array(
                     array(
                         'agent_name'=>$user->data->display_name,
-                        'description_1'=>$user->data->wpl_data->company_name != '' ? $user->data->wpl_data->company_name : 'No Company',
+                        'description_1'=>$user->data->wpl_data->company_name,
                         'description_2'=>'',
                         'image'=>$image,
                         'is_call_button_enabled'=>true,
-                        'call_button_text'=>'Call',
+                        'call_button_text'=>'CALL',
                         'call_number'=>$user->data->wpl_data->tel
                     ),
                 )
             ),
             array(
                 'section_type'=>'form',
-                'url'=>array($this->generate_command_url('contact_agent', wpl_request::getVar('dapikey'), wpl_request::getVar('dapisecret'), array('id'=>$result['id'], 'user_id'=>$result['user_id']))),
+                'url'=>array($this->generate_command_url('contact_agent', wpl_request::getVar('public_key'), wpl_request::getVar('private_key'), array('id'=>$result['id'], 'user_id'=>$result['user_id']))),
                 'content'=>array(
                     array(
                         'field_type'=>'text',
-                        'placeholder'=>'First Name',
-                        'column_name'=>'first_name',
-                    ),
-                    array(
-                        'field_type'=>'text',
-                        'placeholder'=>'Last Name',
-                        'column_name'=>'last_name',
+                        'placeholder'=>'FULL_NAME',
+                        'column_name'=>'fullname',
                     ),
                     array(
                         'field_type'=>'number',
-                        'placeholder'=>'Phone Number',
+                        'placeholder'=>'PHONE_NUMBER',
                         'column_name'=>'phone',
                     ),
                     array(
                         'field_type'=>'email',
-                        'placeholder'=>'Email',
+                        'placeholder'=>'EMAIL',
                         'column_name'=>'email',
                     ),
                     array(
                         'field_type'=>'textarea',
-                        'placeholder'=>'Message',
+                        'placeholder'=>'MESSAGE',
                         'column_name'=>'message',
                     ),
                     array(
-                        'field_type'=>'checkbox',
-                        'placeholder'=>'I want to get pre-approved',
-                        'column_name'=>'get_preapproved'
-                    ),
-                    array(
                         'field_type'=>'button',
-                        'placeholder'=>'Submit',
+                        'placeholder'=>'SUBMIT',
                     ),
                 )
             )

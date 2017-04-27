@@ -64,6 +64,7 @@ class wpl_sef
                     if($ex[1] == 'members') $view = 'addon_membership';
                     elseif($ex[1] == 'manager') $view = 'property_manager';
                     elseif($ex[1] == 'booking') $view = 'addon_booking';
+                    elseif($ex[1] == 'save-search') $view = 'addon_save_searches';
                     else $view = $ex[1];
                 }
                 elseif($ex[0] == 'search' and wpl_global::check_addon('save_searches'))
@@ -391,6 +392,12 @@ class wpl_sef
             
             $wpl_rules[] = array('regex'=>'('.$lang_str.')/('.$main_permalink.')/(.+)$', 'url'=>'index.php?pagename=$matches[2]&wpl_qs=$matches[3]');
             $wpl_rules[] = array('regex'=>'language/('.$lang_str.')/('.$main_permalink.')/(.+)$', 'url'=>'index.php?pagename=$matches[2]&wpl_qs=$matches[3]');
+            
+            foreach($lang_options as $lang_option)
+			{
+				$wpl_rules[] = array('regex'=>'('.$lang_option['shortcode'].')/('.wpl_sef::get_post_name((isset($lang_option['main_page']) ? $lang_option['main_page'] : $main_permalink)).')/(.+)$', 'url'=>'index.php?pagename=$matches[2]&wpl_qs=$matches[3]');
+				$wpl_rules[] = array('regex'=>'language/('.$lang_option['shortcode'].')/('.wpl_sef::get_post_name((isset($lang_option['main_page']) ? $lang_option['main_page'] : $main_permalink)).')/(.+)$', 'url'=>'index.php?pagename=$matches[2]&wpl_qs=$matches[3]');
+			}
         }
         
         $wpl_rules[] = array('regex'=>'('.$main_permalink.')/(.+)$', 'url'=>'index.php?pagename=$matches[1]&wpl_qs=$matches[2]');
@@ -484,7 +491,7 @@ class wpl_sef
             return $url;
         }
         
-        return wpl_sef::get_post_name($main_permalink);
+        return wpl_sef::get_post_slug($main_permalink);
     }
     
     /**
@@ -506,5 +513,25 @@ class wpl_sef
         }
         
         return $main_permalink;
+    }
+    
+    /**
+     * Returns post slug by considering if it has parent or not
+     * @author Howard R <howard@realtyna.com>
+     * @static
+     * @param int $post_id
+     * @return string
+     */
+    public static function get_post_slug($post_id)
+    {
+        if(!trim($post_id)) return '';
+        
+        $slug = wpl_sef::get_post_name($post_id);
+        while($post_id = wp_get_post_parent_id($post_id))
+        {
+            $slug = wpl_sef::get_post_name($post_id).'/'.$slug;
+        }
+        
+        return $slug;
     }
 }

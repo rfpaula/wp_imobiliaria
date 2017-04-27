@@ -22,5 +22,29 @@ class wpl_service_wpl
         
         // Start Session
         if(!session_id()) session_start();
+
+        // Setting the default timezone of WordPress
+        if(get_option('timezone_string')) date_default_timezone_set(get_option('timezone_string'));
+        
+        // Shutdown WPL objects
+        add_action('wp_footer', array('wpl_global', 'wpl_shutdown'), 99);
+        add_action('admin_footer', array('wpl_global', 'wpl_shutdown'), 99);
+        
+        // If we're in an AJAX request don't do the rest
+        if(defined('DOING_AJAX') and DOING_AJAX) return;
+        
+        if(wpl_global::get_client()) $this->backend();
+        else $this->frontend();
 	}
+    
+    public function backend()
+    {
+        // Show update notification in WPL backend
+        $available_updates = wpl_global::get_updates_count();
+        if($available_updates >= 1 and wpl_users::is_administrator()) wpl_flash::set(sprintf(__('%s update(s) are available for WPL and its addons. Please proceed with update after creating a backup.', 'wpl'), '<strong>'.$available_updates.'</strong>'), 'wpl_gold_msg', 1);
+    }
+    
+    public function frontend()
+    {
+    }
 }

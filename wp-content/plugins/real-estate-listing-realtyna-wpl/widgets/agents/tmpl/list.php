@@ -2,7 +2,8 @@
 /** no direct access **/
 defined('_WPLEXEC') or die('Restricted access');
 
-include _wpl_import('widgets.agents.scripts.js', true, true);
+/** import js codes **/
+$this->_wpl_import('widgets.agents.scripts.js', true, true);
 ?>
 <ul class="wpl_agents_widget_container list <?php echo $this->css_class; ?>">
     <?php
@@ -34,7 +35,7 @@ include _wpl_import('widgets.agents.scripts.js', true, true);
                  <ul>
                     <?php
                     echo '<li class="title" itemprop="name">'.$agent_name.' '.$agent_l_name.'</li>';
-                    if(isset($profile['main_email_url'])) echo '<li class="email"><img src="'.$profile["main_email_url"].'" alt="'.$agent_name.' '.$agent_l_name.'" /></li>';
+                    if(isset($profile['main_email_url'])) echo '<li class="email"><a href="mailto:'.$profile['data']['main_email'].'"><img src="'.$profile["main_email_url"].'" alt="'.$agent_name.' '.$agent_l_name.'" /></a></li>';
 
                     if(isset($profile['materials']['website']['value'])): ?>
                         <li class="website">
@@ -49,7 +50,7 @@ include _wpl_import('widgets.agents.scripts.js', true, true);
                         </li>
                     <?php endif; ?>
                     <?php if(isset($profile['materials']['tel']['value'])): ?>
-                        <li itemprop="telephone" class="phone"><?php echo $profile['materials']['tel']['value']; ?></li>
+                        <li itemprop="telephone" class="phone"><?php echo $profile['materials']['tel']['value']; ?><a href="tel:<?php echo $profile['materials']['tel']['value']; ?>"><?php echo $profile['materials']['tel']['value']; ?></a></li>
                     <?php endif; ?>
                 </ul>
             </div>

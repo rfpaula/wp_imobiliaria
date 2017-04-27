@@ -23,6 +23,11 @@ class wpl_property_listing_controller extends wpl_controller
             $term = wpl_request::getVar('term');
             $this->locationtextsearch_autocomplete($term);
         }
+        elseif($function == 'advanced_locationtextsearch_autocomplete')
+        {
+            $term = wpl_request::getVar('term');
+            $this->advanced_locationtextsearch_autocomplete($term);
+        }
         elseif($function == 'contact_listing_user' or $function == 'contact_agent')
         {
             $this->contact_listing_user();
@@ -79,6 +84,53 @@ class wpl_property_listing_controller extends wpl_controller
         {
             $output[] = array('label' => $result['name'], 'value' => $result['name']);
         }
+
+        echo json_encode($output);
+        exit;
+    }
+
+    private function advanced_locationtextsearch_autocomplete($term)
+    {
+        $settings = wpl_settings::get_settings(3);
+        $street = 'field_42';
+        $location2 = 'location2_name';
+        $location3 = 'location3_name';
+        $location4 = 'location4_name';
+        $location5 = 'location5_name';
+        
+        if(wpl_global::check_multilingual_status())
+        {
+            $street = wpl_addon_pro::get_column_lang_name($street, wpl_global::get_current_language(), false);
+            $location2 = wpl_addon_pro::get_column_lang_name($location2, wpl_global::get_current_language(), false);
+            $location3 = wpl_addon_pro::get_column_lang_name($location3, wpl_global::get_current_language(), false);
+            $location4 = wpl_addon_pro::get_column_lang_name($location4, wpl_global::get_current_language(), false);
+            $location5 = wpl_addon_pro::get_column_lang_name($location5, wpl_global::get_current_language(), false);
+        }
+
+        $limit = 5;
+        $output = array();
+        $condition = "`finalized` = 1 AND `confirmed` = 1 AND `deleted` = 0 AND `expired` = 0";
+        $queries = array($street => __('Street', 'wpl'), 
+                         $location2 => __($settings['location2_keyword'], 'wpl'),
+                         $location3 => __($settings['location3_keyword'], 'wpl'),
+                         $location4 => __($settings['location4_keyword'], 'wpl'),
+                         $location5 => __($settings['location5_keyword'], 'wpl'),
+                         'location_text' => __('Address', 'wpl'),
+                         'zip_name' => __($settings['locationzips_keyword'], 'wpl'), 
+                         'mls_id' => __('Listing ID', 'wpl'));
+
+        foreach ($queries as $column => $title)
+        {
+            $query = "SELECT `{$column}` AS `name`, COUNT(`{$column}`) AS `count` FROM `#__wpl_properties` WHERE $condition AND (`{$column}` LIKE '" . $term . "%' OR `{$column}` LIKE '% " . $term . "%') GROUP BY `{$column}` ORDER BY `{$column}` LIMIT " . $limit;
+            $results = wpl_db::select($query, 'loadAssocList');
+
+            foreach($results as $result)
+            {
+                $output[] = array('label' => $result['name'].' ('.$result['count'].')', 'title' => $title, 'column' => $column, 'value' => $result['name']);
+            }
+        }
+
+        $output[] = array('label' => $term, 'title' => __('Keyword', 'wpl'), 'column' => '', 'value' => $term);
 
         echo json_encode($output);
         exit;

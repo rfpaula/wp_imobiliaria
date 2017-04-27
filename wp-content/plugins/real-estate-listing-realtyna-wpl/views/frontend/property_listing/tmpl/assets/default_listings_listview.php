@@ -14,10 +14,18 @@ defined('_WPLEXEC') or die('Restricted access');
     <span class="wpl-sort-options-selectbox"><?php echo $this->model->generate_sorts(array('type'=>0, 'kind'=>$this->kind)); ?></span>
 
     <?php if($this->property_css_class_switcher): ?>
-    <div class="wpl_list_grid_switcher">
-        <div id="grid_view" class="grid_view <?php if($this->property_css_class == 'grid_box') echo 'active'; ?>"></div>
-        <div id="list_view" class="list_view <?php if($this->property_css_class == 'row_box') echo 'active'; ?>"></div>
-        <?php if(wpl_global::check_addon('aps')): ?><div id="map_view" class="map_view <?php if($this->property_css_class == 'map_box') echo 'active'; ?>"></div><?php endif; ?>
+    <div class="wpl_list_grid_switcher <?php if($this->switcher_type == "icon+text") echo 'wpl-list-grid-switcher-icon-text'; ?>">
+        <div id="grid_view" class="grid_view <?php if($this->property_css_class == 'grid_box') echo 'active'; ?>">
+            <?php if($this->switcher_type == "icon+text") echo '<span>'.__('Grid', 'wpl').'</span>'; ?>
+        </div>
+        <div id="list_view" class="list_view <?php if($this->property_css_class == 'row_box') echo 'active'; ?>">
+            <?php if($this->switcher_type == "icon+text") echo '<span>'.__('List', 'wpl').'</span>'; ?>
+        </div>
+        <?php if(wpl_global::check_addon('aps')): ?>
+            <div id="map_view" class="map_view <?php if($this->property_css_class == 'map_box') echo 'active'; ?>">
+                <?php if($this->switcher_type == "icon+text") echo '<span>'.__('Map', 'wpl').'</span>'; ?>
+            </div>
+        <?php endif; ?>
     </div>
     <?php endif; ?>
 
@@ -34,13 +42,19 @@ defined('_WPLEXEC') or die('Restricted access');
     <?php endif; ?>
     
     <?php if(wpl_global::check_addon('save_searches')): ?>
-    <div class="wpl-save-search-wp">
+    <div class="wpl-save-search-wp wpl-plisting-link-btn">
         <a id="wpl_save_search_link_lightbox" class="wpl-save-search-link" data-realtyna-href="#wpl_plisting_lightbox_content_container" onclick="return wpl_generate_save_search();" data-realtyna-lightbox-opts="title:<?php echo __('Save this Search', 'wpl'); ?>"><span><?php echo __('Save Search', 'wpl'); ?></span></a>
+    </div>
+    <?php endif; ?>
+    
+    <?php if(wpl_global::check_addon('aps') and wpl_global::get_setting('aps_landing_page_generator') and wpl_users::check_access('landing_page')): ?>
+    <div class="wpl-landing-page-generator-wp wpl-plisting-link-btn">
+        <a id="wpl_landing_page_generator_link_lightbox" class="wpl-landing-page-generator-link" data-realtyna-href="#wpl_plisting_lightbox_content_container" onclick="return wpl_generate_landing_page_generator();" data-realtyna-lightbox-opts="title:<?php echo __('Landing Page Generator', 'wpl'); ?>"><span><?php echo __('Create Landing Page', 'wpl'); ?></span></a>
     </div>
     <?php endif; ?>
 </div>
 
-<div class="wpl-row wpl-expanded <?php if($this->property_css_class == "grid_box") echo "wpl-small-up-1 wpl-medium-up-2 wpl-large-up-3"; ?>  wpl_property_listing_listings_container clearfix">
+<div class="wpl-row wpl-expanded <?php if($this->property_css_class == "grid_box") echo "wpl-small-up-1 wpl-medium-up-2 wpl-large-up-".$this->listing_columns; ?>  wpl_property_listing_listings_container clearfix">
     <?php echo $this->properties_str; ?>
 </div>
 

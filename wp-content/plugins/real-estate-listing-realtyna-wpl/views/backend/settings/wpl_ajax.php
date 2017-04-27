@@ -42,6 +42,10 @@ class wpl_settings_controller extends wpl_controller
         elseif($function == 'export_settings') $this->export_settings();
         elseif($function == 'uploader') $this->uploader();
         elseif($function == 'save_seo_patterns') $this->save_seo_patterns();
+        elseif($function == 'add_sample_properties') $this->add_sample_properties();
+        elseif($function == 'update_ranks') $this->update_ranks();
+        elseif($function == 'get_mem_dpr_field_options') $this->get_mem_dpr_field_options();
+        elseif($function == 'save_mem_dpr_criterias') $this->save_mem_dpr_criterias();
 	}
 	
 	private function save($setting_name, $setting_value, $setting_category)
@@ -82,7 +86,7 @@ class wpl_settings_controller extends wpl_controller
 			// check the extention
 			$extention = strtolower(wpl_file::getExt($file['name']));
 
-			if(!in_array($extention, $ext_array)) $error = __('File extension should be jpg, png or gif.', 'wpl');
+			if(!in_array($extention, $ext_array)) $error = __('File extension should be .jpg, .png or .gif.', 'wpl');
 			if($error == '')
 			{
 				$dest = WPL_ABSPATH. 'assets' .DS. 'img' .DS. 'system' .DS. $filename;
@@ -294,7 +298,7 @@ class wpl_settings_controller extends wpl_controller
 			// check the extention
 			$extention = strtolower(wpl_file::getExt($file['name']));
 
-			if(!in_array($extention, $ext_array)) $error = __('File extension should be jpg, png or gif.', 'wpl');
+			if(!in_array($extention, $ext_array)) $error = __('File extension should be .jpg, .png or .gif.', 'wpl');
 			if($error == '')
 			{
 				$dest = WPL_ABSPATH. 'assets' .DS. 'img' .DS. 'system' .DS. $filename;
@@ -326,6 +330,148 @@ class wpl_settings_controller extends wpl_controller
 		exit;
     }
     
+    private function add_sample_properties()
+    {
+    	$fields = wpl_flex::get_fields('', 0, 0, '', '', "AND `enabled` >= 1 AND `kind` = 0 
+										AND ((`id` IN (2,3,6,7,8,9,10,11,12,13,14,17)) 
+										OR (`category` = '4' AND `type` = 'feature') 
+										OR (`category` = '5' AND `type` = 'feature') 
+										OR (`category` = '6' AND `type` = 'neighborhood') 
+										OR (`category` = '11' AND `type` = 'tag'))");
+
+    	$post = array('command' => 'wpl_sample', 'format' => 'json');
+		$data = json_decode(wpl_global::get_web_page('http://billing.realtyna.com/io/io.php', $post));
+		$states = wpl_locations::get_locations(2, 254, '');
+
+    	for ($i = 0; $i < 6; $i++) 
+    	{ 
+    		$query = '';
+	        $pid = wpl_property::create_property_default();
+
+			foreach ($fields as $field) 
+			{
+				if($field->type == 'listings')
+				{
+					$types = wpl_global::get_listings();
+					$pos = array_rand($types);
+					$value = $types[$pos]['id'];
+				}
+				elseif($field->type == 'property_types')
+				{
+					$types = wpl_global::get_property_types();
+					$pos = array_rand($types);
+					$value = $types[$pos]['id'];
+				}
+				elseif($field->type == 'price')
+				{
+					$value = rand(100, 999) * 1000;
+				}
+				elseif($field->type == 'select')
+				{
+					$params = wpl_flex::get_field_options($field->id);
+					$params = array_keys($params['params']);
+					$value = array_rand($params);
+				}
+				elseif($field->type == 'number')
+				{
+					$value = ($field->id == 12) ? rand(1950, 2015) : rand(1, 9);
+				}
+				elseif($field->type == 'area')
+				{
+					$value = rand(200, 999);
+				}
+				elseif($field->type == 'feature' or $field->type == 'tag')
+				{
+					$value = rand(0, 1);
+				}
+				elseif($field->type == 'neighborhood')
+				{
+					$value = rand(0, 1);
+
+					if($value == 1)
+					{
+						$dist = rand(5, 90);
+						$dist_by = rand(1, 3);
+						$query .= "`{$field->table_column}_distance` = '{$dist}', `{$field->table_column}_distance_by` = '{$dist_by}', ";
+					}
+				}
+
+				$query .= "`{$field->table_column}` = '{$value}', ";
+			}
+
+			$state = array_rand($states);
+			$state_id = $states[$state]->id;
+			$state_name = $states[$state]->name;
+			$county = $data->counties[array_rand($data->counties)];
+			$city = $data->cities[array_rand($data->cities)];
+			$street = $data->streets[array_rand($data->streets)];
+			$street_no = rand(500, 3000);
+			$zipcode = rand(10000, 90000);
+			$query .= "`street` = '{$street}', `street_no` = '{$street_no}', `post_code` = '{$zipcode}', ";
+			$query .= "`location2_id` = '{$state_id}', `location2_name` = '{$state_name}', `location3_name` = '{$county}', `location4_name` = '{$city}'";
+
+			wpl_db::q("UPDATE `#__wpl_properties` SET $query WHERE `id` = '$pid'");
+			wpl_property::finalize($pid);
+
+			$image = $data->images[array_rand($data->images)];
+			$image_data = wpl_global::get_web_page($image);
+			$image_file = wpl_global::get_upload_base_path().$pid.DS.basename($image);
+			wpl_file::write($image_file, $image_data);
+
+			$item = array('parent_id'=>$pid, 'parent_kind'=>0, 'item_type'=>'gallery', 'item_cat'=>'image', 'item_name'=>basename($image), 'creation_date'=>date("Y-m-d H:i:s"), 'index'=>0);
+			wpl_items::save($item);
+			wpl_property::update_numbs($pid);
+    	}
+
+		$this->response(array('success'=>1, 'message'=>__('Sample properties added.', 'wpl'), 'data'=>NULL));
+    }
+    
+    private function update_ranks()
+    {
+        _wpl_import('libraries.addon_rank');
+        
+        $limit = wpl_request::getVar('limit', '100');
+        $offset = wpl_request::getVar('offset', 0);
+        
+        $query = "SELECT `id`, `kind` FROM `#__wpl_properties` WHERE `finalized`='1' ORDER BY `id` ASC LIMIT ".$offset.", ".$limit;
+		$listings = wpl_db::select($query, 'loadAssocList');
+        
+        $rank = new wpl_addon_rank();
+        foreach($listings as $listing) $rank->update_rank($listing['id'], $listing['kind']);
+        
+        $remained = (count($listings) < $limit ? 0 : 1);
+        $new_offset = $remained ? ($limit+$offset) : $offset+count($listings);
+        
+        $this->response(array('success'=>1, 'offset'=>$new_offset, 'remained'=>$remained));
+    }
+    
+    private function get_mem_dpr_field_options()
+    {
+        $id = wpl_request::getVar('id', 0);
+        $field = (array) wpl_flex::get_field($id);
+        
+        $data = array();
+        $data['field'] = $field;
+        $data['options'] = array();
+        
+        $options = json_decode($field['options'], true);
+                
+        $params = array();
+        foreach($options['params'] as $param) $params[] = array('key'=>$param['key'], 'name'=>__($param['value'], 'wpl'));
+
+        $data['options'] = $params;
+        
+        echo json_encode(array('success'=>1, 'data'=>$data));
+        exit;
+    }
+    
+    private function save_mem_dpr_criterias()
+    {
+        $criterias = wpl_request::getVar('criteria', array());
+        
+        $this->save('mem_dpr_criteria', json_encode($criterias), 6);
+    }
+
     private function response($response)
     {
         echo json_encode($response);

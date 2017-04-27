@@ -13,3 +13,11 @@ defined('_WPLEXEC') or die('Restricted access');
         <input data-realtyna-lightbox data-realtyna-lightbox-opts="reloadPage:true" data-realtyna-href="#wpl_flex_edit_div" type="button" class="wpl-button button-1" onclick="generate_modify_page(0);" value="<?php echo __('Add', 'wpl'); ?>" />
     </div>
 </div>
+<?php if(in_array($this->kind, $this->dbcat_manager_kinds)): ?>
+    <div class="panel-wp">
+        <h3><?php echo __('Add new Category', 'wpl'); ?></h3>
+        <div class="panel-body">
+            <input data-realtyna-lightbox="" data-realtyna-lightbox-opts="reloadPage:true" data-realtyna-href="#wpl_flex_category" class="wpl-button button-1" onclick="wpl_category_form(0);" value="<?php echo __('Create a new category','wpl')?>" type="button">
+        </div>
+    </div>
+<?php endif; ?>

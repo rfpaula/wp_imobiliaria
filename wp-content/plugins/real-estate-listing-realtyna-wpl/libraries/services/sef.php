@@ -185,6 +185,9 @@ class wpl_service_sef
         /** Remove canonical tags **/
         $this->remove_canonical();
         
+        // Remove Page Title Filters
+		$this->remove_page_title_filters();
+        
         $html->set_custom_tag('<meta property="og:type" content="property" />');
         $html->set_custom_tag('<meta property="og:locale" content="'.$locale.'" />');
         
@@ -207,6 +210,9 @@ class wpl_service_sef
             {
                 $html->set_custom_tag('<meta property="og:image" content="'.$image['url'].'" />');
                 $html->set_custom_tag('<meta property="twitter:image" content="'.$image['url'].'" />');
+                
+                // Only print one og and twitter image (First Image)
+                break;
             }
         }
 	}
@@ -255,6 +261,9 @@ class wpl_service_sef
         
         /** Remove canonical tags **/
         $this->remove_canonical();
+        
+        // Remove Page Title Filters
+		$this->remove_page_title_filters();
         
 		/** set title **/
 		$html->set_title($this->user_title);
@@ -406,6 +415,22 @@ class wpl_service_sef
     }
     
     /**
+     * For removing page title filters of WPL pages that applied by some third party plugins
+     * @author Howard <howard@realtyna.com>
+     */
+    public function remove_page_title_filters()
+	{
+		// Remove Yoast page title filter
+		if(class_exists('WPSEO_Frontend'))
+		{
+			$yoast = WPSEO_Frontend::get_instance();
+            
+			remove_filter('pre_get_document_title', array($yoast, 'title'), 15);
+			remove_filter('wp_title', array($yoast, 'title'), 15);
+		}
+	}
+    
+    /**
      * For adding HTML classes to HTML body tag
      * @author Howard <howard@realtyna.com>
      * @param array $classes
@@ -415,7 +440,7 @@ class wpl_service_sef
     {
         $classes[] = 'wpl-page';
         $classes[] = 'wpl_'.$this->view;
-        
+
         if($this->view == 'property_show')
         {
             $tpl = wpl_global::get_setting('wpl_propertyshow_layout');
@@ -423,7 +448,20 @@ class wpl_service_sef
             
             $classes[] = 'wpl_'.$this->view.'_'.$tpl;
         }
-        
+
+        /** Add theme compability classes */
+        if(wpl_global::get_setting('wpl_theme_compatibility'))
+        {
+            $current_theme = get_option('template');
+            
+            if($current_theme == 'bridge' and wpl_global::check_addon('style_bridge')) $classes[] = 'wpl-bridge-layout';
+            elseif($current_theme == 'Avada' and wpl_global::check_addon('style_avada')) $classes[] = 'wpl-avada-layout';
+            elseif($current_theme == 'enfold' and wpl_global::check_addon('style_enfold')) $classes[] = 'wpl-enfold-layout';
+            elseif($current_theme == 'betheme' and wpl_global::check_addon('style_be')) $classes[] = 'wpl-be-layout';
+            elseif($current_theme == 'x' and wpl_global::check_addon('style_x')) $classes[] = 'wpl-x-layout';
+            elseif($current_theme == 'genesis' and wpl_global::check_addon('style_genesis')) $classes[] = 'wpl-genesis-layout';
+        }
+
         return $classes;
     }
 }

@@ -3,8 +3,8 @@ Contributors: realtyna
 Donate link: https://realtyna.com/
 Tags: Real estate, Listing, Vertical Market, MLS, Property listing, RETS, Listings, Broker, Realtor, Property, IDX, Multiple Listing Service, Property Management, Properties, wp-property, WordPress real estate, realestate
 Requires at least: 3.0.1
-Tested up to: 4.5.3
-Stable tag: 3.2.0
+Tested up to: 4.7.2
+Stable tag: 3.3.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -12,7 +12,7 @@ Manage property listings, RETS / IDX / VOW real estate options and scalable feat
 
 == Description ==
 
-Run your real estate website using WPL. WPL has lot's of features and addons for real estate agents and real estate agencies. Check [Realtyna WPL official website](https://realtyna.com/) and WPL demo website: http://wpl28.realtyna.com
+Run your real estate website using WPL. WPL has lot's of features and addons for real estate agents and real estate agencies. Check [Realtyna WPL official website](https://realtyna.com/) and WPL demo website: [http://wpl28.realtyna.com](http://wpl28.realtyna.com)
 
 Download [WPL manual](http://wpl.realtyna.com/wassets/wpl-manual.pdf) and check [WPL knowledge base](https://support.realtyna.com/index.php?/Default/Knowledgebase/List/Index/28/wpl---wordpress-property-listing). If you can't find an answer to your question in WPL Manual or Knowledge Base, please [open a Support Ticket!](https://support.realtyna.com/index.php?/Tickets/Submit/RenderForm/18) to ask your question. We will respond as soon as possible with an answer.
 
@@ -20,21 +20,16 @@ Download [WPL manual](http://wpl.realtyna.com/wassets/wpl-manual.pdf) and check 
 
 **WPL Expansion options**
 
-*   Have necessary database fields for further MLS Integration ([MLS Coverage](https://realtyna.com/mls-coverage/)) (integrating MLS / IDX / RETS / VOW / XML / DDF servers into WPL - Wordpress directly) - Extra customization may be needed. https://realtyna.com/wpl/mls-integration-for-wpl/
-*   Native Custom Brand Mobile App https://realtyna.com/real-estate-ios-android-app/
-*   Demographic Package https://realtyna.com/wpl/wpl-add-ons/demographic-info-for-wpl/
+*   Have necessary database fields for further MLS Integration ([MLS Coverage](https://realtyna.com/mls-coverage/)) (integrating MLS / IDX / RETS / VOW / XML / DDF servers into WPL - Wordpress directly) - Extra customization may be needed. [http://WordPress-IDX.COM](http://WordPress-IDX.COM) also: [http://MLS-Integration.com](http://MLS-Integration.com)
+*   Native Custom Brand Mobile App [https://realtyna.com/real-estate-ios-android-app/](https://realtyna.com/real-estate-ios-android-app/)
+*   Demographic Package [https://realtyna.com/wpl/wpl-add-ons/demographic-info-for-wpl/](https://realtyna.com/wpl/wpl-add-ons/demographic-info-for-wpl/)
 *   Listhub Integration add-on
-*   Cloud Hosting (Starting from $24.95 per month) http://hosting.realtyna.com
-*   Option for Multisite Franchise Solution https://realtyna.com/enterprise-solutions/franchise-multisite-solution/
-*   Support for Responsive Templates http://wpldemo.realtyna.com/theme28/
+*   Cloud Hosting (Starting from $24.95 per month) [http://hosting.realtyna.com](http://hosting.realtyna.com)
+*   Option for Multisite Franchise Solution [https://realtyna.com/enterprise-solutions/franchise-multisite-solution/](https://realtyna.com/enterprise-solutions/franchise-multisite-solution/)
+*   Support for Responsive Templates [http://wpldemo.realtyna.com/theme28/](http://wpldemo.realtyna.com/theme28/)
 
-**WPL PRO Translations**
-
-*   English
-*   Spanish
-*   Italian
-*   Serbian
-*   Croatian
+WPL is a translate ready plugin to make changing languages as easy as possible.
+If you need a site with multiple languages, we offer the multilingual feature for use under WPL PRO. Our solution is compatible with WPML.
 
 == Installation ==
 
@@ -52,11 +47,11 @@ WPL (WordPress Property Listing) is a great plugin for real estate agents and ag
 
 = How can I ask about custom developments? =
 
-Feel free to contact us: https://support.realtyna.com/index.php?/Tickets/Submit/RenderForm/18
+Feel free to contact us: [https://support.realtyna.com/index.php?/Tickets/Submit/RenderForm/18](https://support.realtyna.com/index.php?/Tickets/Submit/RenderForm/18)
 
 = How can I report issues? =
 
-Submit a support ticket on Realtyna ticketing system: https://support.realtyna.com/index.php?/Tickets/Submit/RenderForm/18
+Submit a support ticket on Realtyna ticketing system: [https://support.realtyna.com/index.php?/Tickets/Submit/RenderForm/18](https://support.realtyna.com/index.php?/Tickets/Submit/RenderForm/18)
 
 == Screenshots ==
 
@@ -68,6 +63,43 @@ Submit a support ticket on Realtyna ticketing system: https://support.realtyna.c
 6. External Responsive Template: Agent listing
 
 == Changelog ==
+
+= 3.3.1 =
+* Fixed some minor issues.
+
+= 3.3.0 =
+* [PRO] Added advanced property types and listing types sort options.
+* [PRO] Added "Horizontal Layout" for "Add/Edit Listing" menu.
+* [PRO] Added customizable energy tag levels to energy tag activity.
+* [PRO] Added Price Rebate feature.
+* [PRO] Added a new view switcher for property listings and profile/agent listings views.
+* [PRO] Added a new option to disable/enable mouse-over effect of images on listing pages.
+* [PRO] Improved unit switcher widget.
+* [PRO] Improved WPL update notification system.
+* Added "Category Manager" feature in WPL Flex menu in order to add new data categories or manage existing categories.
+* Added zip-code option in "Similar Properties" feature of carousel widget.
+* Added "Advanced Location Text Search" method into location options of search widget.
+* Added new widget area at the bottom of property listing page.
+* Added property type specific and listing type specific options for separator fields.
+* Added "Media Confirm" feature for enabling confirm icon on media tabs of Add/Edit listing.
+* Added an ability to import sample properties into the WPL.
+* Added boolean field to supported field types in search widget.
+* Added ability to place WPL main page as a child page under a parent page.
+* Added "Field Specific" feature to "Add/Edit Listing" and "Search Widget".
+* Added ability to filter listings on carousel widget by location.
+* Added ability to automatically convert area values to Acre and Hectare if the value is high.
+* Added an option to change multiple marker icon.
+* Improved WPL I/O.
+* Improved UI and UX on mobile devices.
+* Improved SEO on WPL views.
+* Fixed some issues of send to friend feature.
+* Fixed converting none WPL images to place-holders issue in notification manager menu.
+* Fixed some issues on WPL PDF Flyer.
+* Fixed location text search issue on profile/agent listing page.
+* Fixed an issue for saving date fields in user profile menu.
+* Fixed some issue on datetime field type.
+* Fixed some English errors.
+* Fixed issue of printing \" or \' in the notification emails.
 
 = 3.2.0 =
 * [PRO] Added clone feature for listings.
@@ -108,7 +140,7 @@ Submit a support ticket on Realtyna ticketing system: https://support.realtyna.c
 * [PRO] Added pagination for WPL sitemap feature.
 * [PRO] Added sitemap integrity with "Yoast SEO" and "All in one SEO pack" plugins.
 * [PRO] Added print feature for WPL listings page.
-* [PRO] Added location auto suggest text fields of locations in Add/Edit listing menu.
+* [PRO] Added location auto suggest for text fields of locations in Add/Edit listing menu.
 * [PRO] Added compare feature for comparing favorited listings.
 * [PRO] Fixed WPML language switcher.
 * Added an option for specifying Google Maps zoom-level for Add/Edit listing page.

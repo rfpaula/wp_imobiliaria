@@ -53,7 +53,7 @@ elseif($type == 'text' and !$done_this) //////////////////////////// text //////
 }
 elseif($type == 'select' and !$done_this) //////////////////////////// select ////////////////////////////
 {
-	if(trim($value) and trim($value) != '-1')
+	if($value != '-1')
 	{
 		$return['field_id'] = $field->id;
 		$return['type'] = $field->type;
@@ -280,9 +280,34 @@ elseif(($type == 'volume' or $type == 'area' or $type == 'length') and !$done_th
 		$return['name'] = __($field->name, 'wpl');
 		$return['value'] = ($value == round($value) ? number_format($value, 0) : number_format($value, 2));
         
-		/** adding unit **/
+        /** adding unit **/
 		$unit = wpl_units::get_unit($values[$field->table_column.'_unit']);
 		if($unit) $return['value'] .= ' '.$unit['name'];
+        
+        // Automatically convert the unit to Acre and Hectare
+        if($type == 'area' and in_array($values[$field->table_column.'_unit'], array(1, 2)))
+        {
+            $unit_id = $values[$field->table_column.'_unit'];
+            
+            // SQFT => Acre
+            if($unit_id == 1 and $value >= 21780)
+            {
+                $return['value'] = number_format(round(($value/43560), 2), 2);
+        
+                /** adding unit **/
+                $unit = wpl_units::get_unit(3);
+                if($unit) $return['value'] .= ' '.$unit['name'];
+            }
+            // SQM => Hectare
+            elseif($unit_id == 2 and $value >= 5000)
+            {
+                $return['value'] = number_format(round(($value/10000), 2), 2);
+        
+                /** adding unit **/
+                $unit = wpl_units::get_unit(7);
+                if($unit) $return['value'] .= ' '.$unit['name'];
+            }
+        }
         
         if(isset($options['if_zero']) and $options['if_zero'] == 2 and !trim($value)) $return['value'] = __($options['call_text'], 'wpl');
         if(isset($options['if_zero']) and !$options['if_zero'] and !trim($value)) $return = array();
@@ -354,7 +379,14 @@ elseif($type == 'price' and !$done_this) //////////////////////////// Price ////
     
     if(isset($options['if_zero']) and $options['if_zero'] == 2 and !trim($value)) $return['value'] = __($options['call_text'], 'wpl');
     if(isset($options['if_zero']) and !$options['if_zero'] and !trim($value)) $return = array();
-        
+
+    $rebate = wpl_settings::get('properties_price_rebate');
+    if(trim($value) and $rebate)
+    {
+    	$rebate = wpl_render::render_price(($value * $rebate / 100), $unit_id);
+    	$return['value'] .= " ({$rebate} ".__('Rebate', 'wpl').')';
+    }
+
 	$done_this = true;
 }
 elseif($type == 'mmprice' and !$done_this) //////////////////////////// Min/Max Price ////////////////////////////
@@ -415,6 +447,9 @@ elseif($type == 'url' and !$done_this) //////////////////////////// URL ////////
 
         $title = (isset($options['link_title']) and trim($options['link_title']) != '') ? $options['link_title'] : $value;
         $target = (isset($options['link_target']) and trim($options['link_target']) != '') ? $options['link_target'] : '_blank';
+
+        if(stripos($value, 'http://') === false and stripos($value, 'https://') === false)
+        	$value = 'http://'.$value;
 
         $return['value'] = '<a href="'.$value.'" target="'.$target.'">'.$title.'</a>';
     }

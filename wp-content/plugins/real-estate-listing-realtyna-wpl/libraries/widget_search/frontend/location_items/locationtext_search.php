@@ -13,8 +13,7 @@ if($show == 'locationtextsearch' and !$done_this)
 	$html .= '<div class="wpl_search_widget_location_level_container" id="wpl'.$widget_id.'_search_widget_location_level_container_location_text">';
 	$html .= '<input class="wpl_search_widget_location_textsearch" value="'.$current_value.'" name="sf'.$widget_id.'_locationtextsearch" id="sf'.$widget_id.'_locationtextsearch" placeholder="'.__($placeholder, 'wpl').'" />';
 	
-	$html .= '
-	<script type="text/javascript">
+	wpl_html::set_footer('<script type="text/javascript">
 	var autocomplete_cache = {};
 	(function($){$(function()
     {
@@ -57,7 +56,8 @@ if($show == 'locationtextsearch' and !$done_this)
 			delay: 300
 		});
 	});})(jQuery);
-	</script>';
+	</script>');
+    
 	$html .= '</div>';
 	
 	$done_this = true;

@@ -10,8 +10,7 @@ if($show == 'simple_location_database' and !$done_this)
 	
 	$current_values['zip_id'] = wpl_request::getVar('sf_select_zip_id', '');
 	
-	$html .= '
-	<script type="text/javascript">
+	wpl_html::set_footer('<script type="text/javascript">
 	/** Location Loader **/
 	function wpl'.$widget_id.'_search_widget_load_location(level, parent, id)
 	{
@@ -72,7 +71,7 @@ if($show == 'simple_location_database' and !$done_this)
 			}
 		});
 	}
-	</script>';
+	</script>');
 	
 	$html .= '<div class="wpl_search_widget_location_container" id="wpl'.$widget_id.'_search_fields_location_'.$field['id'].'">';
 	

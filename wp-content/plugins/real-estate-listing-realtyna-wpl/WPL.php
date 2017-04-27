@@ -3,9 +3,9 @@
 	Plugin Name: WPL
 	Plugin URI: https://realtyna.com/
 	Description: This is a professional WordPress real estate plugin created by Realtyna.
-	Author: Realtyna Softwares
+	Author: Realtyna
 	Project Manager: howard@realtyna.com
-	Version: 3.2.0
+	Version: 3.3.1
     Text Domain: wpl
     Domain Path: /languages
 	Author URI: https://realtyna.com/
@@ -31,7 +31,7 @@ define('WPL_UP_ABSPATH', ABSPATH .'wp-content' .DS. 'uploads' .DS. 'WPL' .DS);
  * @deprecated since version 3.0.0
  */
 define('WPL_TEXTDOMAIN', 'wpl');
-define('WPL_VERSION', '3.2.0'); /** WPL version **/
+define('WPL_VERSION', '3.3.1'); /** WPL version **/
 
 require WPL_ABSPATH.'config.php';
 

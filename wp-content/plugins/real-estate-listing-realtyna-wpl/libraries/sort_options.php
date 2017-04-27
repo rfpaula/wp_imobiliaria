@@ -44,10 +44,8 @@ class wpl_sort_options
 
 		if($format_kinds)
 		{
-			if($output_type == 'loadAssocList')
-				foreach($result as $index => $row) $result[$index]['kind'] = self::format_kinds($row['kind']); 
-			elseif($output_type == 'loadObjectList')
-				foreach($result as $index => $row) $result[$index]->kind = self::format_kinds($row->kind); 
+			if($output_type == 'loadAssocList') foreach($result as $index => $row) $result[$index]['kind'] = self::format_kinds($row['kind']);
+			elseif($output_type == 'loadObjectList') foreach($result as $index => $row) $result[$index]->kind = self::format_kinds($row->kind);
 		}
 
 		return $result;
@@ -243,4 +241,43 @@ class wpl_sort_options
 		$max_id = wpl_db::get("MAX(`id`)", "wpl_sort_options", '', '', '', "`id`<'10000'");
 		return max($max_id + 1, self::$sort_options_min_id + 1);
 	}
+    
+    public static function render($sort_options)
+    {
+        $rendered = array();
+        
+        foreach($sort_options as $sort_option)
+        {
+            if($sort_option['field_name'] == 'ptype_adv')
+            {
+                $types = wpl_global::get_property_types();
+                
+                foreach($types as $type)
+                {
+                    $sort_option['field_name'] = 'ptype_adv:'.$type['id'];
+                    $sort_option['name'] = __(wpl_global::pluralize(2, $type['name']), 'wpl');
+                    
+                    $rendered[] = $sort_option;
+                }
+            }
+            elseif($sort_option['field_name'] == 'ltype_adv')
+            {
+                $types = wpl_global::get_listings();
+                
+                foreach($types as $type)
+                {
+                    $sort_option['field_name'] = 'ltype_adv:'.$type['id'];
+                    $sort_option['name'] = __(wpl_global::pluralize(2, $type['name']), 'wpl');
+                    
+                    $rendered[] = $sort_option;
+                }
+            }
+            else
+            {
+                $rendered[] = $sort_option;
+            }
+        }
+        
+        return $rendered;
+    }
 }

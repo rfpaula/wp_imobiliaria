@@ -32,7 +32,7 @@ $this->_wpl_import($this->tpl_path.'.scripts.js', true, true, true);
 
         <?php if($show_google_plus): ?>
 		<li class="google_plus_link">
-			<a href="https://plus.google.com/share?url=<?php echo $property_link; ?>" onclick="javascript:window.open(this.href, '', 'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,height=600,width=500'); return false;" title="<?php echo __('Google Plus', 'wpl'); ?>"></a>
+			<a href="https://plus.google.com/share?url=<?php echo $property_link; ?>" onclick="javascript:window.open(this.href, '', 'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,height=600,width=500'); return false;" title="<?php echo __('Google+', 'wpl'); ?>"></a>
 		</li>
         <?php endif; ?>
 

@@ -8,7 +8,7 @@ if($type == 'boolean' and !$done_this)
     $false_label = isset($options['false_label']) ? $options['false_label'] : 'No';
 ?>
 <label for="wpl_c_<?php echo $field->id; ?>"><?php echo __($label, 'wpl'); ?><?php if(in_array($mandatory, array(1, 2))): ?><span class="required-star">*</span><?php endif; ?></label>
-<select class="wpl_c_<?php echo $field->table_column; ?>" id="wpl_c_<?php echo $field->id; ?>" name="<?php echo $field->table_column; ?>" onchange="ajax_save('<?php echo $field->table_name; ?>', '<?php echo $field->table_column; ?>', this.value, '<?php echo $item_id; ?>', '<?php echo $field->id; ?>');">
+<select class="wpl_c_<?php echo $field->table_column; ?>" id="wpl_c_<?php echo $field->id; ?>" name="<?php echo $field->table_column; ?>" onchange="ajax_save('<?php echo $field->table_name; ?>', '<?php echo $field->table_column; ?>', this.value, '<?php echo $item_id; ?>', '<?php echo $field->id; ?>'); wpl_field_specific_changed('<?php echo $field->id; ?>')" data-specific="<?php echo $specified_children; ?>">
     <option value="1" <?php if(1 == $value) echo 'selected="selected"'; ?>><?php echo __($true_label, 'wpl'); ?></option>
     <option value="0" <?php if(0 == $value) echo 'selected="selected"'; ?>><?php echo __($false_label, 'wpl'); ?></option>
 </select>
@@ -26,6 +26,8 @@ elseif($type == 'date' and !$done_this)
 
     if($options['minimum_date'] == 'now' or $options['minimum_date'] == 'minimum_date') $options['minimum_date'] = date("Y-m-d");
     if($options['maximum_date'] == 'now') $options['maximum_date'] = date("Y-m-d");
+
+    if(!$value) $value = '0000-00-00';
 
     $mindate = explode('-', $options['minimum_date']);
     $maxdate = explode('-', $options['maximum_date']);
@@ -73,11 +75,69 @@ elseif($type == 'date' and !$done_this)
 
     $done_this = true;
 }
+elseif($type == 'datetime' and !$done_this)
+{
+    _wpl_import('libraries.render');
+	
+    // Add DateTime Picker assets
+    wpl_extensions::import_javascript((object) array('param1'=>'jquery.datetimepicker', 'param2'=>'packages/datetimepicker/jquery.datetimepicker.full.min.js'));
+    wpl_extensions::import_style((object) array('param1'=>'jquery.datetimepicker.style', 'param2'=>'packages/datetimepicker/jquery.datetimepicker.min.css'));
+
+    $date_format_arr = explode(':', wpl_global::get_setting('main_date_format'));
+    $jqdate_format = $date_format_arr[0];
+
+    if($options['minimum_date'] == 'now' or $options['minimum_date'] == 'minimum_date') $options['minimum_date'] = date("Y-m-d");
+    if($options['maximum_date'] == 'now') $options['maximum_date'] = date("Y-m-d");
+
+    $mindate = explode('-', $options['minimum_date']);
+    $maxdate = explode('-', $options['maximum_date']);
+
+    $mindate[0] = (array_key_exists(0, $mindate) and $mindate[0]) ? $mindate[0] : '1970';
+    $mindate[1] = array_key_exists(1, $mindate) ? intval($mindate[1]) : '01';
+    $mindate[2] = array_key_exists(2, $mindate) ? intval($mindate[2]) : '01';
+
+    $maxdate[0] = (array_key_exists(0, $maxdate) and $maxdate[0]) ? $maxdate[0] : date('Y');
+    $maxdate[1] = array_key_exists(1, $maxdate) ? intval($maxdate[1]) : date('m');
+    $maxdate[2] = array_key_exists(2, $maxdate) ? intval($maxdate[2]) : date('d');
+?>
+<div class="date-wp">
+    <label for="wpl_c_<?php echo $field->id; ?>"><?php echo __($label, 'wpl'); ?><?php if (in_array($mandatory, array(1, 2))): ?><span class="required-star">*</span><?php endif; ?></label>
+    <input type="text" id="wpl_c_<?php echo $field->id; ?>" name="<?php echo $field->table_column; ?>" value="<?php echo wpl_render::render_datetime($value); ?>" onchange="ajax_save('<?php echo $field->table_name; ?>', '<?php echo $field->table_column; ?>', this.value, '<?php echo $item_id; ?>', '<?php echo $field->id; ?>');" <?php echo ((isset($options['readonly']) and $options['readonly'] == 1) ? 'disabled="disabled"' : ''); ?> />
+    <span id="wpl_listing_saved_span_<?php echo $field->id; ?>" class="ajax-inline-save"></span>
+</div>
+<?php
+    echo '<script type="text/javascript">
+		wplj(document).ready( function ()
+		{
+			wplj("#wpl_c_' . $field->id . '").datetimepicker(
+			{
+                i18n:
+                {
+                    en:
+                    {
+                        months: ["' . __('January', 'wpl') . '", "' . __('February', 'wpl') . '", "' . __('March', 'wpl') . '", "' . __('April', 'wpl') . '", "' . __('May', 'wpl') . '", "' . __('June', 'wpl') . '", "' . __('July', 'wpl') . '", "' . __('August', 'wpl') . '", "' . __('September', 'wpl') . '", "' . __('October', 'wpl') . '", "' . __('November', 'wpl') . '", "' . __('December', 'wpl') . '"],
+                        dayOfWeek: ["' . __('SU', 'wpl') . '", "' . __('MO', 'wpl') . '", "' . __('TU', 'wpl') . '", "' . __('WE', 'wpl') . '", "' . __('TH', 'wpl') . '", "' . __('FR', 'wpl') . '", "' . __('SA', 'wpl') . '"],
+                    }
+                },
+                lang: "en",
+				format: "'.$jqdate_format.' H:i:s",
+				minDate: "-' . $mindate[0] . '/' . ($mindate[1]-1) . '/' . $mindate[2] . '",
+				maxDate: "+' . $maxdate[0] . '/' . ($maxdate[1]-1) . '/' . $maxdate[2] . '",
+				onChangeDateTime: function(dp,input)
+				{
+					ajax_save("' . $field->table_name . '","' . $field->table_column . '",input.val(),' . $item_id . ',' . $field->id . ');
+				}
+			});
+		});
+	</script>';
+
+    $done_this = true;
+}
 elseif(($type == 'checkbox' or $type == 'tag') and !$done_this)
 {
 ?>
 <div class="checkbox-wp">
-    <input type="checkbox" class="wpl_c_<?php echo $field->table_column; ?>" id="wpl_c_<?php echo $field->id; ?>" name="<?php echo $field->table_column; ?>" value="1" <?php if($value) echo 'checked="checked"'; ?> onchange="if(this.checked) value = 1; else value = 0; ajax_save('<?php echo $field->table_name; ?>', '<?php echo $field->table_column; ?>', value, '<?php echo $item_id; ?>', '<?php echo $field->id; ?>');" <?php echo ((isset($options['readonly']) and $options['readonly'] == 1) ? 'disabled="disabled"' : ''); ?> />
+    <input type="checkbox" class="wpl_c_<?php echo $field->table_column; ?>" id="wpl_c_<?php echo $field->id; ?>" name="<?php echo $field->table_column; ?>" value="1" <?php if($value) echo 'checked="checked"'; ?> onchange="if(this.checked) value = 1; else value = 0; ajax_save('<?php echo $field->table_name; ?>', '<?php echo $field->table_column; ?>', value, '<?php echo $item_id; ?>', '<?php echo $field->id; ?>');wpl_field_specific_changed('<?php echo $field->id; ?>');" <?php echo ((isset($options['readonly']) and $options['readonly'] == 1) ? 'disabled="disabled"' : ''); ?> data-specific="<?php echo $specified_children; ?>" />
 	<label class="checkbox-label" for="wpl_c_<?php echo $field->id; ?>"><?php echo __($label, 'wpl'); ?><?php if(in_array($mandatory, array(1, 2))): ?><span class="required-star">*</span><?php endif; ?></label>
 	<span id="wpl_listing_saved_span_<?php echo $field->id; ?>" class="ajax-inline-save"></span>
 </div>
@@ -90,7 +150,7 @@ elseif($type == 'feature' and !$done_this)
     $style = (isset($values[$field->table_column]) and $values[$field->table_column] == '1') ? '' : 'display:none;';
 ?>
 <div class="checkbox-wp">
-	<input type="checkbox" id="wpl_c_<?php echo $field->id; ?>" name="<?php echo $field->table_column; ?>" <?php echo $checked; ?> onchange="wplj('#wpl_span_feature_<?php echo $field->id; ?>').slideToggle(400); ajax_save('<?php echo $field->table_name; ?>', '<?php echo $field->table_column; ?>', this.value, '<?php echo $item_id; ?>', '<?php echo $field->id; ?>');" />
+	<input type="checkbox" id="wpl_c_<?php echo $field->id; ?>" name="<?php echo $field->table_column; ?>" <?php echo $checked; ?> onchange="wplj('#wpl_span_feature_<?php echo $field->id; ?>').slideToggle(400); ajax_save('<?php echo $field->table_name; ?>', '<?php echo $field->table_column; ?>', this.value, '<?php echo $item_id; ?>', '<?php echo $field->id; ?>');wpl_field_specific_changed('<?php echo $field->id; ?>');" data-specific="<?php echo $specified_children; ?>" />
 	<label class="checkbox-label" for="wpl_c_<?php echo $field->id; ?>"><?php echo __($label, 'wpl'); ?><?php if (in_array($mandatory, array(1, 2))): ?><span class="required-star">*</span><?php endif; ?></label>    
 <?php
 	if($options['type'] != 'none')
@@ -140,8 +200,8 @@ elseif($type == 'listings' and !$done_this)
 {
 	$listings = wpl_global::get_listings();
 	$current_user = wpl_users::get_wpl_user();
-	$lrestrict = $current_user->maccess_lrestrict;
-	$rlistings = explode(',', $current_user->maccess_listings);
+	$lrestrict = isset($current_user->maccess_lrestrict) ? $current_user->maccess_lrestrict : NULL;
+	$rlistings = explode(',', (isset($current_user->maccess_listings) ? $current_user->maccess_listings : NULL));
 ?>
 <label for="wpl_c_<?php echo $field->id; ?>"><?php echo __($label, 'wpl'); ?><?php if(in_array($mandatory, array(1, 2))): ?><span class="required-star">*</span><?php endif; ?></label>
 <select class="wpl_c_<?php echo $field->table_column; ?>" id="wpl_c_<?php echo $field->id; ?>" name="<?php echo $field->table_column; ?>" onchange="wpl_listing_changed(this.value); ajax_save('<?php echo $field->table_name; ?>', '<?php echo $field->table_column; ?>', this.value, '<?php echo $item_id; ?>', '<?php echo $field->id; ?>');">
@@ -160,7 +220,7 @@ elseif($type == 'neighborhood' and !$done_this)
     $style = (isset($values[$field->table_column]) and $values[$field->table_column] == '1') ? '' : 'display:none;';
 ?>
 <div class="checkbox-wp">
-	<input type="checkbox" id="wpl_c_<?php echo $field->id; ?>" name="<?php echo $field->table_column; ?>" <?php echo $checked; ?> onchange="wpl_neighborhood_select('<?php echo $field->table_name; ?>', '<?php echo $field->table_column; ?>', this.value, '<?php echo $item_id; ?>', '<?php echo $field->id; ?>');" />
+	<input type="checkbox" id="wpl_c_<?php echo $field->id; ?>" name="<?php echo $field->table_column; ?>" <?php echo $checked; ?> onchange="wpl_neighborhood_select('<?php echo $field->table_name; ?>', '<?php echo $field->table_column; ?>', this.value, '<?php echo $item_id; ?>', '<?php echo $field->id; ?>');wpl_field_specific_changed('<?php echo $field->id; ?>');" data-specific="<?php echo $specified_children; ?>" />
 	<label class="checkbox-label" for="wpl_c_<?php echo $field->id; ?>"><?php echo __($label, 'wpl'); ?><?php if (in_array($mandatory, array(1, 2))): ?><span class="required-star">*</span><?php endif; ?></label>
 	<div class="distance-wp distance_items_box" id="wpl_span_dis_<?php echo $field->id; ?>" style="<?php echo $style; ?>">
 		<div class="distance-item distance-value">
@@ -197,7 +257,7 @@ elseif($type == 'number' and !$done_this)
 {
 ?>
 <label for="wpl_c_<?php echo $field->id; ?>"><?php echo __($label, 'wpl'); ?><?php if(in_array($mandatory, array(1, 2))): ?><span class="required-star">*</span><?php endif; ?></label>
-<input type="number" class="wpl_c_<?php echo $field->table_column; ?>" id="wpl_c_<?php echo $field->id; ?>" name="<?php echo $field->table_column; ?>" value="<?php echo $value; ?>" onchange="ajax_save('<?php echo $field->table_name; ?>', '<?php echo $field->table_column; ?>', this.value, '<?php echo $item_id; ?>', '<?php echo $field->id; ?>');" <?php echo ((isset($options['readonly']) and $options['readonly'] == 1) ? 'disabled="disabled"' : ''); ?> />
+<input type="number" step="any" lang="en" class="wpl_c_<?php echo $field->table_column; ?>" id="wpl_c_<?php echo $field->id; ?>" name="<?php echo $field->table_column; ?>" value="<?php echo $value; ?>" onchange="ajax_save('<?php echo $field->table_name; ?>', '<?php echo $field->table_column; ?>', this.value, '<?php echo $item_id; ?>', '<?php echo $field->id; ?>');" <?php echo ((isset($options['readonly']) and $options['readonly'] == 1) ? 'disabled="disabled"' : ''); ?> />
 <span id="wpl_listing_saved_span_<?php echo $field->id; ?>" class="wpl_listing_saved_span"></span>
 <?php
 	$done_this = true;
@@ -207,8 +267,8 @@ elseif($type == 'mmnumber' and !$done_this)
     $value_max = isset($values[$field->table_column.'_max']) ? $values[$field->table_column.'_max'] : 0;
 ?>
 <label for="wpl_c_<?php echo $field->id; ?>"><?php echo __($label, 'wpl'); ?><?php if(in_array($mandatory, array(1, 2))): ?><span class="required-star">*</span><?php endif; ?></label>
-<input type="number" class="wpl_minmax_textbox wpl_c_<?php echo $field->table_column; ?>" id="wpl_c_<?php echo $field->id; ?>" name="<?php echo $field->table_column; ?>" value="<?php echo $value; ?>" onchange="ajax_save('<?php echo $field->table_name; ?>', '<?php echo $field->table_column; ?>', this.value, '<?php echo $item_id; ?>', '<?php echo $field->id; ?>');" <?php echo ((isset($options['readonly']) and $options['readonly'] == 1) ? 'disabled="disabled"' : ''); ?> />
- - <input type="number" class="wpl_minmax_textbox wpl_c_<?php echo $field->table_column; ?>_max" id="wpl_c_<?php echo $field->id; ?>_max" name="<?php echo $field->table_column; ?>_max" value="<?php echo $value_max; ?>" onchange="ajax_save('<?php echo $field->table_name; ?>', '<?php echo $field->table_column; ?>_max', this.value, '<?php echo $item_id; ?>', '<?php echo $field->id; ?>');" <?php echo ((isset($options['readonly']) and $options['readonly'] == 1) ? 'disabled="disabled"' : ''); ?> />
+<input type="number" step="any" lang="en" class="wpl_minmax_textbox wpl_c_<?php echo $field->table_column; ?>" id="wpl_c_<?php echo $field->id; ?>" name="<?php echo $field->table_column; ?>" value="<?php echo $value; ?>" onchange="ajax_save('<?php echo $field->table_name; ?>', '<?php echo $field->table_column; ?>', this.value, '<?php echo $item_id; ?>', '<?php echo $field->id; ?>');" <?php echo ((isset($options['readonly']) and $options['readonly'] == 1) ? 'disabled="disabled"' : ''); ?> />
+ - <input type="number" step="any" lang="en" class="wpl_minmax_textbox wpl_c_<?php echo $field->table_column; ?>_max" id="wpl_c_<?php echo $field->id; ?>_max" name="<?php echo $field->table_column; ?>_max" value="<?php echo $value_max; ?>" onchange="ajax_save('<?php echo $field->table_name; ?>', '<?php echo $field->table_column; ?>_max', this.value, '<?php echo $item_id; ?>', '<?php echo $field->id; ?>');" <?php echo ((isset($options['readonly']) and $options['readonly'] == 1) ? 'disabled="disabled"' : ''); ?> />
 <span id="wpl_listing_saved_span_<?php echo $field->id; ?>" class="wpl_listing_saved_span"></span>
 <?php
 	$done_this = true;
@@ -217,8 +277,9 @@ elseif($type == 'property_types' and !$done_this)
 {
 	$property_types = wpl_global::get_property_types();
 	$current_user = wpl_users::get_wpl_user();
-	$ptrestrict = $current_user->maccess_ptrestrict;
-	$rproperty_types = explode(',', $current_user->maccess_property_types);
+    
+	$ptrestrict = isset($current_user->maccess_ptrestrict) ? $current_user->maccess_ptrestrict : NULL;
+	$rproperty_types = explode(',', (isset($current_user->maccess_property_types) ? $current_user->maccess_property_types : NULL));
 ?>
 <label for="wpl_c_<?php echo $field->id; ?>"><?php echo __($label, 'wpl'); ?><?php if(in_array($mandatory, array(1, 2))): ?><span class="required-star">*</span><?php endif; ?></label>
 <select class="wpl_c_<?php echo $field->table_column; ?>" id="wpl_c_<?php echo $field->id; ?>" name="<?php echo $field->table_column; ?>" onchange="wpl_property_type_changed(this.value); ajax_save('<?php echo $field->table_name; ?>', '<?php echo $field->table_column; ?>', this.value, '<?php echo $item_id; ?>', '<?php echo $field->id; ?>');">

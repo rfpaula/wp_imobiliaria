@@ -43,9 +43,9 @@ class wpl_activity_main_params extends wpl_activity
 		foreach($keys as $key=>$value)
 		{
 			if(trim($value) == '') continue;
-			$params[$value] = $values[$key];
+			$params[$value] = stripslashes($values[$key]);
 		}
-		
+        
 		/** save params **/
 		wpl_global::set_params($table, $id, $params);
 		

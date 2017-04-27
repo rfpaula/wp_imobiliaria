@@ -16,6 +16,10 @@ if($format == 'radiussearchunit' and !$done_this)
         $location_point = wpl_locations::get_LatLng($address);
         $latitude = $location_point[0];
         $longitude = $location_point[1];
+        
+        // For drawing radius on the map if APS addon exists
+        wpl_request::setVar('sf_radiussearch_lat', $latitude);
+        wpl_request::setVar('sf_radiussearch_lng', $longitude);
     }
     else
     {

@@ -22,7 +22,7 @@ if(in_array($mandatory, array(1, 2)))
             if(wplj.trim(txtarea_val) == "" && wplj("#wpl_listing_field_container'.$field->id.'").css("display") != "none")
             {
                 wpl_alert("'.sprintf(__('Enter a valid %s for %s!', 'wpl'), __($label, 'wpl'), $default_language).'");
-                wpl_notice_required_fields(wplj("#'.$field_id.'"), "'.$field->category.'");
+                if(go_to_error === true) wpl_notice_required_fields(wplj("#'.$field_id.'"), "'.$field->category.'");
                 return false;
             }
             ';
@@ -40,7 +40,7 @@ if(in_array($mandatory, array(1, 2)))
             if(wplj.trim(txtarea_val) == "" && wplj("#wpl_listing_field_container'.$field->id.'").css("display") != "none")
             {
                 wpl_alert("'.__('Enter a valid', 'wpl').' '.__($label, 'wpl').'!");
-                wpl_notice_required_fields(wplj("#'.$field_id.'"), "'.$field->category.'");
+                if(go_to_error === true) wpl_notice_required_fields(wplj("#'.$field_id.'"), "'.$field->category.'");
                 return false;
             }
             ';
@@ -58,7 +58,7 @@ if(in_array($mandatory, array(1, 2)))
             if(wplj.trim(wplj("#'.$field_id.'").val()) == "" && wplj("#wpl_listing_field_container'.$field->id.'").css("display") != "none")
             {
                 wpl_alert("'.sprintf(__('Enter a valid %s for %s!', 'wpl'), __($label, 'wpl'), $default_language).'");
-                wpl_notice_required_fields(wplj("#'.$field_id.'"), "'.$field->category.'");
+                if(go_to_error === true) wpl_notice_required_fields(wplj("#'.$field_id.'"), "'.$field->category.'");
                 return false;
             }
             ';
@@ -71,7 +71,7 @@ if(in_array($mandatory, array(1, 2)))
             if(wplj.trim(wplj("#'.$field_id.'").val()) == "" && wplj("#wpl_listing_field_container'.$field->id.'").css("display") != "none")
             {
                 wpl_alert("'.__('Enter a valid', 'wpl').' '.__($label, 'wpl').'!");
-                wpl_notice_required_fields(wplj("#'.$field_id.'"), "'.$field->category.'");
+                if(go_to_error === true) wpl_notice_required_fields(wplj("#'.$field_id.'"), "'.$field->category.'");
                 return false;
             }
             ';

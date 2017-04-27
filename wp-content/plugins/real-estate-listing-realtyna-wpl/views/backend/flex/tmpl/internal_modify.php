@@ -7,7 +7,7 @@ defined('_WPLEXEC') or die('Restricted access');
         <h2><?php echo __('General Options', 'wpl'); ?></h2>
         <?php
         // loads libraries/dbst_modify/
-        wpl_flex::generate_modify_form($this->field_type, $this->field_id, $this->kind);
+        wpl_flex::generate_modify_form($this->field_type, $this->field_id, $this->kind, $this->cat_id);
         /** including a custom file **/ $this->_wpl_import($this->tpl_path.'.custom.modifydbst');
         ?>
 </div>

@@ -87,7 +87,7 @@ include _wpl_import('widgets.agents.scripts.js_backend', true, true);
     </div>
     
     <h4><?php echo __('Sort and Limit'); ?></h4>
-    <?php $sort_options = wpl_sort_options::get_sort_options(2); ?>
+    <?php $sort_options = wpl_sort_options::render(wpl_sort_options::get_sort_options(2)); ?>
     <div class="wpl-widget-row">
     	<label for="<?php echo $this->get_field_id('data_orderby'); ?>"><?php echo __('Order by', 'wpl'); ?></label>
         <select id="<?php echo $this->get_field_id('data_orderby'); ?>" name="<?php echo $this->get_field_name('data'); ?>[orderby]">
@@ -114,10 +114,8 @@ include _wpl_import('widgets.agents.scripts.js_backend', true, true);
     <?php if(wpl_global::check_addon('pro')): ?>
         <button id="<?php echo $this->get_field_id('btn-shortcode'); ?>"
                 data-item-id="<?php echo $this->number; ?>"
-                data-realtyna-lightbox-opts="clearContent:false"
-                data-fancy-id="<?php echo $this->get_field_id('wpl_view_shortcode'); ?>" class="wpl-button button-1"
-                href="#<?php echo $this->get_field_id('wpl_view_shortcode'); ?>"
-                data-realtyna-lightbox><?php echo __('View Shortcode', 'wpl'); ?></button>
+                data-fancy-id="<?php echo $this->get_field_id('wpl_view_shortcode'); ?>" class="wpl-open-lightbox-btn wpl-button button-1"
+                href="#<?php echo $this->get_field_id('wpl_view_shortcode'); ?>" type="button"><?php echo __('View Shortcode', 'wpl'); ?></button>
     
     <div id="<?php echo $this->get_field_id('wpl_view_shortcode'); ?>" class="hidden">
         <div class="fanc-content size-width-1">

@@ -29,7 +29,7 @@ _wpl_import('libraries.filters');
 ?>
 <div class="side-6 side-ni-addons" id="wpl_dashboard_ni_addons">
     <div class="panel-wp">
-        <h3><?php echo __('Optional Add Ons', 'wpl'); ?></h3>
+        <h3><?php echo __('Optional Add-ons', 'wpl'); ?></h3>
 
         <div class="panel-body">
             <div class="wpl-ni-addons-wp wpl_ni_addons_container">
@@ -44,7 +44,7 @@ _wpl_import('libraries.filters');
                     </div>
                 <?php endforeach; ?>
                 <?php if($i == 0): ?>
-                	<div class="wpl-ni-addons-no-optional"><?php echo __('Congratulations! All the optional Add Ons are installed on your website!', 'wpl'); ?></div>
+                	<div class="wpl-ni-addons-no-optional"><?php echo __('Congratulations! All the optional Add-on are installed on your website!', 'wpl'); ?></div>
                 <?php endif; ?>
             </div>
         </div>

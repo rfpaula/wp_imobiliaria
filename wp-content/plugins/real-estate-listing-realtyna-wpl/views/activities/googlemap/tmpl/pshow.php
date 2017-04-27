@@ -10,6 +10,10 @@ $property_id = isset($wpl_properties['current']['data']['id']) ? $wpl_properties
 $this->kind = isset($wpl_properties['current']['data']['kind']) ? $wpl_properties['current']['data']['kind'] : 0;
 $kind_data = wpl_flex::get_kind($this->kind);
 
+/** Property Type **/
+$ptype_data = array();
+if(isset($wpl_properties['current']['data']['property_type'])) $ptype_data = wpl_global::get_property_types($wpl_properties['current']['data']['property_type']);
+
 /** Parameters **/
 $this->params = $params;
 
@@ -24,7 +28,11 @@ $this->default_zoom = isset($params['default_zoom']) ? $params['default_zoom'] :
 $this->infowindow_event = isset($params['infowindow_event']) ? $params['infowindow_event'] : 'click';
 $this->overviewmap = isset($params['overviewmap']) ? $params['overviewmap'] : 0;
 $this->get_direction = isset($params['get_direction']) ? $params['get_direction'] : 0;
-$this->show_marker = (isset($kind_data['map']) and $kind_data['map'] != 'marker') ? 0 : 1;
+$this->scroll_wheel = isset($params['scroll_wheel']) ? $params['scroll_wheel'] : 'false';
+
+// Show the marker or not
+$this->show_marker = (isset($kind_data['map']) and $kind_data['map'] != 'marker') ? 0 : ((isset($ptype_data->show_marker) and !$ptype_data->show_marker) ? 0 : 1);
+if(isset($wpl_properties['current']['data']['show_marker']) and $wpl_properties['current']['data']['show_marker'] != 2) $this->show_marker = ($wpl_properties['current']['data']['show_marker'] ? $wpl_properties['current']['data']['show_marker'] : 0);
 
 /** Preview Property feature **/
 $this->map_property_preview = 0;

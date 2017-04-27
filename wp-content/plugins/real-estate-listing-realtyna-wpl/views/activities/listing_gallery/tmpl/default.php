@@ -16,6 +16,9 @@ $this->resize = (isset($params['resize']) and trim($params['resize']) != '') ? $
 $this->rewrite = (isset($params['rewrite']) and trim($params['rewrite']) != '') ? $params['rewrite'] : 0;
 $this->watermark = (isset($params['watermark']) and trim($params['watermark']) != '') ? $params['watermark'] : 0;
 
+/** show tags **/
+$show_tags = (isset($params['show_tags']) and trim($params['show_tags']) != '') ? $params['show_tags'] : 1;
+
 /** render gallery **/
 $raw_gallery = isset($wpl_properties['current']['items']['gallery']) ? $wpl_properties['current']['items']['gallery'] : array();
 
@@ -61,10 +64,14 @@ $this->_wpl_import($this->tpl_path.'.scripts.default', true, true, true);
             $i++;
         }
     }
-    ?>
+	?>
+    
+	<?php if($show_tags): ?>
     <div class="wpl-listing-tags-wp">
         <div class="wpl-listing-tags-cnt">
             <?php /* Property tags */ echo $this->tags(); ?>
         </div>
     </div>
+	<?php endif; ?>
+    
 </div>

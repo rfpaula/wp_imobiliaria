@@ -35,6 +35,13 @@ defined('_WPLEXEC') or die('Restricted access');
             <input class="text_box" name="option[default_zoom]" type="text" id="wpl_o_default_zoom" value="<?php echo isset($this->options->default_zoom) ? $this->options->default_zoom : '4'; ?>" />
         </div>
         <div class="wpl-gen-accordion-row fanc-row">
+            <label for="wpl_o_scroll_wheel"><?php echo __('Scroll wheel zoom', 'wpl'); ?></label>
+            <select class="text_box" name="option[scroll_wheel]" id="wpl_o_scroll_wheel">
+                <option value="false" <?php if(isset($this->options->scroll_wheel) and $this->options->scroll_wheel == 'false') echo 'selected="selected"'; ?>><?php echo __('Disabled', 'wpl'); ?></option>
+                <option value="true" <?php if(isset($this->options->scroll_wheel) and $this->options->scroll_wheel == 'true') echo 'selected="selected"'; ?>><?php echo __('Enabled', 'wpl'); ?></option>
+            </select>
+        </div>
+        <div class="wpl-gen-accordion-row fanc-row">
             <label for="wpl_o_map_height"><?php echo __('Map height', 'wpl'); ?></label>
             <input class="text_box" name="option[map_height]" type="text" id="wpl_o_map_height" value="<?php echo isset($this->options->map_height) ? $this->options->map_height : '480'; ?>" />
         </div>

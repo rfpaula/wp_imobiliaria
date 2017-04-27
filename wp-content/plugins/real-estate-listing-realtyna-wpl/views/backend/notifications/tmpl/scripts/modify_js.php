@@ -33,31 +33,31 @@ wplj(document).ready(function()
 			});
 
 			<?php if(wpl_global::check_addon('sms')): ?>
-				var include_sms_user = '';
-				var include_sms_membership = '';
-				var include_sms_mobile = '';
+            var include_sms_user = '';
+            var include_sms_membership = '';
+            var include_sms_mobile = '';
 
-				wplj("#sms_additional_users > option").each(function(i)
-				{
-					if(include_sms_user !== '') include_sms_user += ',';
-					include_sms_user += this.value;
-				});
+            wplj("#sms_additional_users > option").each(function(i)
+            {
+                if(include_sms_user !== '') include_sms_user += ',';
+                include_sms_user += this.value;
+            });
 
-				wplj("#sms_additional_memberships > option").each(function(i)
-				{
-					if(include_sms_membership !== '') include_sms_membership += ',';
-					include_sms_membership += this.value;
-				});
+            wplj("#sms_additional_memberships > option").each(function(i)
+            {
+                if(include_sms_membership !== '') include_sms_membership += ',';
+                include_sms_membership += this.value;
+            });
 
-				wplj("#sms_additional_mobile > option").each(function(i)
-				{
-					if(include_sms_mobile !== '') include_sms_mobile += ',';
-					include_sms_mobile += this.value;
-				});
+            wplj("#sms_additional_mobile > option").each(function(i)
+            {
+                if(include_sms_mobile !== '') include_sms_mobile += ',';
+                include_sms_mobile += this.value;
+            });
 
-				sms_request_str = '&info[include_sms_mobile]=' + include_sms_mobile + '&info[include_sms_membership]=' + include_sms_membership + '&info[include_sms_user]=' + include_sms_user;
+            sms_request_str = '&info[include_sms_mobile]=' + include_sms_mobile + '&info[include_sms_membership]=' + include_sms_membership + '&info[include_sms_user]=' + include_sms_user;
 			<?php else: ?>
-				sms_request_str = '';
+			sms_request_str = '';
 			<?php endif; ?>
 
 			
@@ -75,12 +75,25 @@ wplj(document).ready(function()
                 
 				var replace = data.substring(start, end+2);
                 
+                // It's not a WPL image
+                if(replace.indexOf("data-wpl-var") === -1)
+                {
+                    // Destroy the image tag for avoiding infinitive loop
+                    var new_image = replace.replace('<img', '< img');
+                    data = data.replace(replace, new_image);
+                    
+                    continue;
+                }
+                
 				var data_wpl_var = replace.substring(replace.indexOf("data-wpl-var")+14);
 				data_wpl_var = data_wpl_var.substring(0, data_wpl_var.indexOf("\""));
                 
 				data = data.replace(replace, "##"+data_wpl_var+"##");
 			}
             
+            // Fix destroyed image tags again
+            data = data.replace('< img', '<img');
+                    
 			wplj("#wpl_template").val(data);
 			ajax_loader_element = "#wpl_modify_ajax_loader";
 			wplj(ajax_loader_element).html('<img src="<?php echo wpl_global::get_wpl_asset_url('img/ajax-loader3.gif'); ?>" />');
@@ -103,8 +116,8 @@ function add_recipients(sel,inc,field)
 	var names = new Array();
 	if(field == 'email_recipients')
 	{
-		var ids=Array();
-		var email_address=wplj("#email_address").val();
+		var ids = Array();
+		var email_address = wplj("#email_address").val();
 		
         if(email_address == '' || email_address.indexOf("@") == -1 || email_address.indexOf(".") == -1)
 		{
@@ -116,10 +129,11 @@ function add_recipients(sel,inc,field)
 		names[0] = email_address;
 		wplj("#email_address").val('');
 	}
-	else if(field=='sms_recipients')
+	else if(field == 'sms_recipients')
 	{
 		var ids=Array();
-		var email_address=wplj("#sms_number").val();
+		var email_address = wplj("#sms_number").val();
+        
 		ids[0] = email_address;
 		names[0] = email_address;
 		wplj("#sms_number").val('');

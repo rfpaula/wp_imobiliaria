@@ -270,9 +270,7 @@ class wpl_render
         /** Convert price to float **/
         if(strpos($price, '.') !== false)
         {
-            if(!$d_seperator) $d_seperator = '.';
             $price = (float) $price;
-            $decimal = 2;
         }
         
         /** Remove decimals if the price is not float **/
@@ -302,6 +300,14 @@ class wpl_render
      */
 	public static function derender_date($date)
 	{
+        $time = '';
+        if(strpos($date, ' ') !== false)
+        {
+            $ex = explode(' ', $date);
+            $date = $ex[0];
+            $time = $ex[1];
+        }
+        
 		$date_format_arr = explode(':', wpl_global::get_setting('main_date_format'));
 		$date_format = $date_format_arr[0];
 
@@ -311,7 +317,7 @@ class wpl_render
 		$date_format_parts = explode($delimiter, $date_format);
 		$date_parts = explode($delimiter, $date);
 		$standard_date = array();
-		
+        
 		for($i=0; $i<3; $i++)
 		{
 			switch(strtolower($date_format_parts[$i]))
@@ -330,16 +336,7 @@ class wpl_render
 			}
 		}
 		
-		$dedate = $standard_date['y'].'-'.$standard_date['m'].'-'.$standard_date['d'];
-		$time = '';
-		
-		if(stristr(trim($date), ' ') != '')
-		{
-			$tmp = explode(' ', $date);
-			$time = $tmp[1];
-		}
-		
-		$dedate .= $time;
+		$dedate = trim($standard_date['y'].'-'.$standard_date['m'].'-'.$standard_date['d'].' '.$time);
 		return $dedate;
 	}
     

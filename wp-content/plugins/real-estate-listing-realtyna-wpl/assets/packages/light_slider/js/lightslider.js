@@ -555,8 +555,6 @@
                 }
                 var $thumb = $slide.parent().find('.lSPager').find('li');
                 this.active($thumb, true);
-		ga('send', 'event', 'galerias-imoveis', 'visualizar-foto', 'slider', 1, {nonInteraction: true});
-		ga('send', 'pageview');
             },
             fade: function () {
                 this.active($children, false);

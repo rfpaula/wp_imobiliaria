@@ -4,7 +4,7 @@ defined('_WPLEXEC') or die('Restricted access');
 ?>
 <?php if(!wpl_global::check_addon('membership')): ?>
 <div class="fanc-row">
-    <?php echo __('Membership Addon must be installed for this!', 'wpl'); ?>
+    <?php echo __('Membership Add-on must be installed for this!', 'wpl'); ?>
 </div>
 <?php else: ?>
 <div class="fanc-row">
@@ -18,7 +18,7 @@ defined('_WPLEXEC') or die('Restricted access');
     <div class="wpl_flex_accesses_cnt" id="<?php echo $__prefix; ?>accesses_cnt" style="<?php if(!isset($values->accesses) or (isset($values->accesses) and trim($values->accesses) == '')) echo 'display: none;'; ?>">
         <div class="fanc-row" id="<?php echo $__prefix; ?>accesses_message_row">
             <label for="<?php echo $__prefix; ?>accesses_message"><?php echo __('Message', 'wpl'); ?></label>
-            <input type="text" value="<?php echo (isset($values->accesses_message) ? $values->accesses_message : ''); ?>" id="<?php echo $__prefix; ?>accesses_message" name="<?php echo $__prefix; ?>accesses_message" placeholder="<?php echo __('Leave it empty for hiding!', 'wpl'); ?>" />
+            <input type="text" value="<?php echo (isset($values->accesses_message) ? $values->accesses_message : ''); ?>" id="<?php echo $__prefix; ?>accesses_message" name="<?php echo $__prefix; ?>accesses_message" placeholder="<?php echo __('Leave empty to hide!', 'wpl'); ?>" />
         </div>
         <ul id="<?php echo $__prefix ?>_accesses_ul" class="wpl_accesses_ul">
             <?php

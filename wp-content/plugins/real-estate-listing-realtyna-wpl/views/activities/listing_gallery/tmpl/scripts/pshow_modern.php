@@ -17,7 +17,7 @@ defined('_WPLEXEC') or die('Restricted access');
             loop: true,
             autoWidth: true,
             adaptiveHeight: true,
-            gallery: <?php echo (($this->thumbnail) ? 'true' : 'false'); ?>,
+            gallery: <?php echo (($this->thumbnail and count($this->gallery)) ? 'true' : 'false'); ?>,
             onSliderLoad: function(el)
             {
                 $('#wpl_gallery_wrapper-<?php echo $this->activity_id; ?> #wpl_gallery_container<?php echo $this->property_id; ?> li').show();
@@ -29,7 +29,7 @@ defined('_WPLEXEC') or die('Restricted access');
                             thumbWidth: <?php echo $this->thumbnail_width ?>
                         });
                 }
-                <?php if($this->thumbnail): ?>
+                <?php if($this->thumbnail and count($this->gallery)): ?>
                     $('#wpl_gallery_wrapper-<?php echo $this->activity_id; ?> .lSSlideOuter').append('<div class="wpl-lSSlider-thumbnails"><div class="lSAction"><a class="lSPrev"></a><a class="lSNext"></a></div><div class="wpl-lSSlider-thumbnails-inner"></div></div>');
                     $('#wpl_gallery_wrapper-<?php echo $this->activity_id; ?> .lSSlideOuter .wpl-lSSlider-thumbnails-inner').append($('#wpl_gallery_wrapper-<?php echo $this->activity_id; ?> .lSPager'));
                     $('#wpl_gallery_wrapper-<?php echo $this->activity_id; ?> .wpl-lSSlider-thumbnails .lSPrev').on('click', function () {

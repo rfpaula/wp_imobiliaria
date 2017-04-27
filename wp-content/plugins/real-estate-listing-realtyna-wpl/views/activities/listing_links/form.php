@@ -8,7 +8,7 @@ defined('_WPLEXEC') or die('Restricted access');
     <input <?php if(isset($this->options->facebook) and $this->options->facebook == '1') echo 'checked="checked"'; ?> class="text_box" name="option[facebook]" type="checkbox" id="wpl_o_facebook" value="<?php echo isset($this->options->facebook) ? $this->options->facebook : '1'; ?>" />
 </div>
 <div class="fanc-row">
-    <label for="wpl_o_google_plus"><?php echo __('Google plus', 'wpl'); ?></label>
+    <label for="wpl_o_google_plus"><?php echo __('Google+', 'wpl'); ?></label>
     <input <?php if(isset($this->options->google_plus) and $this->options->google_plus == '1') echo 'checked="checked"'; ?> class="text_box" name="option[google_plus]" type="checkbox" id="wpl_o_google_plus" value="<?php echo isset($this->options->google_plus) ? $this->options->google_plus : '1'; ?>" />
 </div>
 <div class="fanc-row">
@@ -65,7 +65,7 @@ defined('_WPLEXEC') or die('Restricted access');
     <label for="wpl_o_crm"><?php echo __('CRM', 'wpl'); ?></label>
     
     <?php if(!wpl_global::check_addon('crm')): ?>
-    <span id="wpl_o_crm" class="gray_tip"><?php echo __('CRM addon must be installed for this!', 'wpl'); ?></span>
+    <span id="wpl_o_crm" class="gray_tip"><?php echo __('The CRM Add-on must be installed for this feature!', 'wpl'); ?></span>
     <?php else: ?>
     <input <?php if(isset($this->options->crm) and $this->options->crm == '1') echo 'checked="checked'; ?> class="text_box" name="option[crm]" type="checkbox" id="wpl_o_crm" value="<?php echo isset($this->options->crm) ? $this->options->crm : '1'; ?>" />
     <?php endif; ?>

@@ -88,7 +88,11 @@ class wpl_db
 		$find_files = array();
 		
 		if($path_exists) $files = wpl_folder::files($path, '.php$');
-		
+
+		/** fields to generate the OR query, of the 'groupor' type exists. */
+		$query_or_status = false;
+		$query_or_values = array();
+
 		foreach($vars as $key=>$value)
 		{
 			if(strpos($key, $needle_str) === false) continue;
@@ -118,7 +122,15 @@ class wpl_db
 				}
 			}
 		}
-		
+
+		if($query_or_status and !empty($query_or_values))
+		{
+			$generate_or_query = '';
+			foreach($query_or_values as $table_name=>$value) $generate_or_query .= "`{$table_name}`='{$value}' OR ";
+
+			$query .= ' AND ('.trim($generate_or_query, ' OR '). ')';
+		}
+
 		return $query = trim($query, ' ,');
 	}
     
@@ -133,7 +145,7 @@ class wpl_db
 	{
 		/** db prefix **/
 		$query = self::_prefix($query);
-		//echo $query;
+		
 		/** db object **/
 		$database = self::get_DBO();
 		

@@ -21,7 +21,7 @@ class wpl_listing_controller extends wpl_controller
         
         // Check Nonce
         if(!wpl_security::verify_nonce(wpl_request::getVar('_wpnonce', ''), 'wpl_listing') and !wpl_security::verify_nonce(wpl_request::getVar('_wpnonce', ''), 'wpl_users')) $this->response(array('success'=>0, 'message'=>__('The security nonce is not valid!', 'wpl')));
-		
+
 		if($function == 'save')
 		{
 			$table_name = wpl_request::getVar('table_name');
@@ -58,6 +58,7 @@ class wpl_listing_controller extends wpl_controller
 			$this->finalize($item_id, $mode, $value);
 		}
         elseif($function == 'item_save') $this->item_save();
+        elseif($function == 'remove_items') $this->remove_items();
         elseif($function == 'get_parents') $this->get_parents();
         elseif($function == 'set_parent') $this->set_parent();
         elseif($function == 'save_multilingual') $this->save_multilingual();
@@ -219,6 +220,26 @@ class wpl_listing_controller extends wpl_controller
 		echo json_encode($response);
 		exit;
 	}
+    
+    private function remove_items()
+    {
+        $kind = wpl_request::getVar('kind', 0);
+		$parent_id = wpl_request::getVar('item_id', 0);
+        $item_type = wpl_request::getVar('item_type', '');
+        $item_cat = wpl_request::getVar('item_cat', '');
+        
+        $query = "DELETE FROM `#__wpl_items` WHERE `parent_kind`='$kind' AND `parent_id`='$parent_id'".(trim($item_type) ? " AND `item_type`='$item_type'" : '').(trim($item_cat) ? " AND `item_cat`='$item_cat'" : '');
+        wpl_db::q($query);
+        
+		$res = 1;
+		$message = $res ? __('Items removed.', 'wpl') : __('Error Occured.', 'wpl');
+		$data = NULL;
+		
+		$response = array('success'=>$res, 'message'=>$message, 'data'=>$data);
+		
+		echo json_encode($response);
+		exit;
+    }
     
     private function get_parents()
     {

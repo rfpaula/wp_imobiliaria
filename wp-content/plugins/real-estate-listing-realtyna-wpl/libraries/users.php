@@ -83,6 +83,7 @@ class wpl_users
 		{
 			if(in_array($key, $forbidden_fields)) continue;
 			
+			$value = wpl_db::escape($value);
 			$auto_query1 .= "`$key`,";
 			$auto_query2 .= "'$value',";
 		}
@@ -90,7 +91,7 @@ class wpl_users
 		if($user_data)
 		{
 			$auto_query1 .= "`first_name`,`last_name`,`main_email`,";
-			$auto_query2 .= "'".$user_data->data->meta['first_name']."','".$user_data->data->meta['last_name']."','".$user_data->data->user_email."',";
+			$auto_query2 .= "'".wpl_db::escape($user_data->data->meta['first_name'])."','".wpl_db::escape($user_data->data->meta['last_name'])."','".wpl_db::escape($user_data->data->user_email)."',";
 		}
 		
 		$auto_query1 = trim($auto_query1, ', ');
@@ -213,6 +214,8 @@ class wpl_users
 		if(!$user_id) return false;
 		
 		$user_meta = get_user_meta($user_id, $key, $single);
+		
+		if(!$user_meta) return null;
 		
 		foreach($user_meta as $key=>$meta)
 		{
@@ -573,6 +576,9 @@ class wpl_users
      */
 	public static function get_membership($membership_id)
 	{
+        // Return false if it's not a membership ID
+		if($membership_id >= 0) return false;
+        
 		$query = "SELECT * FROM `#__wpl_users` WHERE `id`='$membership_id'";
 		return wpl_db::select($query, 'loadObject');
 	}
@@ -673,7 +679,7 @@ class wpl_users
      * @param int $membership_id
      * @param boolean $trigger_event
      */
-	public static function change_membership($user_id, $membership_id = -1, $trigger_event = true)
+	public static function change_membership($user_id, $membership_id = -1, $trigger_event = true, $method = NULL)
 	{
 		$user_data = wpl_users::get_wpl_data($user_id);
         
@@ -682,9 +688,11 @@ class wpl_users
         {
             wpl_users::add_user_to_wpl($user_id);
             $user_data = wpl_users::get_wpl_data($user_id);
+            
+            if(!trim($method)) $method = 'membership_changed';
         }
         
-        $method = (isset($user_data->membership_id) and $user_data->membership_id != $membership_id) ? 'membership_changed' : 'access_updated';
+        if(!trim($method)) $method = (isset($user_data->membership_id) and $user_data->membership_id != $membership_id) ? 'membership_changed' : 'access_updated';
         
 		$membership_data = wpl_users::get_wpl_data($membership_id);
 		$query1 = '';
@@ -732,6 +740,9 @@ class wpl_users
 		/** get current user id **/
 		if(trim($user_id) == '') $user_id = wpl_users::get_cur_user_id();
         
+        // Admin user has access to anything
+        if(wpl_users::is_administrator($user_id)) return true;
+        
 		$user_data = wpl_users::get_wpl_data($user_id);
         
         /** user is registered in WordPress but not in WPL so we choose guest user for accesses **/
@@ -739,7 +750,7 @@ class wpl_users
 		
 		if($access == 'edit')
 		{
-			if($owner_id == $user_id or wpl_users::is_administrator($user_id)) return true;
+			if($owner_id == $user_id) return true;
 		}
 		elseif($access == 'add')
 		{
@@ -752,11 +763,11 @@ class wpl_users
 		}
 		elseif($access == 'delete')
 		{
-			if($user_data->access_delete and ($owner_id == $user_id or wpl_users::is_administrator($user_id))) return true;
+			if($user_data->access_delete and $owner_id == $user_id) return true;
 		}
 		elseif($access == 'confirm')
 		{
-			if($user_data->access_confirm and ($owner_id == $user_id or wpl_users::is_administrator($user_id))) return true;
+			if($user_data->access_confirm and $owner_id == $user_id) return true;
 		}
 		else
 		{
@@ -989,6 +1000,9 @@ class wpl_users
      */
 	public static function finalize($user_id)
 	{
+        // Provided user ID is not valid
+        if(!trim($user_id)) return false;
+        
 		/** create folder **/
 		$folder_path = wpl_items::get_path($user_id, 2);
 		if(!wpl_folder::exists($folder_path)) wpl_folder::create($folder_path);
@@ -1057,19 +1071,28 @@ class wpl_users
 			}
 			elseif($type == 'locations' and isset($data['locations']) and is_array($data['locations']))
 			{
-				$location_value = '';
+				$location_values = array();
 				foreach($data['locations'] as $location_level=>$value)
 				{
-					$location_value .= $data['keywords'][$location_level] .' ';
+                    array_push($location_values, $data['keywords'][$location_level]);
                     
                     $abbr = wpl_locations::get_location_abbr_by_name(wpl_db::escape($data['raw'][$location_level]), $location_level);
                     $name = wpl_locations::get_location_name_by_abbr(wpl_db::escape($abbr), $location_level);
                     
-                    $location_value .= $name . ' ' . ($name != $abbr ? $abbr.' ' : NULL);
+                    $ex_space = explode(' ', $name);
+                    foreach($ex_space as $value_raw) array_push($location_values, $value_raw);
+                    
+                    if($name !== $abbr) array_push($location_values, $abbr);
 				}
 				
-                $location_value .= __('County', 'wpl');
-				$value = $location_value;
+                $location_suffix_prefix = wpl_locations::get_location_suffix_prefix();
+                foreach($location_suffix_prefix as $suffix_prefix) array_push($location_values, $suffix_prefix);
+                
+                $location_string = '';
+                $location_values = array_unique($location_values);
+                foreach($location_values as $location_value) $location_string .= 'LOC-'.__($location_value, 'wpl').' ';
+                
+				$value = trim($location_string);
 			}
 			elseif(isset($data['value']))
 			{
@@ -1178,7 +1201,7 @@ class wpl_users
         if(isset($user_data['zip_name']) and trim($user_data['zip_name']) != '') $locations['zip_name'] = __($user_data['zip_name'], 'wpl');
         
         // Get the pattern
-        $default_pattern = '[location5_name][glue][location4_name][glue][location3_name][glue][location2_name][glue][location1_name] [zip_name]';
+        $default_pattern = '[location5_name][glue] [location4_name][glue] [location2_name] [zip_name]';
         $location_pattern = wpl_global::get_pattern('user_location_pattern', $default_pattern, 2, NULL);
         
         $location_text = wpl_global::render_pattern($location_pattern, $user_id, $user_data, $glue, $locations);

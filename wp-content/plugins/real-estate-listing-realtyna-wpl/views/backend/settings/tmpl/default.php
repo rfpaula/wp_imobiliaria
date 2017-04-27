@@ -36,17 +36,38 @@ $this->_wpl_import($this->tpl_path.'.scripts.css');
         
         <div class="wpl-bottom-nav">
             <div class="wpl-util-side-left-menu-spacer"></div>
-            <?php if(wpl_global::check_addon('pro')): ?>
-                <?php // TODO: CHANGE side-maintenance WITH side-importexport AND DO THE NECESSARY CSS STUFF. ?>
-                <div class="side-12">
+
+
+            <div class="wpl-util-side-12 wpl-util-clearfix">
+                <div class="wpl-util-side-6 wpl-util-side-left side-maintenance">
                     <div class="panel-wp">
-                        <h3><?php echo __('Import/Export', 'wpl'); ?></h3>
+                        <h3><?php echo __('Sample Properties', 'wpl'); ?></h3>
                         <div class="panel-body">
-                            <?php $this->generate_internal('importexport'); ?>
+                            <?php $this->generate_internal('sampleproperties'); ?>
                         </div>
                     </div>
                 </div>
-            <?php endif; ?>
+                <?php if(wpl_global::check_addon('pro')): ?>
+                    <div class="wpl-util-side-6 wpl-util-side-right side-requirements">
+                        <div class="panel-wp">
+                            <h3><?php echo __('Import/Export', 'wpl'); ?></h3>
+                            <div class="panel-body">
+                                <?php $this->generate_internal('importexport'); ?>
+                            </div>
+                        </div>
+                    </div>
+                <?php endif; ?>
+                <?php if(wpl_global::check_addon('rank')): ?>
+                    <div class="wpl-util-side-12 wpl-util-side-none side-requirements" id="wpl_addon_rank_update_panel">
+                        <div class="panel-wp">
+                            <h3><?php echo __('Property Ranks', 'wpl'); ?></h3>
+                            <div class="panel-body">
+                                <?php $this->generate_internal('addon_rank'); ?>
+                            </div>
+                        </div>
+                    </div>
+                <?php endif; ?>
+            </div>
 
             <div class="wpl-util-side-12 wpl-util-clearfix">
                 <div class="wpl-util-side-6 wpl-util-side-left side-maintenance">
@@ -66,7 +87,6 @@ $this->_wpl_import($this->tpl_path.'.scripts.css');
                         </div>
                     </div>
                 </div>
-
             </div>
 
 		</div>

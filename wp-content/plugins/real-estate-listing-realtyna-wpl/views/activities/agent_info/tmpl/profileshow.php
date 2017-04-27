@@ -18,14 +18,13 @@ if(!trim($user_id)) $user_id = $wpl_properties['current']['data']['user_id'];
 $wpl_user = wpl_users::full_render($user_id, wpl_users::get_pshow_fields(), NULL, array(), true);
 
 /** resizing profile image **/
-$params                   = array();
 $params['image_parentid'] = $user_id;
 $params['image_name']     = isset($wpl_user['profile_picture']['name']) ? $wpl_user['profile_picture']['name'] : '';
 $profile_path             = isset($wpl_user['profile_picture']['path']) ? $wpl_user['profile_picture']['path'] : '';
 $profile_image            = wpl_images::create_profile_images($profile_path, $picture_width, $picture_height, $params);
 
 /** resizing company logo **/
-$params                   = array();
+
 $params['image_parentid'] = $user_id;
 $params['image_name']     = isset($wpl_user['company_logo']['name']) ? $wpl_user['company_logo']['name'] : '';
 $logo_path                = isset($wpl_user['company_logo']['path']) ? $wpl_user['company_logo']['path'] : '';
@@ -36,63 +35,76 @@ $agent_l_name             = isset($wpl_user['materials']['last_name']['value']) 
 $company_name             = isset($wpl_user['materials']['company_name']['value']) ? $wpl_user['materials']['company_name']['value'] : '';
 $description              = stripslashes($wpl_user['raw'][$description_column]);
 $description              = (!preg_match('!!u', $description) ? utf8_decode($description) : $description);
+
+/** Preparing website URL **/
+$website = '';
+if(isset($wpl_user['materials']['website']['value']))
+{
+	$website = $wpl_user['materials']['website']['value'];
+	if(stripos($website, 'http://') === false and stripos($website, 'https://') === false)
+	{
+		$website = 'http://'.$website;
+	}
+}
 ?>
-<div class="wpl_agent_info clearfix" id="wpl_agent_info" itemscope>
+<div itemscope itemtype="http://schema.org/RealEstateAgent" class="wpl_agent_info clearfix" id="wpl_agent_info">
 	<div class="wpl_agent_details clearfix">
-		<div class="wpl_agent_info_l">
+		<div class="wpl_agent_info_l wpl_agent_info_pic" style="width:<?php echo $picture_width; ?>">
 			<?php
 			if(isset($wpl_user['profile_picture'])) echo '<img itemprop="image" src="'.$profile_image.'" alt="'.$agent_name. ' '.$agent_l_name.'" />';
 			else echo '<div class="no_image" style="width:'.$picture_width.'px;height: '.$picture_height.'px;"></div>';
 			?>
 		</div>
-		<div class="wpl_agent_info_c col-md-7 clearfix">
-			<div class="wpl_profile_container_title" itemprop="name">
-				<?php echo $agent_name. ' '.$agent_l_name; ?>
+		<div class="wpl_agent_info_detail">
+			<div class="wpl_agent_info_c wpl-large-8 wpl-medium-8 wpl-small-12 wpl-column clearfix">
+				<div class="wpl_profile_container_title" itemprop="name">
+					<?php echo $agent_name. ' '.$agent_l_name; ?>
+				</div>
+				<ul>
+					<?php if($website): ?>
+						<li class="website"><a itemprop="url" href="<?php echo $website; ?>" target="_blank"><?php echo __('View website', 'wpl') ?></a></li>
+					<?php endif; ?>
+
+					<?php if(isset($wpl_user['materials']['tel']['value'])): ?>
+						<li class="tel" itemprop="telephone"><?php echo $wpl_user['materials']['tel']['value']; ?><a href="tel:<?php echo $wpl_user['materials']['tel']['value']; ?>"><?php echo $wpl_user['materials']['tel']['value']; ?></a></li>
+					<?php endif; ?>
+
+					<?php if(isset($wpl_user['materials']['mobile']['value'])): ?>
+						<li class="mobile" itemprop="telephone"><?php echo $wpl_user['materials']['mobile']['value']; ?><a href="tel:<?php echo $wpl_user['materials']['mobile']['value']; ?>"><?php echo $wpl_user['materials']['mobile']['value']; ?></a></li>
+					<?php endif; ?>
+
+					<?php if(isset($wpl_user['materials']['fax']['value'])): ?>
+						<li class="fax" itemprop="faxNumber"><?php echo $wpl_user['materials']['fax']['value']; ?></li>
+					<?php endif; ?>
+
+					<?php if(isset($wpl_user['main_email_url'])): ?>
+						<li class="email">
+							<?php if($mailto): ?>
+								<a itemprop="email" href="mailto:<?php echo $wpl_user['materials']['main_email']['value']; ?>"><img src="<?php echo $wpl_user['main_email_url']; ?>" alt="<?php echo $agent_name. ' '.$agent_l_name; ?>" /></a>
+							<?php else: ?>
+								<img src="<?php echo $wpl_user['main_email_url']; ?>" alt="<?php echo $agent_name. ' '.$agent_l_name; ?>" />
+							<?php endif; ?>
+						</li>
+					<?php endif; ?>
+
+					<?php if(isset($wpl_user['second_email_url'])): ?>
+						<li class="second_email">
+							<?php if($mailto): ?>
+								<a itemprop="email" href="mailto:<?php echo $wpl_user['materials']['secondary_email']['value']; ?>"><img src="<?php echo $wpl_user['second_email_url']; ?>" alt="<?php echo $agent_name. ' '.$agent_l_name; ?>" /></a>
+							<?php else: ?>
+								<img src="<?php echo $wpl_user['second_email_url']; ?>" alt="<?php echo $agent_name. ' '.$agent_l_name; ?>" />
+							<?php endif; ?>
+						</li>
+					<?php endif; ?>
+				</ul>
 			</div>
-			<ul>
-				<?php if(isset($wpl_user['materials']['website']['value'])): ?>
-					<li class="website"><a itemprop="url" href="<?php echo $wpl_user['materials']['website']['value']; ?>" target="_blank"><?php echo __('View website', 'wpl') ?></a></li>
-				<?php endif; ?>
-
-				<?php if(isset($wpl_user['materials']['tel']['value'])): ?>
-					<li class="tel" itemprop="telephone"><?php echo $wpl_user['materials']['tel']['value']; ?></li>
-				<?php endif; ?>
-
-				<?php if(isset($wpl_user['materials']['mobile']['value'])): ?>
-					<li class="mobile" itemprop="telephone"><?php echo $wpl_user['materials']['mobile']['value']; ?></li>
-				<?php endif; ?>
-
-				<?php if(isset($wpl_user['materials']['fax']['value'])): ?>
-					<li class="fax" itemprop="faxNumber"><?php echo $wpl_user['materials']['fax']['value']; ?></li>
-				<?php endif; ?>
-
-				<?php if(isset($wpl_user['main_email_url'])): ?>
-					<li class="email">
-						<?php if($mailto): ?>
-							<a itemprop="email" href="mailto:<?php echo $wpl_user['materials']['main_email']['value']; ?>"><img src="<?php echo $wpl_user['main_email_url']; ?>" alt="<?php echo $agent_name. ' '.$agent_l_name; ?>" /></a>
-						<?php else: ?>
-							<img src="<?php echo $wpl_user['main_email_url']; ?>" alt="<?php echo $agent_name. ' '.$agent_l_name; ?>" />
-						<?php endif; ?>
-					</li>
-				<?php endif; ?>
-
-				<?php if(isset($wpl_user['second_email_url'])): ?>
-					<li class="second_email">
-						<?php if($mailto): ?>
-							<a itemprop="email" href="mailto:<?php echo $wpl_user['materials']['secondary_email']['value']; ?>"><img src="<?php echo $wpl_user['second_email_url']; ?>" alt="<?php echo $agent_name. ' '.$agent_l_name; ?>" /></a>
-						<?php else: ?>
-							<img src="<?php echo $wpl_user['second_email_url']; ?>" alt="<?php echo $agent_name. ' '.$agent_l_name; ?>" />
-						<?php endif; ?>
-					</li>
-				<?php endif; ?>
-			</ul>
-		</div>
-		<div class="wpl_agent_info_r col-md-2">
-			<?php
-			if(isset($wpl_user['company_logo'])) echo '<img itemprop="logo" src="'.$logo_image.'" alt="'.$company_name.'" />';
-			if(trim($company_name) != '') echo '<div class="company" itemprop="name">'.$company_name.'</div>';
-			if(isset($wpl_user['materials']['company_address'])) echo '<div class="location" itemprop="address">'.$wpl_user['materials']['company_address']['value'].'</div>';
-			?>
+			<div class="wpl_agent_info_r wpl-large-4 wpl-medium-4 wpl-small-12  wpl-column">
+				<?php
+				if(isset($wpl_user['company_logo'])) echo '<img itemprop="logo" src="'.$logo_image.'" alt="'.$company_name.'" />';
+				if(trim($company_name) != '') echo '<div class="company" itemprop="name">'.$company_name.'</div>';
+				if(isset($wpl_user['materials']['company_address'])) echo '<div class="location" itemprop="address">'.$wpl_user['materials']['company_address']['value'].'</div>';
+				?>
+			</div>
 		</div>
 	</div>
 	<div class="wpl_agent_about"><?php echo $description;?></div>

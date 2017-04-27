@@ -24,7 +24,7 @@ abstract class wpl_property_listing_controller_abstract extends wpl_controller
 		if(!wpl_users::check_access('propertylisting'))
 		{
 			/** import message tpl **/
-			$this->message = __("You don't have access to this part!", 'wpl');
+			$this->message = sprintf(__("You don't have access to this menu! %s KB article might be helpful.", 'wpl'), '<a href="https://support.realtyna.com/index.php?/Default/Knowledgebase/Article/View/618/">'.__('this', 'wpl').'</a>');
 			return parent::render($this->tpl_path, 'message', false, true);
 		}
         
@@ -47,6 +47,17 @@ abstract class wpl_property_listing_controller_abstract extends wpl_controller
         
         $this->property_css_class_switcher = wpl_request::getVar('wplpcc_switcher', '1');
         $this->property_listview = wpl_request::getVar('wplplv', '1'); #Show listview or not
+        
+        // only icon or icon+text
+        $this->switcher_type = isset($this->settings['wpl_listing_switcher_type']) ? $this->settings['wpl_listing_switcher_type'] : 'icon';
+		
+		/** listing Columns Count **/
+		$listing_columns = wpl_global::get_setting('wpl_ui_customizer_property_listing_columns');
+		$listing_columns_default = trim($listing_columns) ? $listing_columns : '3';
+		$this->listing_columns = wpl_request::getVar('wplcolumns', $listing_columns_default); 
+
+		// Disable or Enable Mouseover effect
+		$this->listing_picture_mouseover = isset($this->settings['wpl_listing_picture_mouseover']) ? $this->settings['wpl_listing_picture_mouseover'] : 1;
         
         /** RSS Feed Setting **/
         $this->listings_rss_enabled = isset($this->settings['listings_rss_enabled']) ? $this->settings['listings_rss_enabled'] : 0;
@@ -81,14 +92,26 @@ abstract class wpl_property_listing_controller_abstract extends wpl_controller
         /** Add search conditions to the where **/
         $vars = array_merge(wpl_request::get('POST'), wpl_request::get('GET'));
 		$where = array_merge($vars, $where);
+
+		// View Restrictions
+        $current_user = wpl_users::get_wpl_user();
+		$lrestrict = $current_user->maccess_lrestrict_plisting;
+		$ptrestrict = $current_user->maccess_ptrestrict_plisting;
+
+		if($lrestrict)
+		{
+			$rlistings = trim($current_user->maccess_listings_plisting, ',');
+			$where['sf_restrict_listing'] = $rlistings;
+		}
+
+		if($ptrestrict)
+		{
+			$rproperty_types = trim($current_user->maccess_property_types_plisting, ',');
+			$where['sf_restrict_property_type'] = $rproperty_types;
+		}
         
 		/** start search **/
 		$this->model->start($this->start, $this->limit, $this->orderby, $this->order, $where, $this->kind);
-		$this->model->total = $this->model->get_properties_count();
-		
-		/** validation for page_number **/
-		$this->total_pages = ceil($this->model->total / $this->limit);
-		if($this->page_number <= 0 or ($this->page_number > $this->total_pages)) $this->model->start = 0;
 		
 		/** run the search **/
 		$query = $this->model->query();
@@ -97,6 +120,10 @@ abstract class wpl_property_listing_controller_abstract extends wpl_controller
 		/** finish search **/
 		$this->model->finish();
         
+		/** validation for page_number **/
+		$this->total_pages = ceil($this->model->total / $this->limit);
+		if($this->page_number <= 0 or ($this->page_number > $this->total_pages)) $this->model->start = 0;
+		
         // Update WPL Session
         if(!$this->return_listings)
         {

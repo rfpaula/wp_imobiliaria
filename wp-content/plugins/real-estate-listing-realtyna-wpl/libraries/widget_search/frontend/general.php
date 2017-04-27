@@ -92,33 +92,33 @@ elseif($type == 'feature' and !$done_this)
 		case 'checkbox':
 			$show = 'checkbox';
 		break;
-		
+
 		case 'yesno':
 			$show = 'yesno';
 		break;
-		
+
 		case 'select':
 			$show = 'select';
 		break;
-    
+
         case 'option_single':
-            
+
 			$show = 'options';
             $multiple = false;
-            
+
 		break;
-    
+
         case 'option_multiple':
-            
+
 			$show = 'options';
             $multiple = true;
-            
+
 		break;
 	}
-	
+
 	/** current value **/
 	$current_value = wpl_request::getVar('sf_select_'.$field_data['table_column'], -1);
-	
+
 	if($show == 'checkbox')
 	{
 		$html .= '<input value="1" '.($current_value == 1 ? 'checked="checked"' : '').' name="sf'.$widget_id.'_select_'.$field_data['table_column'].'" type="checkbox" id="sf'.$widget_id.'_select_'.$field_data['table_column'].'" class="wpl_search_widget_field_'.$field['id'].'_check" />
@@ -248,7 +248,7 @@ elseif($type == 'listings' and !$done_this)
 	}
 	
 	/** current value **/
-	$current_value = wpl_request::getVar('sf_select_'.$field_data['table_column'], 0);
+	$current_value = wpl_request::getVar('sf_select_'.$field_data['table_column'], -1);
 	
 	if($label) $html .= '<label for="sf'.$widget_id.'_select_'.$field_data['table_column'].'">'.__($field['name'], 'wpl').'</label>';
 
@@ -303,7 +303,7 @@ elseif($type == 'listings' and !$done_this)
 			$i++;
 			$html .= '<input '.($current_value == $listing['id'] ? 'checked="checked"' : '').' name="rdo'.$widget_id.'_select_'.$field_data['table_column'].'" type="radio" value="'.$listing['id'].'" id="rdo'.$widget_id.'_select_'.$field_data['table_column'].'_'.$i.'" onclick="wpl_select_radio'.$widget_id.'(this.value, this.checked, \''.$field_data['table_column'].'\');"><label for="rdo'.$widget_id.'_select_'.$field_data['table_column'].'_'.$i.'">'.__($listing['name'], 'wpl').'</label>';
 		}
-		
+
 		$html .= '<input value="'.$current_value.'" type="hidden" class="wpl_search_widget_field_'.$field['id'].'" id="sf'.$widget_id.'_select_'.$field_data['table_column'].'" name="sf'.$widget_id.'_select_'.$field_data['table_column'].'" onchange="wpl_listing_changed'.$widget_id.'(this.value);" />';
 	}
 	elseif($show == 'predefined')
@@ -637,7 +637,7 @@ elseif($type == 'property_types' and !$done_this)
 	}
 	
 	/** current value **/
-	$current_value = stripslashes(wpl_request::getVar('sf_select_'.$field_data['table_column'], 0));
+	$current_value = stripslashes(wpl_request::getVar('sf_select_'.$field_data['table_column'], -1));
 	
 	if($label) $html .= '<label>'.__($field['name'], 'wpl').'</label>';
 	
@@ -948,7 +948,9 @@ elseif($type == 'price' and !$done_this)
 	
 	/** get units **/
 	$units = wpl_units::get_units($unit_type);
-    $current_listing = wpl_request::getVar('sf_select_listing', 0);
+	$unit_name = count($units) == 1 ? $units[0]['name'] : '';
+
+    $current_listing = wpl_request::getVar('sf_select_listing', 9);
     $current_listing_parent = wpl_listing_types::get_parent($current_listing);
     
 	/** MIN/MAX extoptions **/
@@ -1135,11 +1137,11 @@ elseif($type == 'price' and !$done_this)
                     continue;
                 }
 
-                $html .= '<option value="'.$i.'" '.(($listing_field['cur_min'] == $i and $i != $listing_field['min']) ? 'selected="selected"' : '').'>'.number_format($i, 0, '.', $listing_field['separator']).'</option>';
+                $html .= '<option value="'.$i.'" '.(($listing_field['cur_min'] == $i and $i != $listing_field['min']) ? 'selected="selected"' : '').'>'.$unit_name.number_format($i, 0, '.', $listing_field['separator']).'</option>';
                 $i += $listing_field['division'];
             }
 
-            $html .= '<option value="'.$listing_field['max'].'">'.number_format($listing_field['max'], 0, '.', $listing_field['separator']).'</option>';
+            $html .= '<option value="'.$listing_field['max'].'">'.$unit_name.number_format($listing_field['max'], 0, '.', $listing_field['separator']).'</option>';
             $html .= '</select>';
 
             $html .= '<select name="sf'.$widget_id.'_max_'.$field_data['table_column'].'" id="sf'.$widget_id.'_max_'.$field_data['table_column'].'_'.$list.'" class="wpl_search_widget_price_field '.($list == 'rental' ? 'wpl-exclude-search-widget' : '').'" data-chosen-opt="width:100px">';
@@ -1155,11 +1157,11 @@ elseif($type == 'price' and !$done_this)
                     continue;
                 }
 
-                $html .= '<option value="'.$i.'" '.(($listing_field['cur_max'] == $i and $i != $listing_field['min']) ? 'selected="selected"' : '').'>'.number_format($i, 0, '.', $listing_field['separator']).'</option>';
+                $html .= '<option value="'.$i.'" '.(($listing_field['cur_max'] == $i and $i != $listing_field['min']) ? 'selected="selected"' : '').'>'.$unit_name.number_format($i, 0, '.', $listing_field['separator']).'</option>';
                 $i += $listing_field['division'];
             }
 
-            $html .= '<option value="'.$listing_field['max'].'">'.number_format($listing_field['max'], 0, '.', ',').'</option>';
+            $html .= '<option value="'.$listing_field['max'].'">'.$unit_name.number_format($listing_field['max'], 0, '.', ',').'</option>';
             $html .= '</select>';
             $html .= '</span>';
         }
@@ -1185,11 +1187,11 @@ elseif($type == 'price' and !$done_this)
                     continue;
                 }
 
-                $html .= '<option value="'.$i.'" '.(($listing_field['cur_min'] == $i and !$selected_printed) ? 'selected="selected"' : '').'>'.number_format($i, 0, '.', $listing_field['separator']).'+</option>';
+                $html .= '<option value="'.$i.'" '.(($listing_field['cur_min'] == $i and !$selected_printed) ? 'selected="selected"' : '').'>'.$unit_name.number_format($i, 0, '.', $listing_field['separator']).'+</option>';
                 $i += $listing_field['division'];
             }
 
-            $html .= '<option value="'.$listing_field['max'].'" '.($listing_field['cur_min'] == $i ? 'selected="selected"' : '').'>'.number_format($listing_field['max'], 0, '.', $listing_field['separator']).'+</option>';
+            $html .= '<option value="'.$listing_field['max'].'" '.($listing_field['cur_min'] == $i ? 'selected="selected"' : '').'>'.$unit_name.number_format($listing_field['max'], 0, '.', $listing_field['separator']).'+</option>';
             $html .= '</select>';
             $html .= '</span>';
         }
@@ -1217,11 +1219,11 @@ elseif($type == 'price' and !$done_this)
                     continue;
                 }
 
-                $html .= '<option value="'.$i.'" '.(($listing_field['cur_max'] == $i and !$selected_printed) ? 'selected="selected"' : '').'>-'.number_format($i, 0, '.', $listing_field['separator']).'</option>';
+                $html .= '<option value="'.$i.'" '.(($listing_field['cur_max'] == $i and !$selected_printed) ? 'selected="selected"' : '').'>-'.$unit_name.number_format($i, 0, '.', $listing_field['separator']).'</option>';
                 $i += $listing_field['division'];
             }
 
-            $html .= '<option value="'.$listing_field['max'].'" '.($listing_field['cur_max'] == $i ? 'selected="selected"' : '').'>-'.number_format($listing_field['max'], 0, '.', $listing_field['separator']).'</option>';
+            $html .= '<option value="'.$listing_field['max'].'" '.($listing_field['cur_max'] == $i ? 'selected="selected"' : '').'>-'.$unit_name.number_format($listing_field['max'], 0, '.', $listing_field['separator']).'</option>';
             $html .= '</select>';
             $html .= '</span>';
         }
@@ -1241,11 +1243,11 @@ elseif($type == 'price' and !$done_this)
             while($i < $listing_field['max'])
             {
                 $range_value = $i.':'.($i+$listing_field['division']);
-                $html .= '<option value="'.$range_value.'" '.($current_between_value == $range_value ? 'selected="selected"' : '').'>'.number_format($i, 0, '.', $listing_field['separator']).' - '.number_format(($i+$listing_field['division']), 0, '.', $listing_field['separator']).'</option>';
+                $html .= '<option value="'.$range_value.'" '.($current_between_value == $range_value ? 'selected="selected"' : '').'>'.$unit_name.number_format($i, 0, '.', $listing_field['separator']).' - '.$unit_name.number_format(($i+$listing_field['division']), 0, '.', $listing_field['separator']).'</option>';
                 $i += $listing_field['division'];
             }
 
-            $html .= '<option value="'.$listing_field['max'].'" '.($current_between_value == $listing_field['max'] ? 'selected="selected"' : '').'>'.number_format($listing_field['max'], 0, '.', $listing_field['separator']).'+</option>';
+            $html .= '<option value="'.$listing_field['max'].'" '.($current_between_value == $listing_field['max'] ? 'selected="selected"' : '').'>'.$unit_name.number_format($listing_field['max'], 0, '.', $listing_field['separator']).'+</option>';
             $html .= '</select>';
             $html .= '</span>';
         }
@@ -1278,7 +1280,8 @@ elseif(($type == 'area' or $type == 'volume' or $type == 'length') and !$done_th
 	
 	/** get units **/
 	$units = wpl_units::get_units($unit_type);
-	
+    $unit_name = count($units) == 1 ? $units[0]['name'] : '';
+
 	/** MIN/MAX extoptions **/
 	$extoptions = explode(',', $field['extoption']);
 	
@@ -1409,11 +1412,11 @@ elseif(($type == 'area' or $type == 'volume' or $type == 'length') and !$done_th
 				continue;
 			}
 			
-			$html .= '<option value="'.$i.'" '.(($current_min_value == $i and $i != $default_min_value) ? 'selected="selected"' : '').'>'.number_format($i, 0, '.', $separator).'</option>';
+			$html .= '<option value="'.$i.'" '.(($current_min_value == $i and $i != $default_min_value) ? 'selected="selected"' : '').'>'.number_format($i, 0, '.', $separator).' '.$unit_name.'</option>';
 			$i += $division;
 		}
 		
-		$html .= '<option value="'.$max_value.'">'.number_format($max_value, 0, '.', $separator).'</option>';
+		$html .= '<option value="'.$max_value.'">'.number_format($max_value, 0, '.', $separator).' '.$unit_name.'</option>';
         $html .= '</select>';
         
         $html .= '<select name="sf'.$widget_id.'_max_'.$field_data['table_column'].'" id="sf'.$widget_id.'_max_'.$field_data['table_column'].'">';
@@ -1429,11 +1432,11 @@ elseif(($type == 'area' or $type == 'volume' or $type == 'length') and !$done_th
 				continue;
 			}
             
-			$html .= '<option value="'.$i.'" '.(($current_max_value == $i and $i != $default_min_value) ? 'selected="selected"' : '').'>'.number_format($i, 0, '.', $separator).'</option>';
+			$html .= '<option value="'.$i.'" '.(($current_max_value == $i and $i != $default_min_value) ? 'selected="selected"' : '').'>'.number_format($i, 0, '.', $separator).' '.$unit_name.'</option>';
 			$i += $division;
 		}
 		
-		$html .= '<option value="'.$max_value.'">'.number_format($max_value, 0, '.', $separator).'</option>';
+		$html .= '<option value="'.$max_value.'">'.number_format($max_value, 0, '.', $separator).' '.$unit_name.'</option>';
         $html .= '</select>';
 	}
 	elseif($show == 'minmax_selectbox_plus')
@@ -1454,11 +1457,11 @@ elseif(($type == 'area' or $type == 'volume' or $type == 'length') and !$done_th
 				continue;
 			}
             
-			$html .= '<option value="'.$i.'" '.(($current_min_value == $i and !$selected_printed) ? 'selected="selected"' : '').'>'.number_format($i, 0, '.', $separator).'+</option>';
+			$html .= '<option value="'.$i.'" '.(($current_min_value == $i and !$selected_printed) ? 'selected="selected"' : '').'>'.number_format($i, 0, '.', $separator).'+ '.$unit_name.'</option>';
 			$i += $division;
 		}
 		
-		$html .= '<option value="'.$max_value.'" '.($current_min_value == $i ? 'selected="selected"' : '').'>'.number_format($max_value, 0, '.', ',').'+</option>';
+		$html .= '<option value="'.$max_value.'" '.($current_min_value == $i ? 'selected="selected"' : '').'>'.number_format($max_value, 0, '.', ',').'+ '.$unit_name.'</option>';
         $html .= '</select>';
 	}
     elseif($show == 'minmax_selectbox_minus')
@@ -1480,11 +1483,11 @@ elseif(($type == 'area' or $type == 'volume' or $type == 'length') and !$done_th
 				continue;
 			}
             
-			$html .= '<option value="'.$i.'" '.(($current_max_value == $i and !$selected_printed) ? 'selected="selected"' : '').'>-'.number_format($i, 0, '.', $separator).'</option>';
+			$html .= '<option value="'.$i.'" '.(($current_max_value == $i and !$selected_printed) ? 'selected="selected"' : '').'>-'.number_format($i, 0, '.', $separator).' '.$unit_name.'</option>';
 			$i += $division;
 		}
 		
-		$html .= '<option value="'.$max_value.'" '.($current_max_value == $i ? 'selected="selected"' : '').'>-'.number_format($max_value, 0, '.', $separator).'</option>';
+		$html .= '<option value="'.$max_value.'" '.($current_max_value == $i ? 'selected="selected"' : '').'>-'.number_format($max_value, 0, '.', $separator).' '.$unit_name.'</option>';
         $html .= '</select>';
 	}
     elseif($show == 'minmax_selectbox_range')
@@ -1499,11 +1502,11 @@ elseif(($type == 'area' or $type == 'volume' or $type == 'length') and !$done_th
 		while($i < $max_value)
 		{
             $range_value = $i.':'.($i+$division);
-			$html .= '<option value="'.$range_value.'" '.($current_between_value == $range_value ? 'selected="selected"' : '').'>'.number_format($i, 0, '.', $separator).' - '.number_format(($i+$division), 0, '.', $separator).'</option>';
+			$html .= '<option value="'.$range_value.'" '.($current_between_value == $range_value ? 'selected="selected"' : '').'>'.number_format($i, 0, '.', $separator).' - '.number_format(($i+$division), 0, '.', $separator).' '.$unit_name.'</option>';
 			$i += $division;
 		}
         
-		$html .= '<option value="'.$max_value.'" '.($current_between_value == $max_value ? 'selected="selected"' : '').'>'.number_format($max_value, 0, '.', $separator).'+</option>';
+		$html .= '<option value="'.$max_value.'" '.($current_between_value == $max_value ? 'selected="selected"' : '').'>'.number_format($max_value, 0, '.', $separator).'+ '.$unit_name.'</option>';
         $html .= '</select>';
 	}
 	
@@ -1511,23 +1514,44 @@ elseif(($type == 'area' or $type == 'volume' or $type == 'length') and !$done_th
 }
 elseif($type == 'text' and !$done_this)
 {
-	switch($field['type'])
-	{
-		case 'text':
-			$query_type = 'text';
-		break;
-		
-		case 'exacttext':
-			$query_type = 'select';
-		break;
-	}
-	
-	/** current value **/
-	$current_value = stripslashes(wpl_request::getVar('sf_'.$query_type.'_'.$field_data['table_column'], ''));
+    switch($field['type'])
+    {
+        case 'checkbox':
+            $query_type = 'textyesno';
+            break;
 
-	$html .= '<label for="sf'.$widget_id.'_'.$query_type.'_'.$field_data['table_column'].'">'.__($field['name'], 'wpl').'</label>
+        case 'yesno':
+            $query_type = 'textyesno';
+            break;
+
+        case 'text':
+            $query_type = 'text';
+            break;
+
+        case 'exacttext':
+            $query_type = 'select';
+            break;
+    }
+
+    /** current value **/
+    $current_value = stripslashes(wpl_request::getVar('sf_'.$query_type.'_'.$field_data['table_column'], ''));
+
+    if($field['type'] == 'checkbox')
+    {
+        $html .= '<input value="1" '.($current_value == 1 ? 'checked="checked"' : '').' name="sf'.$widget_id.'_'.$query_type.'_'.$field_data['table_column'].'" type="checkbox" id="sf'.$widget_id.'_'.$query_type.'_'.$field_data['table_column'].'" class="wpl_search_widget_field_'.$field['id'].'_check" />
+        	<label for="sf'.$widget_id.'_'.$query_type.'_'.$field_data['table_column'].'">'.__($field['name'], 'wpl').'</label>';
+    }
+    elseif($field['type'] == 'yesno')
+    {
+        $html .= '<input value="1" '.($current_value == 1 ? 'checked="checked"' : '').' name="sf'.$widget_id.'_'.$query_type.'_'.$field_data['table_column'].'" type="checkbox" id="sf'.$widget_id.'_'.$query_type.'_'.$field_data['table_column'].'" class="wpl_search_widget_field_'.$field['id'].'_check yesno" />
+        	<label for="sf'.$widget_id.'_'.$query_type.'_'.$field_data['table_column'].'">'.__($field['name'], 'wpl').'</label>';
+    }
+    else
+    {
+        $html .= '<label for="sf'.$widget_id.'_'.$query_type.'_'.$field_data['table_column'].'">'.__($field['name'], 'wpl').'</label>
 				<input name="sf'.$widget_id.'_'.$query_type.'_'.$field_data['table_column'].'" type="text" id="sf'.$widget_id.'_'.$query_type.'_'.$field_data['table_column'].'" value="'.$current_value.'" placeholder="'.__($field['name'], 'wpl').'" />';
-	
+    }
+
 	$done_this = true;
 }
 elseif($type == 'textsearch' and !$done_this)

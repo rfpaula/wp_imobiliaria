@@ -20,7 +20,7 @@ if(in_array($mandatory, array(1, 2)))
 	if(!location_temp)
 	{
 		wpl_alert("'.__('Location data is mandatory', 'wpl').'!");
-		wpl_notice_required_fields(wpl_required_fields, "'.$field->category.'");
+		if(go_to_error === true) wpl_notice_required_fields(wpl_required_fields, "'.$field->category.'");
 		return false;
 	}
 	';

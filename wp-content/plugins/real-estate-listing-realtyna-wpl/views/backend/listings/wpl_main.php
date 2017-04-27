@@ -20,7 +20,7 @@ class wpl_listings_controller extends wpl_controller
 		if(!wpl_users::check_access('propertymanager'))
 		{
 			/** import message tpl **/
-			$this->message = __("You don't have access to this part!", 'wpl');
+			$this->message = __("You don't have access to this menu! Maybe your user is not added to WPL as an agent. You can contact to website admin for this.", 'wpl');
 			return parent::render($this->tpl_path, 'message');
 		}
 		
@@ -73,7 +73,7 @@ class wpl_listings_controller extends wpl_controller
         if($this->kind == 1 and !wpl_users::check_access('complex_addon'))
         {
             /** import message tpl **/
-			$this->message = __("You don't have access to complexes.", 'wpl');
+			$this->message = __("You don't have access to complexes/condos. You can request access from website admin.", 'wpl');
 			parent::render($this->tpl_path, 'message');
             
             return false;
@@ -87,7 +87,7 @@ class wpl_listings_controller extends wpl_controller
         if(!$access)
 		{
 			/** import message tpl **/
-			$this->message = __("You don't have access to this page!", 'wpl');
+			$this->message = __("Sorry, you currently don't have access to this page!", 'wpl');
 			parent::render($this->tpl_path, 'message');
             
             return false;
@@ -97,16 +97,6 @@ class wpl_listings_controller extends wpl_controller
 		if(!wpl_users::is_administrator($current_user_id))
 		{
 			$where['sf_select_user_id'] = $current_user_id;
-		}
-        
-        /** Multisite **/
-		if(wpl_global::is_multisite())
-		{
-            $fs = wpl_sql_parser::getInstance();
-            $fs->disable();
-            
-            $current_blog_id = wpl_global::get_current_blog_id();
-			$where['sf_fschild'] = $current_blog_id;
 		}
         
         $this->kind_label = wpl_flex::get_kind_label($this->kind);
@@ -153,12 +143,6 @@ class wpl_listings_controller extends wpl_controller
             $this->add_link = wpl_global::add_qs_var('kind', $this->kind, wpl_global::add_qs_var('wplmethod', 'wizard'));
         }
         
-        /** Multisite **/
-		if(wpl_global::is_multisite())
-		{
-            $fs->enable();
-		}
-        
         return true;
     }
     
@@ -168,7 +152,7 @@ class wpl_listings_controller extends wpl_controller
         $this->listings = wpl_global::get_listings();
         
         $this->users = array();
-		if(wpl_db::num("SELECT COUNT(id) FROM `#__wpl_users` WHERE `id`>0") < 100) $this->users = wpl_users::get_wpl_users();
+		if(wpl_db::num("SELECT COUNT(id) FROM `#__wpl_users` WHERE `id`>0") < 500) $this->users = wpl_users::get_wpl_users();
         
         parent::render($this->tpl_path, 'internal_search_form');
     }

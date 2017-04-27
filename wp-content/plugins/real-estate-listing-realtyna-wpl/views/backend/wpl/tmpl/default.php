@@ -14,7 +14,9 @@ $this->_wpl_import($this->tpl_path . '.scripts.js');
             <span class="wpl-dashboard-ver">v<?php echo wpl_global::wpl_version(); ?></span>
         </h2>
     </header>
-
+    
+    <div class="wpl-flashes-container"><?php echo wpl_flash::get(); ?></div>
+    
     <div id="dashboard-links-wp">
         <ul>
             <?php foreach($this->submenus as $submenu): if(!wpl_users::has_menu_access($submenu->menu_slug, wpl_users::get_cur_user_id())) continue; ?>

@@ -186,13 +186,20 @@ class wpl_activity
             
             if(trim($position) != '') $condition .= " AND `position`='$position'";
             if(trim($enabled) != '') $condition .= " AND `enabled`>='$enabled'";
-            if(trim($activity) != '') $condition .= " AND `activity`='$activity'";
+            if(trim($activity) != '') $condition .= " AND (`activity`='$activity' OR `activity`='$activity:default')";
             
-            /** page associations **/
+            // page associations
             if(is_page())
             {
                 $post_id = wpl_global::get_the_ID();
                 if($post_id) $condition .= " AND (`association_type`='1' OR (`association_type`='2' AND `associations` LIKE '%[".$post_id."]%') OR (`association_type`='3' AND `associations` NOT LIKE '%[".$post_id."]%'))";
+            }
+            
+            // Accesses
+            if(wpl_global::check_addon('membership'))
+            {
+                $cur_membership = wpl_users::get_user_membership();
+                if($cur_membership) $condition .= " AND (`access_type`='2' OR (`access_type`='1' AND `accesses` LIKE '%,".$cur_membership.",%'))";
             }
             
             $condition .= " ORDER BY `index` ASC, `ID` DESC";
@@ -406,6 +413,11 @@ class wpl_activity
         
         $activity_id = wpl_db::q($query, 'insert');
         
+        if(isset($information['access_type']) and wpl_global::check_addon('membership'))
+        {
+            wpl_db::q("UPDATE `#__wpl_activities` SET `access_type` = '{$information['access_type']}', `accesses` = '{$information['accesses']}' WHERE `id`='$activity_id'", 'UPDATE');
+        }
+        
         /** trigger event **/
 		wpl_global::event_handler('activity_added', array('id'=>$activity_id));
         
@@ -428,6 +440,12 @@ class wpl_activity
         $query .= "`params` = '{$information['params']}',`show_title` = {$information['show_title']},";
         $query .= "`title` = '{$information['title']}', `index` = ".(float)$information['index'].",";
         $query .= "`association_type` = '{$information['association_type']}', `associations` = '{$information['associations']}', `client` = '{$information['client']}'";
+        
+        if(isset($information['access_type']) and wpl_global::check_addon('membership'))
+        {
+            $query .= ", `access_type` = '{$information['access_type']}', `accesses` = '{$information['accesses']}'";
+        }
+        
         $query .= " WHERE `id` = '".$information['activity_id']."'";
         
         /** trigger event **/

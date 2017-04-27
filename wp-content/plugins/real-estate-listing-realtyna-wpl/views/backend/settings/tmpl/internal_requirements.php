@@ -106,6 +106,16 @@ defined('_WPLEXEC') or die('Restricted access');
             	<i class="icon-<?php echo $zip_extension ? 'confirm' : 'warning'; ?>"></i>
             </span>
 		</li>
+        <!-- Multibyte String -->
+        <?php $mb_string = function_exists('mb_get_info') ? true : false; ?>
+        <li>
+            <span class="wpl-requirement-name"><?php echo __('Multibyte String', 'wpl'); ?></span>
+            <span class="wpl-requirement-require"><?php echo __('Installed', 'wpl'); ?></span>
+            <span class="wpl-requirement-current"><?php echo $mb_string ? __('Installed', 'wpl') : __('Not Installed', 'wpl'); ?></span>
+            <span class="wpl-requirement-status p-action-btn">
+                <i class="icon-<?php echo $mb_string ? 'confirm' : 'warning'; ?>"></i>
+            </span>
+        </li>
         <!-- Safe Mode -->
         <?php $safe = ini_get('safe_mode'); $safe_mode = (!$safe or strtolower($safe) == 'off') ? true : false; ?>
         <li>

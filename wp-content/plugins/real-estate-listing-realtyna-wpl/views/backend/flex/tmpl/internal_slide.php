@@ -2,6 +2,7 @@
 /** no direct access **/
 defined('_WPLEXEC') or die('Restricted access');
 ?>
+
 <table class="widefat page" cellspacing="0" width="100%">
     <thead>
         <tr>
@@ -23,6 +24,7 @@ defined('_WPLEXEC') or die('Restricted access');
     </thead>
     <tbody class="sortable">
         <?php foreach ($this->fields as $field): ?>
+
             <tr id="item_row_<?php echo $field->id; ?>">
                 <?php
                 //enable fields
@@ -92,6 +94,7 @@ defined('_WPLEXEC') or die('Restricted access');
                 <td class="wpl_manager_td">
                     <span class="action-btn icon-move" id="extension_move_<?php echo $field->id ?>"></span>
                 </td>
+
             </tr>
         <?php endforeach; ?>
     </tbody>

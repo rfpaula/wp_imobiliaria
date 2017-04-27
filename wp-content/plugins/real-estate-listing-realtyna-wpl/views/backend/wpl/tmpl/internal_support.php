@@ -27,7 +27,7 @@ defined('_WPLEXEC') or die('Restricted access');
                 <?php echo __("Also you can find WPL KB articles in \"KB Articles\" section below and simply search on them by typing a keyword in filter textbox!", 'wpl'); ?>
             </p>
             <p>
-                <?php echo __("If you can't find an answer to your question in WPL Manual or Knowledge Base, please", 'wpl'); ?>&nbsp;<a href="https://support.realtyna.com/index.php?/Tickets/Submit/RenderForm/18" target="_blank"><?php echo __('open a Support Ticket', 'wpl'); ?></a>&nbsp;<?php echo __('to ask your question.  We will respond as soon as possible with an answer.', 'wpl'); ?>
+                <?php echo __("If you can't find an answer to your question in the WPL Manual or Knowledge Base, please", 'wpl'); ?>&nbsp;<a href="https://support.realtyna.com/index.php?/Tickets/Submit/RenderForm/18" target="_blank"><?php echo __('open a Support Ticket', 'wpl'); ?></a>&nbsp;<?php echo __('with your question.  We will respond as soon as possible with an answer.', 'wpl'); ?>
 			</p>
         </div>
     </div>

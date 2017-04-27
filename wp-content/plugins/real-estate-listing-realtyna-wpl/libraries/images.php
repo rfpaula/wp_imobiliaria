@@ -336,7 +336,6 @@ class wpl_images
         // Return Destination
         return $source;
     }
-
     
     /**
      * Same as imagecopymerge but it handles alpha channel and PNG images well!
@@ -383,7 +382,7 @@ class wpl_images
         $black = imagecolorallocate($im, 0, 0, 0);
         imagecolortransparent($im, $black);
 
-        $textcolor = imagecolorallocate($im, $color[0],$color[1], $color[2]);
+        $textcolor = imagecolorallocate($im, $color[0], $color[1], $color[2]);
 
         // write the string at the top left
         imagestring($im, 4, 1, 0, $text, $textcolor);

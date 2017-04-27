@@ -28,7 +28,7 @@ abstract class wpl_property_show_controller_abstract extends wpl_controller
 		if(!wpl_users::check_access('propertyshow'))
 		{
 			/** import message tpl **/
-			$this->message = __("You don't have access to this part!", 'wpl');
+            $this->message = sprintf(__("You don't have access to this menu! %s KB article might be helpful.", 'wpl'), '<a href="https://support.realtyna.com/index.php?/Default/Knowledgebase/Article/View/618/">'.__('this', 'wpl').'</a>');
 			return parent::render($this->tpl_path, 'message', false, true);
 		}
         
@@ -54,12 +54,25 @@ abstract class wpl_property_show_controller_abstract extends wpl_controller
 		if(!$property or $property['finalized'] == 0 or $property['confirmed'] == 0 or $property['deleted'] == 1 or $property['expired'] >= 1)
 		{
 			/** import message tpl **/
-			if(!$property['confirmed']) $this->message = __("Sorry! The property is not visible until it confirms by someone.", 'wpl');
-            else $this->message = __("Sorry! Either the url is incorrect or the listing is not available anymore.", 'wpl');
+			if(isset($property['confirmed']) and !$property['confirmed']) $this->message = __("Sorry! The property is not visible until it is confirmed by someone.", 'wpl');
+            else $this->message = __("Sorry! Either the url is incorrect or the listing is no longer available.", 'wpl');
             
 			return parent::render($this->tpl_path, 'message', false, true);
 		}
 		
+		$current_user = wpl_users::get_wpl_user();
+		$lrestrict = $current_user->maccess_lrestrict_pshow;
+		$rlistings = explode(',', $current_user->maccess_listings_pshow);
+		$ptrestrict = $current_user->maccess_ptrestrict_pshow;
+		$rproperty_types = explode(',', $current_user->maccess_property_types_pshow);
+
+		if(($lrestrict and !in_array($property['listing'], $rlistings)) or ($ptrestrict and !in_array($property['property_type'], $rproperty_types)))
+		{
+			$this->message = __("Sorry! You don't have access to view this property.", 'wpl');
+            
+			return parent::render($this->tpl_path, 'message', false, true);
+		}
+
         /** global settings **/
 		$this->settings = wpl_settings::get_settings();
         
@@ -128,9 +141,17 @@ abstract class wpl_property_show_controller_abstract extends wpl_controller
 		/** updating the visited times and etc **/
 		wpl_property::property_visited($this->pid);
 		
+        // Location visibility
+        $this->location_visibility = wpl_property::location_visibility($this->pid, $this->kind, wpl_users::get_user_membership());
+        
         /** trigger event **/
 		wpl_global::event_handler('property_show', array('id'=>$this->pid));
         
+		/** Property Show fields Columns Count **/
+		$fields_columns = wpl_global::get_setting('wpl_ui_customizer_property_show_fields_columns');
+		$this->fields_columns = trim($fields_columns) ? $fields_columns : '3';
+        
+		
 		/** import tpl **/
         $this->tpl = wpl_flex::get_kind_tpl($this->tpl_path, $this->tpl, $this->kind);
 		$output = parent::render($this->tpl_path, $this->tpl, false, true);

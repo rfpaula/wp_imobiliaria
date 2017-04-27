@@ -11,14 +11,14 @@ class wpl_flex_controller extends wpl_controller
 	
 	public function display()
 	{
+
 		/** check permission **/
 		wpl_global::min_access('administrator');
-		
 		$function = wpl_request::getVar('wpl_function');
-		
+
         // Check Nonce
-        if(!wpl_security::verify_nonce(wpl_request::getVar('_wpnonce', ''), 'wpl_flex')) $this->response(array('success'=>0, 'message'=>__('The security nonce is not valid!', 'wpl')));
-        
+		if(!wpl_security::verify_nonce(wpl_request::getVar('_wpnonce', ''), 'wpl_flex')) $this->response(array('success'=>0, 'message'=>__('The security nonce is not valid!', 'wpl')));
+
         // Create Nonce
         $this->nonce = wpl_security::create_nonce('wpl_flex');
         
@@ -62,6 +62,11 @@ class wpl_flex_controller extends wpl_controller
 			
 			$this->sort_option($dbst_id, $kind, $status);
 		}
+		elseif ($function == 'sort_categories') $this->sort_categories();
+		elseif ($function == 'toggle_category_status') $this->toggle_category_status();
+		elseif ($function == 'category_form') $this->category_form();
+		elseif ($function == 'update_category') $this->update_category();
+		elseif ($function == 'remove_category') $this->remove_category();
 	}
 	
 	private function mandatory($dbst_id, $mandatory_status)
@@ -77,12 +82,119 @@ class wpl_flex_controller extends wpl_controller
 		echo json_encode($response);
 		exit;
 	}
+
+	private function category_form()
+	{
+		$tpl = 'internal_category_form';
+		$cat_id = wpl_request::getVar('cat_id');
+
+		if($cat_id)
+		{
+			$category = wpl_db::select("SELECT * FROM `#__wpl_dbcat` WHERE `id` = '{$cat_id}'", 'loadObject');
+			$this->category = $category;
+		}
+		
+		parent::render($this->tpl_path, $tpl);
+	}
+
+	private function update_category()
+	{
+		$status = 0;
+		$cat_id = wpl_request::getVar('cat_id');
+		$name = wpl_db::escape(wpl_request::getVar('category_name'));
+
+		if($cat_id)
+		{
+			if($name)
+			{
+				$category_details = array('name'=>$name);
+				wpl_db::update('wpl_dbcat', $category_details, 'id', $cat_id);
+				
+				$success = 1;
+				$message = __('Category updated successfully.', 'wpl');
+			}
+			else
+			{
+				$success = 0;
+				$message = __('Category name cannot be empty.', 'wpl');
+			}
+		}
+		else
+		{
+			if($name)
+			{
+				$prefix = 'cust'; // We use this prefix for custom categories for now
+				$kind = wpl_db::escape(wpl_request::getVar('category_kind'));
+				$query = "INSERT INTO `#__wpl_dbcat` (`name`,`prefix`,`kind`) VALUES ('{$name}','{$prefix}','{$kind}')";
+				wpl_db::q($query, 'insert');
+				
+				$success = 1;
+				$message = __('Category updated successfully.', 'wpl');
+			}
+			else
+			{
+				$success = 0;
+				$message = __('Category name cannot be empty.', 'wpl');
+			}
+		}
+
+		echo json_encode(array('success'=>$success, 'message'=>$message, 'data'=>NULL));
+		exit;
+	}
+
+	private function remove_category()
+	{
+		$cat_id = wpl_request::getVar('cat_id');
+
+		if(!$cat_id || !is_numeric($cat_id))
+		{
+			$success = 0;
+			$message = __('The ID should not be empty.', 'wpl');
+		}
+		else
+		{
+			$satus = wpl_db::delete('wpl_dbcat',$cat_id);
+
+			if($satus)
+			{
+				$success = 1;
+				$message = __('Category removed successfully.', 'wpl');
+			}
+			else
+			{
+				$success = 0;
+				$message = __('An error has occurred.', 'wpl');
+			}
+		}
+
+		echo json_encode(array('success'=>$success, 'message'=>$message, 'data'=>NULL));
+		exit;
+	}
+
+	private function sort_categories()
+	{
+		$sort_ids = wpl_request::getVar('sort_ids');
+		if(trim($sort_ids) == '') return;
+		wpl_flex::sort_flex_categories($sort_ids);
+	}
 	
 	private function sort_flex($sort_ids)
 	{
 		if(trim($sort_ids) == '') $sort_ids = wpl_request::getVar('sort_ids');
 		wpl_flex::sort_flex($sort_ids);
-		
+		exit;
+	}
+
+	private function toggle_category_status()
+	{
+		$cat_id = wpl_request::getVar('cat_id');
+		$enabled = wpl_db::select("SELECT `enabled` FROM `#__wpl_dbcat` WHERE `id`='{$cat_id}'", 'loadResult');
+		if($enabled == 1)
+			$enabled = 0;
+		else
+			$enabled = 1;
+		$query = "UPDATE `#__wpl_dbcat` SET `enabled`='{$enabled}' WHERE `id` = '{$cat_id}'";
+		wpl_db::q($query, 'update');
 		exit;
 	}
 	

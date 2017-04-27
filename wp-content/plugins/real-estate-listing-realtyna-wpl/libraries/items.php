@@ -631,9 +631,9 @@ class wpl_items
                 }
                 else
                 {
-                    $dest_url = $source_url;
+                    $dest_url = $image['item_extra3'];
                     $pathinfo = @pathinfo($dest_url);
-                    $dest_path = $source_path;
+                    $dest_path = $image['item_extra3'];
                 }
 				
 				$return[$custom_size][$i]['item_id'] = $image['id'];

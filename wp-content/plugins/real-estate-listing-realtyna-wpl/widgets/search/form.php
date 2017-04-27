@@ -74,20 +74,18 @@ wpl_extensions::import_javascript((object) array('param1'=>'wpl-sly-scrollbar', 
     <button id="btn-search-<?php echo $this->number ?>"
             data-is-init="false"
             data-item-id="<?php echo $this->number ?>"
-            data-fancy-id="wpl_view_fields_<?php echo $this->number; ?>" class="wpl-button button-1"
-            href="#wpl_view_fields_<?php echo $this->number ?>"><?php echo __('View Fields', 'wpl'); ?></button>
+            data-fancy-id="wpl_view_fields_<?php echo $this->number; ?>" class="wpl-btn-search-view-fields wpl-button button-1"
+            href="#wpl_view_fields_<?php echo $this->number ?>" type="button"><?php echo __('View Fields', 'wpl'); ?></button>
 
     <?php if(wpl_global::check_addon('pro')): ?>
         <button id="<?php echo $this->get_field_id('btn-shortcode'); ?>"
                 data-item-id="<?php echo $this->number; ?>"
-                data-realtyna-lightbox-opts="clearContent:false"
-                data-fancy-id="<?php echo $this->get_field_id('wpl_view_shortcode'); ?>" class="wpl-button button-1"
-                href="#<?php echo $this->get_field_id('wpl_view_shortcode'); ?>"
-                data-realtyna-lightbox><?php echo __('View Shortcode', 'wpl'); ?></button>
+                data-fancy-id="<?php echo $this->get_field_id('wpl_view_shortcode'); ?>" class="wpl-open-lightbox-btn wpl-button button-1"
+                href="#<?php echo $this->get_field_id('wpl_view_shortcode'); ?>" type="button"><?php echo __('View Shortcode', 'wpl'); ?></button>
 
     <?php endif; ?>
 
-    <span id="wpl-js-page-must-reload-<?php echo $this->number ?>" class="wpl-widget-search-must-reload"><?php echo __('Page need to reloaded before opening the Field Editor...', 'wpl'); ?></span>
+    <span id="wpl-js-page-must-reload-<?php echo $this->number ?>" class="wpl-widget-search-must-reload"><?php echo __('The page needs to be reloaded before opening the field editor.', 'wpl'); ?></span>
 </div>
 
 <div id="<?php echo $this->get_field_id('wpl_view_shortcode'); ?>" class="hidden">

@@ -9,4 +9,5 @@ defined('_WPLEXEC') or die('Restricted access');
 .wpl-wp table.widefat td.wpl_sort_options_manager{width: 90px;}
 #wpl_delete_listing_property_type_cnt .options div, #listing_type_list, #property_type_list{cursor: pointer; padding: 3px 10px;}
 .wpl_button_cnt{text-align: right; padding: 10px 72px 0 0;}
+#wpl_multiple_gicon_listing .selected{box-shadow: 0 1px 3px rgba(0,0,0,0.2), 0 0 0 2px #777;}
 </style>

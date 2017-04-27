@@ -46,8 +46,8 @@ $this->_wpl_import($this->tpl_path.'.scripts.login', true, ($this->wplraw ? fals
                 </div>
 
             </div>
-            <div class="wpl-gen-form-row last row clearfix">
-                <div id="wpl_user_login_register_toggle" class="wpl-toggle-btns col-md-6">
+            <div class="wpl-gen-form-row last wpl-row wpl-expanded clearfix">
+                <div id="wpl_user_login_register_toggle" class="wpl-toggle-btns wpl-small-6 wpl-medium-6 wpl-large-6 wpl-column">
                     <div class="wpl-util-hidden" id="wpl_user_login_register_toggle_register">
                         <?php echo sprintf(__('Already a member? %s', 'wpl'), '<a href="#" class="wpl-gen-link" onclick="wpl_user_logreg_toggle(\'login\');return false;">'.__('Login', 'wpl').'</a>'); ?>
                     </div>
@@ -55,7 +55,7 @@ $this->_wpl_import($this->tpl_path.'.scripts.login', true, ($this->wplraw ? fals
                         <?php echo sprintf(__('Not a member? %s', 'wpl'), '<a href="#" class="wpl-gen-link" onclick="wpl_user_logreg_toggle(\'register\');return false;">'.__('Register', 'wpl').'</a>'); ?>
                     </div>
                 </div>
-                <div class="wpl-util-right col-md-6">
+                <div class="wpl-util-right wpl-small-6 wpl-medium-6 wpl-large-6 wpl-column">
                     <button type="submit" class="wpl-gen-btn-1 wpl-util-hidden" id="wpl_user_login_register_register_submit"><?php echo __('Register & Continue', 'wpl'); ?></button>
                     <button type="submit" class="wpl-gen-btn-1" id="wpl_user_login_register_login_submit"><?php echo __('Login & Continue', 'wpl'); ?></button>
                 </div>

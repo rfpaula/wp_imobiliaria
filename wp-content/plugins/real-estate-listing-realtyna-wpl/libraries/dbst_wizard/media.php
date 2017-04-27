@@ -33,7 +33,7 @@ if($type == 'gallery' and !$done_this)
             <input id="fileupload" type="file" name="files[]" multiple="multiple" />
         </div>
         <div class="field-desc">
-            <?php echo __('To select images click on the "Select files" button.', 'wpl'); ?>
+            <?php echo __('To select images click on "Select files."', 'wpl'); ?>
         </div>
     </div>
     <div id="wpl_gallery_external" class="wpl_gallery_method_container" style="display: none;">
@@ -44,7 +44,7 @@ if($type == 'gallery' and !$done_this)
         <?php else: ?>
         <button class="wpl-button button-1" onclick="add_external_image();"><?php echo __('Add image', 'wpl') ?></button>
         <div class="field-desc">
-            <?php echo __('To insert images click on the "Add image" button.', 'wpl'); ?>
+            <?php echo __('To insert images click on "Add image."', 'wpl'); ?>
         </div>
         <div id="wpl_gallery_external_cnt" style="margin-top: 10px; display: none;">
             <div class="gallery-external-wp" id="gallery-external-cnt">
@@ -82,6 +82,9 @@ if($type == 'gallery' and !$done_this)
         // Get blog ID of property
         $blog_id = wpl_property::get_blog_id($item_id);
         
+        // Media Confirm Status
+        $media_confirm = wpl_global::get_setting('listing_media_confirm');
+    
         $image_folder = wpl_items::get_folder($item_id, $this->kind, $blog_id);
         $image_path = wpl_items::get_path($item_id, $this->kind, $blog_id);
         $image_categories = wpl_items::get_item_categories('gallery', $this->kind);
@@ -103,7 +106,7 @@ if($type == 'gallery' and !$done_this)
             if($image->item_cat == 'external') $image_thumbnail_url = $image->item_extra3;
             ?>
 
-            <li class="ui-state-default" id="ajax_gallery<?php echo $image->index; ?>" >
+            <li class="ui-state-default" id="ajax_gallery<?php echo $image->index; ?>">
                 <input type="hidden" class="gal_name" value="<?php echo $image->item_name; ?>" />
                 <div class="image-box-wp">
                     <div class="image-wp">
@@ -136,15 +139,15 @@ if($type == 'gallery' and !$done_this)
                         <div class="action-gal-btn">
                             <i class="action-btn icon-move"></i>
                         </div>
-                        <div class="action-gal-btn ajax_gallery_middle_td" onclick="ajax_gallery_image_delete('<?php echo $image->item_name; ?>', 'ajax_gallery<?php echo $image->index ?>');" >
+                        <div class="action-gal-btn ajax_gallery_middle_td" onclick="ajax_gallery_image_delete('<?php echo $image->item_name; ?>', 'ajax_gallery<?php echo $image->index ?>');">
                             <i class="action-btn icon-recycle"></i>
                         </div>
                         <?php
-                        if($image->enabled) echo '<div class="action-gal-btn" id="active_image_tag_' . $image->index . '" onclick="wpl_image_enabled(\'' . $image->item_name . '\',' . $image->index . ');"><i class="action-btn icon-enabled" title="'.__('Enabled', 'wpl').'"></i></div>';
-                        else echo '<div class="action-gal-btn" id="active_image_tag_' . $image->index . '" onclick="wpl_image_enabled(\'' . $image->item_name . '\',' . $image->index . ');"><i class="action-btn icon-disabled" title="'.__('Disabled', 'wpl').'"></i></div>';
+                            if($image->enabled and $media_confirm) echo '<div class="action-gal-btn" id="active_image_tag_' . $image->index . '" onclick="wpl_image_enabled(\'' . $image->item_name . '\',' . $image->index . ');"><i class="action-btn icon-enabled" title="'.__('Enabled', 'wpl').'"></i></div>';
+                            elseif($media_confirm) echo '<div class="action-gal-btn" id="active_image_tag_' . $image->index . '" onclick="wpl_image_enabled(\'' . $image->item_name . '\',' . $image->index . ');"><i class="action-btn icon-disabled" title="'.__('Disabled', 'wpl').'"></i></div>';
                         ?>
                         <input type="hidden" id="enabled_image_field_<?php echo $image->index; ?>" value="<?php echo $image->enabled; ?>"/>
-                    </div>  
+                    </div>
                 </div>
             </li>
             <?php
@@ -222,7 +225,8 @@ wplj(document).ready(function()
                         imageFolder: "<?php echo addslashes($image_folder); ?>",
                         lblImageTitle: "<?php echo addslashes(__('Image Title', 'wpl')); ?>",
                         lblImageDesc: "<?php echo addslashes(__('Image Description', 'wpl')); ?>",
-                        lblImageCat: "<?php echo addslashes(__('Image Category', 'wpl')); ?>"
+                        lblImageCat: "<?php echo addslashes(__('Image Category', 'wpl')); ?>",
+                        mediaConfirm: <?php echo ($media_confirm ? 'true' : 'false'); ?>
                     });
 
                     wplj(hbHTML).hide().appendTo('#ajax_gal_sortable').slideDown();
@@ -387,6 +391,9 @@ elseif($type == 'attachments' and !$done_this)
     // Get blog ID of property
     $blog_id = wpl_property::get_blog_id($item_id);
     
+    // Media Confirm Status
+    $media_confirm = wpl_global::get_setting('listing_media_confirm');
+    
     $att_folder = wpl_items::get_folder($item_id, $this->kind, $blog_id);
     $attachment_categories = wpl_items::get_item_categories('attachment', $this->kind);
     $max_index_att = 0;
@@ -435,8 +442,8 @@ elseif($type == 'attachments' and !$done_this)
                     </div>
 
                     <?php
-                    if($attachment->enabled) echo '<div class="action-gal-btn" id="active_attachment_tag_' . $attachment->index . '" onclick="wpl_attachment_enabled(\'' . $attachment->item_name . '\',' . $attachment->index . ');"><i class="action-btn icon-enabled wpl_actions_btn wpl_show" title="'.__('Enabled', 'wpl').'"></i></div>';
-                    else echo '<div class="action-gal-btn" id="active_attachment_tag_' . $attachment->index . '" onclick="wpl_attachment_enabled(\'' . $attachment->item_name . '\',' . $attachment->index . ');"><i class="action-btn icon-disabled wpl_actions_btn  wpl_show" title="'.__('Disabled', 'wpl').'"></i></div>';
+                        if($attachment->enabled and $media_confirm) echo '<div class="action-gal-btn" id="active_attachment_tag_' . $attachment->index . '" onclick="wpl_attachment_enabled(\'' . $attachment->item_name . '\',' . $attachment->index . ');"><i class="action-btn icon-enabled wpl_actions_btn wpl_show" title="'.__('Enabled', 'wpl').'"></i></div>';
+                        elseif($media_confirm) echo '<div class="action-gal-btn" id="active_attachment_tag_' . $attachment->index . '" onclick="wpl_attachment_enabled(\'' . $attachment->item_name . '\',' . $attachment->index . ');"><i class="action-btn icon-disabled wpl_actions_btn  wpl_show" title="'.__('Disabled', 'wpl').'"></i></div>';
                     ?>
 
                     <input type="hidden" id="enabled_attachment_field_<?php echo $attachment->index; ?>" value="<?php echo $attachment->enabled; ?>"/>
@@ -518,7 +525,8 @@ wplj(document).ready(function()
                         lblTitle: "<?php echo addslashes(__('Attachment Title', 'wpl')); ?>",
                         lblDesc: "<?php echo addslashes(__('Attachment Description', 'wpl')); ?>",
                         lblCat: "<?php echo addslashes(__('Attachment Category', 'wpl')); ?>",
-                        attachCat: "<?php echo addslashes($attachment_categories_html); ?>"
+                        attachCat: "<?php echo addslashes($attachment_categories_html); ?>",
+                        mediaConfirm: <?php echo ($media_confirm ? 'true' : 'false'); ?>
                     });
 
                     wplj(hbHTML).hide().appendTo('#ajax_att_sortable').slideDown();
@@ -720,7 +728,7 @@ if(wpl_settings::get('video_uploader'))
 			<input id="video_upload" type="file" name="files[]" multiple="multiple"/>
 		</div>
 		<div class="field-desc">
-			<?php echo __('Please choose all videos you want. Just click on the "Select Files" button.', 'wpl'); ?>
+			<?php echo __('Choose videos by clicking on "Select Files."', 'wpl'); ?>
 		</div>
 	</div>
 	<!-- The global progress bar -->
@@ -740,7 +748,10 @@ if(wpl_settings::get('video_uploader'))
             
             // Get blog ID of property
             $blog_id = wpl_property::get_blog_id($item_id);
-    
+            
+            // Media Confirm Status
+            $media_confirm = wpl_global::get_setting('listing_media_confirm');
+        
 			$vid_folder = wpl_items::get_folder($item_id, $this->kind, $blog_id);
 			$video_categories = wpl_items::get_item_categories('addon_video', $this->kind);
 			$max_index_vid = 0;
@@ -788,10 +799,8 @@ if(wpl_settings::get('video_uploader'))
 								<i class="action-btn icon-recycle"></i>
 							</div>
 							<?php
-							if($video->enabled)
-								echo '<div class="action-gal-btn" id="active_video_tag_' . $video->index . '" onclick="wpl_video_enabled(\'' . $video->item_name . '\',' . $video->index . ');"><i class="action-btn icon-enabled"></i></div>';
-							else
-								echo '<div class="action-gal-btn" id="active_video_tag_' . $video->index . '" onclick="wpl_video_enabled(\'' . $video->item_name . '\',' . $video->index . ');"><i class="action-btn icon-disabled"></i></div>';
+                                if($video->enabled and $media_confirm) echo '<div class="action-gal-btn" id="active_video_tag_' . $video->index . '" onclick="wpl_video_enabled(\'' . $video->item_name . '\',' . $video->index . ');"><i class="action-btn icon-enabled"></i></div>';
+                                elseif($media_confirm) echo '<div class="action-gal-btn" id="active_video_tag_' . $video->index . '" onclick="wpl_video_enabled(\'' . $video->item_name . '\',' . $video->index . ');"><i class="action-btn icon-disabled"></i></div>';
 							?>
 							<input type="hidden" id="enabled_video_field_<?php echo $video->index; ?>" value="<?php echo $video->enabled; ?>" />
 						</div>
@@ -873,7 +882,8 @@ wplj(document).ready(function()
 						lblDesc: "<?php echo addslashes(__('Video Description', 'wpl')); ?>",
 						lblCat: "<?php echo addslashes(__('Video Category', 'wpl')); ?>",
 						name: file.name,
-						select: "<?php echo addslashes($video_categories_html); ?>"
+						select: "<?php echo addslashes($video_categories_html); ?>",
+                        mediaConfirm: <?php echo ($media_confirm ? 'true' : 'false'); ?>
 					});
 
 					wplj(hbHTML).hide().appendTo('#ajax_vid_sortable').slideDown();

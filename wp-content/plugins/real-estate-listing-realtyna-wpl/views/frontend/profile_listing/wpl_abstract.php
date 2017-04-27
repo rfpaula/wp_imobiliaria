@@ -21,14 +21,14 @@ abstract class wpl_profile_listing_controller_abstract extends wpl_controller
 		$this->model = new wpl_users;
 		
 		/** global settings **/
-		$settings = wpl_settings::get_settings();
+		$this->settings = wpl_settings::get_settings();
 		
 		/** listing settings **/
 		$this->page_number = wpl_request::getVar('wplpage', 1, '', true);
-		$this->limit = wpl_request::getVar('limit', $settings['default_profile_page_size'], '', true);
+		$this->limit = wpl_request::getVar('limit', $this->settings['default_profile_page_size'], '', true);
 		$this->start = wpl_request::getVar('start', (($this->page_number-1)*$this->limit), '', true);
-		$this->orderby = wpl_request::getVar('wplorderby', $settings['default_profile_orderby'], '', true);
-		$this->order = wpl_request::getVar('wplorder', $settings['default_profile_order'], '', true);
+		$this->orderby = wpl_request::getVar('wplorderby', $this->settings['default_profile_orderby'], '', true);
+		$this->order = wpl_request::getVar('wplorder', $this->settings['default_profile_order'], '', true);
 		
         /** Set Property CSS class **/
         $this->property_css_class = wpl_request::getVar('wplpcc', NULL);
@@ -36,6 +36,12 @@ abstract class wpl_profile_listing_controller_abstract extends wpl_controller
         
         $this->property_css_class_switcher = wpl_request::getVar('wplpcc_switcher', '1');
         $this->property_listview = wpl_request::getVar('wplplv', '1'); #Show listview or not
+
+		// only icon or icon+text
+		$this->switcher_type = isset($this->settings['wpl_listing_switcher_type']) ? $this->settings['wpl_listing_switcher_type'] : 'icon';
+
+		// Disable or Enable Mouseover effect
+		$this->listing_picture_mouseover = isset($this->settings['wpl_listing_picture_mouseover']) ? $this->settings['wpl_listing_picture_mouseover'] : 1;
         
 		/** set page if start var passed **/
 		$this->page_number = ($this->start/$this->limit)+1;
@@ -74,6 +80,11 @@ abstract class wpl_profile_listing_controller_abstract extends wpl_controller
 		/** run the search **/
 		$query = $this->model->query();
 		$profiles = $this->model->search();
+		
+		/** Profile Listing Columns Count **/
+		$profile_columns = wpl_global::get_setting('wpl_ui_customizer_profile_listing_columns');
+		$profile_columns_default = trim($profile_columns) ? $profile_columns : '3';
+		$this->profile_columns = wpl_request::getVar('wplcolumns', $profile_columns_default); 
         
 		/** finish search **/
 		$this->model->finish();

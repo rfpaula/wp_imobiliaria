@@ -4,14 +4,14 @@ defined('_WPLEXEC') or die('Restricted access');
 ?>
 <script type="text/javascript">
 
-
 // + DOM ready
 wplj(function(){
 
     // - Bind click event to View fields button
-    wplj('#btn-search-<?php echo $this->number ?>').on('click',function(evn){
-        evn.preventDefault();
 
+    wplj('#btn-search-<?php echo $this->number ?>').off('click').on('click',function(evn){
+        evn.preventDefault();
+        evn.stopPropagation();
         var width   = Realtyna.getBrowserSizes().browser().width - 170,
             height  = Realtyna.getBrowserSizes().browser().height - 170;
 

@@ -747,8 +747,6 @@
                         $this.animateThumb(index);
                     }, 200);
                 });
-		ga('send', 'event', 'galerias-imoveis', 'visualizar-foto', 'galeria', 1, {nonInteraction: true});
-		ga('send', 'pageview');
             }
         };
         plugin.isActive = function () {

@@ -325,7 +325,7 @@ class wpl_xml
         if($object->hasChildNodes())
         {
             $is_array = 0;
-            if($object->childNodes->length == 1) foreach($object->childNodes as $childNode) if($childNode->childNodes->length) foreach($childNode->childNodes as $cn) $is_array++;
+            if($object->childNodes->length == 1) foreach($object->childNodes as $childNode) if(isset($childNode->childNodes) and $childNode->childNodes->length) foreach($childNode->childNodes as $cn) $is_array++;
                 
             if($object->childNodes->length == 1 and $is_array == 0)
             {
@@ -559,9 +559,6 @@ class wpl_chunk
             $this->options['path'] .= '/';
         }
 
-        // normalize the filename
-        $file = basename($file);
-
         // make sure chunkSize is an int
         $this->options['chunkSize'] = intval($this->options['chunkSize']);
 
@@ -676,7 +673,11 @@ class wpl_chunk
                 
                 // check for the open string
                 $checkOpen = strpos($tmp, $open);
-                if(!$checkOpen) $checkOpen = strpos($tmp, trim($open).'>');
+                if(!$checkOpen)
+                {
+                    $open = trim($open).'>';
+                    $checkOpen = strpos($tmp, $open);
+                }
 
                 // if it wasn't in the new buffer
                 if(!$checkOpen && !($store))

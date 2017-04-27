@@ -25,4 +25,5 @@ textarea.long{width: 500px; height: 200px;}
 
 .wpl-clear-cache-form .title{margin-left: 0;}
 .wpl-clear-cache-form-submit{text-align: right;}
+#wpl_addon_rank_update_panel{padding-left: 0; padding-right: 0;}
 </style>

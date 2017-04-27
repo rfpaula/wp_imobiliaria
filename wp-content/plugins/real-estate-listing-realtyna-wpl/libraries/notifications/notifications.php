@@ -192,7 +192,8 @@ class wpl_notifications
         }
         elseif($this->mode == 'sms')
         {
-            $sms_message = $this->rendered_content;
+            $sms_message = strip_tags($this->rendered_content);
+            $sms_message = str_replace(array('\r\n','\n', '\r'), ' - ', $sms_message);
             $array_unique = array();
             
             foreach($this->recipients as $recipient)
@@ -445,7 +446,7 @@ class wpl_notifications
     {
         $content = $this->template_content;
         
-        if(is_array($this->replacements)) foreach($this->replacements as $key=>$value) $content = str_replace('##'.$key.'##', $value, $content);
+        if(is_array($this->replacements)) foreach($this->replacements as $key=>$value) $content = str_replace('##'.$key.'##', stripslashes($value), $content);
         return $content;
     }
     

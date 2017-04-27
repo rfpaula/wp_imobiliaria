@@ -412,11 +412,12 @@ class wpl_extensions
 			$queries = str_replace(";\r\n", "-=++=-", $queries);
 			$queries = str_replace(";\r", "-=++=-", $queries);
 			$queries = str_replace(";\n", "-=++=-", $queries);
+            
 			$sqls = explode("-=++=-", $queries);
 			
             foreach($sqls as $sql)
             {
-                try{wpl_db::q($sql);} catch (Exception $e){}
+                try{wpl_db::q(trim($sql));} catch (Exception $e){}
             }
 
             /** delete query file **/
@@ -487,11 +488,12 @@ class wpl_extensions
 			$queries = str_replace(";\r\n", "-=++=-", $queries);
 			$queries = str_replace(";\r", "-=++=-", $queries);
 			$queries = str_replace(";\n", "-=++=-", $queries);
+			
 			$sqls = explode("-=++=-", $queries);
 			
 			foreach($sqls as $sql)
             {
-                try{wpl_db::q($sql);} catch (Exception $e){}
+                try{wpl_db::q(trim($sql));} catch (Exception $e){}
             }
 
             /** delete query file **/
@@ -619,6 +621,9 @@ class wpl_extensions
 		$menus = wpl_global::get_menus('menu', 'backend');
 		$submenus = wpl_global::get_menus('submenu', 'backend');
 		
+        // is any update available
+        $available_updates = wpl_global::get_updates_count();
+        
 		/** generate pages object **/
 		$controller = new wpl_controller();
 	
@@ -629,8 +634,9 @@ class wpl_extensions
 			{
 				$role = $menu->capability == 'current' ? $cur_role : $wpl_roles[$menu->capability];
 				$position = $menu->position ? $menu->position : NULL;
-				
-				add_menu_page(__($menu->page_title, 'wpl'), __($menu->menu_title, 'wpl'), $role, $menu->menu_slug, array($controller, $menu->function), '', $position);
+                $menu_title = __($menu->menu_title, 'wpl').((wpl_users::is_administrator($cur_user_id) and $available_updates >= 1) ? '<span class="update-plugins update-wpl count-'.$available_updates.'"><span class="wpl-count">'.$available_updates.'</span></span>' : '');
+                
+				add_menu_page(__($menu->page_title, 'wpl'), $menu_title, $role, $menu->menu_slug, array($controller, $menu->function), '', $position);
 			}
 			
 			/** add sub menus **/
@@ -664,6 +670,9 @@ class wpl_extensions
 		
 		global $wp_admin_bar;
 		
+        // is any update available
+        $available_updates = wpl_global::get_updates_count();
+        
 		/** generate pages object **/
 		$controller = new wpl_controller();
 	
@@ -673,10 +682,11 @@ class wpl_extensions
 			foreach($menus as $menu)
 			{
 				$menu_slug = (!wpl_users::is_administrator($cur_user_id) and $menu->capability != 'current') ? 'wpl_admin_profile' : $menu->menu_slug;
-				
+				$menu_title = __($menu->menu_title, 'wpl').((wpl_users::is_administrator($cur_user_id) and $available_updates >= 1) ? '<span class="wpl-update-plugin-admin-bar update-wpl count-'.$available_updates.'"><span class="wpl-count">'.$available_updates.'</span></span>' : '');
+                
 				$wp_admin_bar->add_menu(array(
 					'id'=>$menu->menu_slug,
-					'title'=>__($menu->menu_title, 'wpl'),
+					'title'=>$menu_title,
 					'href'=>wpl_global::get_wp_admin_url().'admin.php?page='.$menu_slug,
 				));
 			}

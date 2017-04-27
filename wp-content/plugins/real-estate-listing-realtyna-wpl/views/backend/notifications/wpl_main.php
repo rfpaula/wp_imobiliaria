@@ -62,6 +62,9 @@ class wpl_notifications_controller extends wpl_controller
 
             $this->sms_template_path = $addon_sms->get_sms_template_path($this->notification->template);
             $this->sms_template = $addon_sms->get_sms_template_content($this->sms_template_path);
+            
+            $this->sms_template = str_replace(array('\r\n','\n', '\r'), '&#013;&#010;', $this->sms_template);
+
         }
 
         parent::render($this->tpl_path, $this->tpl);

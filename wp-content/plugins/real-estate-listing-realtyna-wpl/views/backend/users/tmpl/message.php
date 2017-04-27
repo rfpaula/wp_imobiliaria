@@ -2,7 +2,6 @@
 /** no direct access **/
 defined('_WPLEXEC') or die('Restricted access');
 
-_wpl_import($this->tpl_path.'.scripts.js');
 _wpl_import($this->tpl_path.'.scripts.css');
 ?>
 <div class="wrap">

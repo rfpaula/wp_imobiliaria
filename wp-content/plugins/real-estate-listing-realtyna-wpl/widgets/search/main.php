@@ -16,6 +16,7 @@ class wpl_search_widget extends wpl_widget
 	public $wpl_backend_form = 'widgets.search.form';
 	public $listing_specific_array = array();
 	public $property_type_specific_array = array();
+	public $field_specific_array = array();
 	public $widget_id;
 	public $widget_uq_name; # widget unique name
 	
@@ -219,7 +220,8 @@ class wpl_search_widget extends wpl_widget
 			$type = $field_data['type'];
 			$field_id = $field['id'];
 			$options = json_decode($field_data['options'], true);
-			
+			$specified_children = wpl_flex::get_field_specific_children($field_id);
+
 			$display = '';
 			$done_this = false;
 			$html = '';
@@ -236,6 +238,10 @@ class wpl_search_widget extends wpl_widget
 				$specified_property_types = explode(',', trim($field_data['property_type_specific'], ', '));
 				$this->property_type_specific_array[$field_data['id']] = $specified_property_types;
 			}
+			elseif(trim($field_data['field_specific']) != '')
+			{
+				$this->field_specific_array[$field_data['id']] = $field_data['field_specific'];
+			}
             
             /** Accesses **/
             if(trim($field_data['accesses']) != '')
@@ -248,7 +254,7 @@ class wpl_search_widget extends wpl_widget
 			
 			if(isset($finds[$type]))
 			{
-				$html .= '<div class="wpl_search_field_container wpl_search_field_container_'.$field['id'].' '.(isset($field['type']) ? $field['type'].'_type' : '').' '.((isset($field['type']) and $field['type'] == 'predefined') ? 'wpl_hidden' : '').'" id="wpl'.$widget_id.'_search_field_container_'.$field['id'].'">';
+				$html .= '<div class="wpl_search_field_container wpl_search_field_'.$type.' wpl_search_field_container_'.$field['id'].' '.(isset($field['type']) ? $field['type'].'_type' : '').' '.((isset($field['type']) and $field['type'] == 'predefined') ? 'wpl_hidden' : '').'" id="wpl'.$widget_id.'_search_field_container_'.$field['id'].'">';
 				include($path .DS. $finds[$type]);
 				$html .= '</div>';
 				
@@ -262,7 +268,7 @@ class wpl_search_widget extends wpl_widget
 				continue;
 			}
 			
-			$html .= '<div class="wpl_search_field_container wpl_search_field_container_'.$field['id'].' '.(isset($field['type']) ? $field['type'].'_type' : '').' '.((isset($field['type']) and $field['type'] == 'predefined') ? 'wpl_hidden' : '').'" id="wpl'.$widget_id.'_search_field_container_'.$field['id'].'" style="'.$display.'">';
+			$html .= '<div class="wpl_search_field_container wpl_search_field_'.$type.' wpl_search_field_container_'.$field['id'].' '.(isset($field['type']) ? $field['type'].'_type' : '').' '.((isset($field['type']) and $field['type'] == 'predefined') ? 'wpl_hidden' : '').'" id="wpl'.$widget_id.'_search_field_container_'.$field['id'].'" style="'.$display.'">';
 			foreach($files as $file)
 			{
 				include($path .DS. $file);
@@ -438,5 +444,54 @@ class wpl_search_widget extends wpl_widget
 		echo '	
 		}
         (function($){$(function(){wpl_property_type_changed'.$this->widget_id.'()});})(jQuery);';
+	}
+
+	public function create_field_specific_js()
+	{
+        $init_script = '';
+        foreach($this->field_specific_array as $id=>$field_specific)
+		{
+			if($field_specific == '') continue;
+			$ex = explode(':', $field_specific);
+			$init_script .= "wpl_field_specific_changed{$this->widget_id}('{$ex[0]}');";
+		}
+
+		echo '
+		function wpl_field_specific_changed'.$this->widget_id.'(field, visible)
+		{
+            if(typeof field == "undefined") return false;
+			try
+			{
+				var field_id = field;
+				field = "#wpl_searchwidget_'.$this->widget_id.' .wpl'.$this->widget_id.'_search_field_container_"+field+", #wpl_searchwidget_'.$this->widget_id.' #wpl'.$this->widget_id.'_search_field_container_"+field+" [class^=\'wpl_search_widget_field_"+field+"\']";
+
+			    if(!wplj(field).attr("data-specific")) return false;
+
+			    var visible = (typeof visible == "undefined") ? true : visible;
+			    var children = wplj(field).data("specific").split(",");
+			    var value = (wplj(field).is(":checkbox") || wplj(field).is(":radio")) ? wplj(field).is(":checked") : wplj(field).val();
+
+			    for (var i = 0; i < children.length; i++) 
+			    {
+			        var split = children[i].split(":");
+			        var child = "#wpl_searchwidget_'.$this->widget_id.' .wpl'.$this->widget_id.'_search_field_container_"+split[0]+", #wpl_searchwidget_'.$this->widget_id.' #wpl'.$this->widget_id.'_search_field_container_"+split[0];
+			        var child_visible = false;
+			        
+			        if(!visible || split[1] != value)
+			        {
+			            child_visible = false;
+			            wplj(child).css("display", "none");
+			        }
+			        else
+			        {
+			            child_visible = true;
+			            wplj(child).css("display", "");
+			        }
+			        
+			        wpl_field_specific_changed'.$this->widget_id.'(split[0], child_visible);
+			    }
+				
+			}catch(err){}
+		}(function($){$(function(){'.$init_script.'});})(jQuery);';
 	}
 }

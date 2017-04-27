@@ -10,7 +10,7 @@ function wpl_send_contact<?php echo $this->activity_id; ?>(property_id)
     wpl_remove_message('#wpl_contact_message<?php echo $this->activity_id; ?>_'+property_id);
 	
 	var request_str = 'wpl_format=f:property_listing:ajax&wpl_function=contact_listing_user&'+wplj('#wpl_contact_form<?php echo $this->activity_id; ?>'+property_id).serialize()+'&pid='+property_id;
-	var ajax = wpl_run_ajax_query('<?php echo wpl_global::get_wp_site_url(); ?>', request_str, ajax_loader_element, 'JSON', 'GET');
+	var ajax = wpl_run_ajax_query('<?php echo wpl_global::get_wp_site_url(); ?>', request_str, ajax_loader_element, 'JSON', 'POST');
 	
 	ajax.success(function(data)
 	{

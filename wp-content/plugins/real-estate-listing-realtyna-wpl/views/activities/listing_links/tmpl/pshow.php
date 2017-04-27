@@ -32,7 +32,7 @@ $this->_wpl_import($this->tpl_path.'.scripts.js', true, false);
 
         <?php if($show_google_plus): ?>
 		<li class="google_plus_link">
-            <a href="https://plus.google.com/share?url=<?php echo $property_link; ?>" onclick="javascript:window.open(this.href, '', 'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,height=600,width=500'); return false;" title="<?php echo __('Google Plus', 'wpl'); ?>"></a>
+            <a href="https://plus.google.com/share?url=<?php echo $property_link; ?>" onclick="javascript:window.open(this.href, '', 'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,height=600,width=500'); return false;" title="<?php echo __('Google+', 'wpl'); ?>"></a>
 		</li>
         <?php endif; ?>
 
@@ -87,7 +87,7 @@ $this->_wpl_import($this->tpl_path.'.scripts.js', true, false);
 
         <?php if($show_crm): _wpl_import('libraries.addon_crm'); $crm = new wpl_addon_crm(); ?>
         <li class="crm_link">
-            <a href="<?php echo $crm->URL('form'); ?>&pid=<?php echo $property_id; ?>" target="_blank" title="<?php echo __('Contact for this Property', 'wpl'); ?>"></a>
+            <a href="<?php echo $crm->URL('form'); ?>&pid=<?php echo $property_id; ?>" target="_blank" title="<?php echo __('Send Request for a new Property', 'wpl'); ?>"></a>
         </li>
         <?php endif; ?>
 	</ul>

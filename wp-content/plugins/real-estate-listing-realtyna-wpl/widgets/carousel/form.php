@@ -4,6 +4,8 @@ defined('_WPLEXEC') or die('Restricted access');
 
 include _wpl_import('widgets.carousel.scripts.css_backend', true, true);
 include _wpl_import('widgets.carousel.scripts.js_backend', true, true);
+
+$location_settings = wpl_settings::get_settings(3);
 ?>
 <script type="text/javascript">
 function wpl_carousel_toggle<?php echo $this->widget_id; ?>(element_id)
@@ -97,6 +99,11 @@ function wpl_carousel_toggle<?php echo $this->widget_id; ?>(element_id)
         <label for="<?php echo $this->get_field_id('smart_resize'); ?>"><?php echo __('Smart Resize', 'wpl'); ?></label>
     </div>
 
+	<div class="wpl-widget-row">
+        <input <?php if(isset($instance['data']['show_tags']) and $instance['data']['show_tags']) echo 'checked="checked"'; ?> value="1" type="checkbox" id="<?php echo $this->get_field_id('data_show_tags'); ?>" name="<?php echo $this->get_field_name('data'); ?>[show_tags]" />
+        <label><?php echo __('Show Tags', 'wpl'); ?></label>
+    </div>
+	
     <div class="wpl-widget-row wpl-carousel-opt" data-wpl-carousel-type="multi_images">
         <label for="<?php echo $this->get_field_id('images_per_page'); ?>"><?php echo __('Images per Page', 'wpl'); ?></label>
         <input type="text" id="<?php echo $this->get_field_id('images_per_page'); ?>" name="<?php echo $this->get_field_name('data'); ?>[images_per_page]" placeholder="3" value="<?php echo isset($instance['data']['images_per_page']) ? $instance['data']['images_per_page'] : '3'; ?>" />
@@ -145,6 +152,13 @@ function wpl_carousel_toggle<?php echo $this->widget_id; ?>(element_id)
             <?php endforeach; ?>
         </select>
     </div>
+
+    <?php for ($i = 2; $i < 8; $i++): if(!trim($location_settings['location'.$i.'_keyword'])) continue; ?>
+    <div class="wpl-widget-row">
+        <label for="<?php echo $this->get_field_id('data_location'.$i.'_name'); ?>"><?php echo __($location_settings['location'.$i.'_keyword'], 'wpl'); ?></label>
+        <input type="text" id="<?php echo $this->get_field_id('data_location'.$i.'_name'); ?>" name="<?php echo $this->get_field_name('data'); ?>[location<?php echo $i; ?>_name]" value="<?php echo isset($instance['data']['location'.$i.'_name']) ? $instance['data']['location'.$i.'_name'] : ''; ?>" />
+    </div>
+    <?php endfor; ?>
     
     <?php if(wpl_global::check_addon('complex')): ?>
     <div class="wpl-widget-row">
@@ -174,13 +188,29 @@ function wpl_carousel_toggle<?php echo $this->widget_id; ?>(element_id)
         $tagkey = 'only_'.ltrim($tag->table_column, 'sp_');
     ?>
     <div class="wpl-widget-row">
-        <label for="<?php echo $this->get_field_id('data_'.$tagkey); ?>"><?php echo sprintf(__('Only %s', 'wpl'), $tag->name); ?></label>
+        <label for="<?php echo $this->get_field_id('data_'.$tagkey); ?>" class="<?php echo $this->get_field_id('data_tags_label'); ?>"><?php echo sprintf(__('Only %s', 'wpl'), $tag->name); ?></label>
         <select id="<?php echo $this->get_field_id('data_'.$tagkey); ?>" name="<?php echo $this->get_field_name('data'); ?>[<?php echo $tagkey; ?>]">
             <option value="0" <?php if(isset($instance['data'][$tagkey]) and $instance['data'][$tagkey] == 0) echo 'selected="selected"'; ?>><?php echo __('No', 'wpl'); ?></option>
             <option value="1" <?php if(isset($instance['data'][$tagkey]) and $instance['data'][$tagkey] == 1) echo 'selected="selected"'; ?>><?php echo __('Yes', 'wpl'); ?></option>
         </select>
     </div>
     <?php } ?>
+
+    <div class="wpl-widget-row">
+        <label for="<?php echo $this->get_field_id('tag_group_join_type_or'); ?>">
+            <input <?php if(isset($instance['data']['tag_group_join_type']) and
+                            $instance['data']['tag_group_join_type'] == 'or') echo
+        'checked="checked"'; ?> value="or" type="radio" id="<?php echo $this->get_field_id('tag_group_join_type_or'); ?>" name="<?php echo $this->get_field_name('data'); ?>[tag_group_join_type]" onclick="" />
+        <?php echo __('Or', 'wpl'); ?>
+        </label>
+
+        <label for="<?php echo $this->get_field_id('tag_group_join_type_and'); ?>">
+            <input <?php if(!isset($instance['data']['tag_group_join_type']) or (isset($instance['data']['tag_group_join_type']) and
+                            $instance['data']['tag_group_join_type'] == 'and')) echo
+        'checked="checked"'; ?> value="and" type="radio" id="<?php echo $this->get_field_id('tag_group_join_type_and'); ?>" name="<?php echo $this->get_field_name('data'); ?>[tag_group_join_type]" onclick="" />
+        <?php echo __('And', 'wpl'); ?>
+        </label>
+    </div>
 
     <h4><?php echo __('Similar Properties', 'wpl'); ?></h4>
     <div class="wpl-widget-row">
@@ -252,10 +282,18 @@ function wpl_carousel_toggle<?php echo $this->widget_id; ?>(element_id)
                 </select>
             </div>
         </div>
+        
+        <div class="wpl-widget-row">
+                <label for="<?php echo $this->get_field_id('data_sml_zip_code'); ?>"><?php echo __('Include Zip-Code', 'wpl'); ?></label>
+                <select id="<?php echo $this->get_field_id('data_sml_zip_code'); ?>" name="<?php echo $this->get_field_name('data'); ?>[data_sml_zip_code]">
+                <option value="0" <?php if(isset($instance['data']['data_sml_zip_code']) and $instance['data']['data_sml_zip_code'] == 0) echo 'selected="selected"'; ?>><?php echo __('No', 'wpl'); ?></option>
+                <option value="1" <?php if(isset($instance['data']['data_sml_zip_code']) and $instance['data']['data_sml_zip_code'] == 1) echo 'selected="selected"'; ?>><?php echo __('Yes', 'wpl'); ?></option>
+            </select>
+        </div>
     </div>
     
     <h4><?php echo __('Sort and Limit', 'wpl'); ?></h4>
-    <?php $sort_options = wpl_sort_options::get_sort_options(0); ?>
+    <?php $sort_options = wpl_sort_options::render(wpl_sort_options::get_sort_options(0)); ?>
     <div class="wpl-widget-row">
         <label for="<?php echo $this->get_field_id('data_orderby'); ?>"><?php echo __('Order by', 'wpl'); ?></label>
         <select id="<?php echo $this->get_field_id('data_orderby'); ?>" name="<?php echo $this->get_field_name('data'); ?>[orderby]">
@@ -282,10 +320,8 @@ function wpl_carousel_toggle<?php echo $this->widget_id; ?>(element_id)
     <?php if(wpl_global::check_addon('pro')): ?>
         <button id="<?php echo $this->get_field_id('btn-shortcode'); ?>"
                 data-item-id="<?php echo $this->number; ?>"
-                data-realtyna-lightbox-opts="clearContent:false"
-                data-fancy-id="<?php echo $this->get_field_id('wpl_view_shortcode'); ?>" class="wpl-button button-1"
-                href="#<?php echo $this->get_field_id('wpl_view_shortcode'); ?>"
-                data-realtyna-lightbox><?php echo __('View Shortcode', 'wpl'); ?></button>
+                data-fancy-id="<?php echo $this->get_field_id('wpl_view_shortcode'); ?>" class="wpl-open-lightbox-btn wpl-button button-1"
+                href="#<?php echo $this->get_field_id('wpl_view_shortcode'); ?>" type="button"><?php echo __('View Shortcode', 'wpl'); ?></button>
     
     <div id="<?php echo $this->get_field_id('wpl_view_shortcode'); ?>" class="hidden">
         <div class="fanc-content size-width-1">

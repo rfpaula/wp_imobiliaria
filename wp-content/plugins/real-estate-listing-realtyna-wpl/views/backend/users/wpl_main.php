@@ -49,11 +49,19 @@ class wpl_users_controller extends wpl_controller
 	
 	public function profile($instance = array())
 	{
-		/** check access **/
+		// Check access
 		if(!wpl_users::check_access('profilewizard'))
 		{
 			/** import message tpl **/
-			$this->message = __("You don't have access to this part!", 'wpl');
+			$this->message = __("You don't have access to this menu!", 'wpl');
+			return parent::render($this->tpl_path, 'message');
+		}
+        
+        // Is it a WPL user?
+		if(!wpl_users::is_wpl_user())
+		{
+			/** import message tpl **/
+			$this->message = __("You're not an agent/owner so you cannot access this profile.", 'wpl');
 			return parent::render($this->tpl_path, 'message');
 		}
 		

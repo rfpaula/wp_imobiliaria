@@ -24,10 +24,4 @@ class wpl_property_show_controller extends wpl_controller
         
         $this->response(array('success'=>1));
     }
-    
-    public function response($response)
-    {
-        echo json_encode($response);
-        exit;
-    }
 }

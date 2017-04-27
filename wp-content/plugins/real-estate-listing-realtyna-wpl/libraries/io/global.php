@@ -201,12 +201,12 @@ class wpl_io_global
 
     /**
      * @param $command_name
-     * @param $dapikey
-     * @param $dapisecret
+     * @param $public_key
+     * @param $private_key
      * @param string $extra_params
      * @return string
      */
-    public static function generate_command_url($command_name, $dapikey, $dapisecret, $extra_params = "")
+    public static function generate_command_url($command_name, $public_key, $private_key, $extra_params = "")
     {
         $params = "";
         if($extra_params != "")
@@ -217,7 +217,7 @@ class wpl_io_global
             }
         }
         
-        return get_site_url() . DS . "?wplview=io&wplformat=io&dapikey=" . $dapikey . "&dapisecret=" . $dapisecret . "&cmd=" . $command_name . $params;
+        return get_site_url() . DS . "?wplview=io&wplformat=io&public_key=" . $public_key . "&private_key=" . $private_key . "&cmd=" . $command_name . $params;
     }
 }
 
@@ -373,17 +373,5 @@ abstract class wpl_io_cmd_base extends wpl_io_global
                 $this->user_id = 0;
             }
         }
-    }
-
-    /**
-     * Wrapper for WPL keyword translator
-     * @author Steve A. <steve@realtyna.com>
-     * @param string $keyword    Keyword to Translate
-     * @param string $type       Keyword Type 
-     * @return string            Translated string
-     */
-    protected function translate($keyword, $type = 'wpl')
-    {
-        return __($keyword, $type);
     }
 }
