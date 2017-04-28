@@ -1,8 +1,4 @@
 <?php
-
-//update_option( 'siteurl', 'http://www.imobiliariaipe.com' );
-//update_option( 'home', 'http://www.imobiliariaipe.com' );
-
 /**
  * Twenty Sixteen functions and definitions
  *
