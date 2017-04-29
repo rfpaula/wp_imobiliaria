@@ -5,9 +5,14 @@ defined('_WPLEXEC') or die('Restricted access');
 $description_column = 'field_308';
 if(wpl_global::check_multilingual_status() and wpl_addon_pro::get_multiligual_status_by_column($description_column, $this->kind)) $description_column = wpl_addon_pro::get_column_lang_name($description_column, wpl_global::get_current_language(), false);
 
+/** Rodrigo **/
+$properties_count = 0;
+
 foreach($this->wpl_properties as $key=>$property)
 {
     if($key == 'current') continue;
+
+     $properties_count++;
 
     /** unset previous property **/
     unset($this->wpl_properties['current']);
@@ -50,5 +55,23 @@ foreach($this->wpl_properties as $key=>$property)
 			<?php if(isset($property['materials']['price'])): if(substr($property['materials']['price']['value'],0,3) <> 'R$0'): ?><div class="price_box"><span itemprop="price" content="<?php echo $property['materials']['price']['value']; ?>"><?php echo $property['materials']['price']['value']; ?></span></div><?php else: ?><div class="price_box"><span itemprop="price" content="Sob Consulta">Sob Consulta</span></div><?php endif; ?><?php endif; ?>
 		</div>
 	</div>
+    
+    <?php
+	/** Rodrigo **/
+	if (($properties_count % 5) == 0) {
+		echo '<div class="wpl-column">';
+		echo '<!-- responsivo -->
+		<ins class="adsbygoogle"
+		     style="display:block; background:none;"
+		     data-ad-client="ca-pub-8217891865271325"
+		     data-ad-slot="4034581891"
+		     data-ad-format="auto"></ins>
+		<script>
+		(adsbygoogle = window.adsbygoogle || []).push({});
+		</script>';
+		echo '</div>';
+	}
+	?>
+
     <?php
 }
